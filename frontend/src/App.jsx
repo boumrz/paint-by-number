@@ -1,146 +1,138 @@
-import { Canvas } from "./components/Canvas";
-import { useEffect, useState } from "react";
-import uuid from 'react-uuid';
-import storage from "../firebaseConfig"
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { LoadingOverlay } from './components/Loading';
-import "./App.css";
-import Palette from "./components/Palette";
-
-const dir = ".";
-let imageFiles = ["panda", "landscape", "flower", "portrait"];
-const images = imageFiles.map(item => `${dir}/${item}.jpg`);
+import React, { useState } from 'react';
+import './App.css';
+import MultiCanvas from './components/MultiCanvas';
+import {ColorPalette} from './components/ColorPalette';
+import axios from 'axios';
 
 function App() {
-  const [currImage, setCurrImage] = useState(images[0]);
+  const [fName, setFName] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
   const [idList, setIdList] = useState([]);
-  const [currentColor, setCurrentColor] = useState();
+  const [currentColor, setCurrentColor] = useState(null);
   const [colorCount, setColorCount] = useState({});
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(null);
-  const [userImages, setUserImages] = useState([]);
+  const [svgData, setSvgData] = useState(null);
 
+  const handleImageFile = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setFName(url);
+      setPreviewImage(url);
+      setLoading(true);
 
-  useEffect(() => {
-    const counts = idList.reduce((acc, value) => {
-      acc[value.color] = value.shapes.length;
-      return acc;
-    }, {});
-    
-    setColorCount(counts);
-  }, [idList]);
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
 
-  useEffect(() => {
-    // Retrieve array from local storage on component mount
-    let localImages = localStorage.getItem('userImages');
-    if (localImages) {
-      localImages = JSON.parse(localImages)
-      setUserImages(localImages);
-    }
-  }, []);
+        const response = await axios.post('http://localhost:5000/api/convert', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
 
-  function selectImage(image) {
-    setCurrImage(image);
-  }
-
-  async function handleImageFile(e) {
-    setLoading(true);
-    setErrorMsg(null);
-    try {
-      const image = e.target.files[0];
-      if (!(image.type === "image/jpeg" || image.type === "image/png")) {
-        throw new Error("not an image");
+        if (response.data.palette && response.data.svg) {
+          setIdList(response.data.palette);
+          setSvgData(response.data.svg);
+        } else {
+          throw new Error('Invalid server response format');
+        }
+      } catch (error) {
+        console.error('Error processing image:', error);
+      } finally {
+        setLoading(false);
       }
-      // eslint-disable-next-line no-unused-vars
-      const [_, extension] = image.name.split(".")
-      const fileName = `${uuid()}.${extension}`;
-      const imageRef = ref(storage, fileName);
-
-      const res = await uploadBytes(imageRef, image);
-      const url = await getDownloadURL(res.ref);
-
-      const updatedUserImages = [url, ...userImages]
-      setUserImages(updatedUserImages);
-      localStorage.setItem('userImages', JSON.stringify(updatedUserImages));
-    } catch (err) {
-      setErrorMsg("Error importing image, make sure it is in JPG format")
-      console.log(err)
-    } finally{
-      setLoading(false)
     }
-  }
+  };
+
+  const handleColorSelect = (color) => {
+    setCurrentColor(color);
+  };
 
   return (
-    <div className='app-container'>
-      <div className="title-container">
-        <h1>
-          PBNgen
-        </h1>
-        <a href="https://github.com/ethan-grinberg/paint-by-number" style={{marginLeft: 10}}>
-          <img src={"/github-logo.png"} width={50}/>
-        </a>
-      </div>
-      <h2 style={{fontWeight:250}}>
-        Automatically generate paint by numbers from your images and color them in
-      </h2>
-      <ul className="instructions-container">
-        <li className="instructions-item">
-          Upload your image in jpg or png format
-        </li>
-        <li className="instructions-item">
-          In this version high resolution images might time out or take a while
-        </li>
-        <li className="instructions-item">
-          The application might say you are not finished with a certain color even when you cannot see anymore shapes to fill in.
-          <br/>
-          This is because automatically generating paint by numbers can create very small shapes.
-        </li>
-      </ul>
-      {loading && <LoadingOverlay loadingStr={"Uploading Image..."}></LoadingOverlay>}
-      {/* <h3>
-        Try adding your own images
-      </h3> */}
-      {errorMsg && <p> {errorMsg} </p>}
-      <form>
-        <input 
-          type="file"
-          onChange={handleImageFile}
-        />
-      </form>
-      {/* <p>
-        Note: Your images must be in jpg or png format 
-        <br></br>
-        and very high resolution images might take a while or time out
-      </p> */}
-      <div className='image-carousel'>
-          {[...userImages, ...images].map((item, index) => (
-            <div key={index} className='carousel-item'>
-              <img src={item} onClick={() => selectImage(item)} className={`carousel-img ${currImage === item ? 'selected' : ''}`}/>
+    <div className="app">
+      <header className="header">
+        <div className="header-content">
+          <h1>Paint By Number</h1>
+          <p>Создай свою картину по номерам из любой фотографии</p>
+        </div>
+      </header>
+      
+      <main className="main-content">
+        <section className="hero-section">
+          <div className="hero-content">
+            <h2>Создавай свои шедевры</h2>
+            <p>Преврати любую фотографию в картину по номерам</p>
+            <div className="upload-section">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageFile}
+                id="image-upload"
+                className="file-input"
+              />
+              <label htmlFor="image-upload" className="upload-button">
+                Загрузить фото
+              </label>
             </div>
-          ))}
-      </div>
-      <div className="palette-container">
-      {
-        !loading && 
-          <Palette
-            idList={idList}
-            currentColor={currentColor}
-            setCurrentColor={setCurrentColor}
-            colorCount={colorCount}
-          />
-      }
-      </div>
-      <div className="canvas">
-        <Canvas
-          fName={currImage}
-          currentColor={currentColor}
-          setIdList={setIdList}
-          idList={idList}
-          setColorCount={setColorCount}
-          loading={loading}
-          setLoading={setLoading}
-        />
-      </div>
+          </div>
+        </section>
+
+        {previewImage && (
+          <section className="preview-section">
+            <h3>Исходное изображение</h3>
+            <div className="preview-container">
+              <img src={previewImage} alt="Preview" className="preview-image" />
+            </div>
+          </section>  
+        )}
+
+        {fName && (
+          <section className="canvas-section">
+            <h3>Картина по номерам</h3>
+            <div className="canvas-layout">
+              <MultiCanvas
+                fName={fName}
+                setIdList={setIdList}
+                idList={idList}
+                currentColor={currentColor}
+                setColorCount={setColorCount}
+                loading={loading}
+                setLoading={setLoading}
+                svgData={svgData}
+              />
+              
+            </div>
+            {idList.length > 0 && (
+                <ColorPalette
+                  colors={idList}
+                  currentColor={currentColor}
+                  onColorSelect={handleColorSelect}
+                  colorCount={colorCount}
+                />
+              )}
+          </section>
+        )}
+
+        <section className="features-section">
+          <div className="feature">
+            <h3>Детализация</h3>
+            <p>Высокое качество обработки изображения</p>
+          </div>
+          <div className="feature">
+            <h3>Качество</h3>
+            <p>Точная передача цветов и оттенков</p>
+          </div>
+          <div className="feature">
+            <h3>Простота</h3>
+            <p>Интуитивно понятный интерфейс</p>
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <p>© 2024 Paint By Number. Все права защищены.</p>
+      </footer>
     </div>
   );
 }

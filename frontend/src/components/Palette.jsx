@@ -20,26 +20,23 @@ const overlayStyles = (percentage) => ({
   opacity: '30%'
 })
 
-
 const Palette = ({ idList, currentColor, setCurrentColor, colorCount }) => {
   return (
     <div className="palette-container">
       {idList.map((value, idx) => {
         if (idx === 0) return null;
-          {
-            return (colorCount[value.color] / value.shapes.length === 0) ? 
-            <img src="/check.png" className="completed-item"/>
-            :
-            <div
-              key={idx}
-              className="palette-item"
-              style={paletteItemStyles(currentColor, value.color)}
-              onClick={() => setCurrentColor(value.color)}
-            >
-              <div style={overlayStyles((colorCount[value.color] / value.shapes.length) * 100)} />
-              {idx}
-            </div>
-          }
+        return (colorCount[value.color] / value.shapes.length === 0) ? 
+          <img key={idx} src="/check.png" className="completed-item"/>
+          :
+          <div
+            key={idx}
+            className="palette-item"
+            style={paletteItemStyles(currentColor, value.color)}
+            onClick={() => setCurrentColor(value.color)}
+          >
+            <div style={overlayStyles((colorCount[value.color] / value.shapes.length) * 100)} />
+            {idx}
+          </div>
       })}
     </div>
   );
