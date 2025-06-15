@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './MultiCanvas.css';
+import styles from './MultiCanvas.module.css';
 
 const paperSize = { name: 'A1', width: 841, height: "100%" };
 
@@ -150,25 +150,25 @@ const MultiCanvas = ({
   };
 
   return (
-    <div className="multi-canvas-container">
-      <div className="canvas-controls">
-        <button onClick={handleClearAll} className="control-button">
+    <div className={styles.container}>
+      <div className={styles.controls}>
+        <button onClick={handleClearAll} className={styles.button}>
           Очистить все
         </button>
-        <button onClick={handleFillAll} className="control-button">
+        <button onClick={handleFillAll} className={styles.button}>
           Заполнить все
         </button>
-        <button onClick={handleDoubleClick} className="control-button">
+        <button onClick={handleDoubleClick} className={styles.button}>
           Сбросить масштаб
         </button>
-        <div className="zoom-hint">
+        <div className={styles.hint}>
           Alt + левая кнопка мыши для выделения области
         </div>
       </div>
 
-      <div className="canvas-section">
+      <div className={styles.section}>
         <div 
-          className="canvas-wrapper" 
+          className={styles.wrapper}
           style={{
             width: `${paperSize.width}px`,
             height: `${paperSize.height}px`,
@@ -194,16 +194,12 @@ const MultiCanvas = ({
           {isSelecting && (
             <div
               ref={selectionRef}
-              className="selection-box"
+              className={styles.selectionBox}
               style={{
-                position: 'absolute',
                 left: Math.min(selection.start.x, selection.end.x),
                 top: Math.min(selection.start.y, selection.end.y),
                 width: Math.abs(selection.end.x - selection.start.x),
-                height: Math.abs(selection.end.y - selection.start.y),
-                border: '2px dashed #000',
-                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                pointerEvents: 'none'
+                height: Math.abs(selection.end.y - selection.start.y)
               }}
             />
           )}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './App.css';
+import styles from './App.module.css';
 import MultiCanvas from './components/MultiCanvas';
 import {ColorPalette} from './components/ColorPalette';
 import axios from 'axios';
@@ -50,28 +50,28 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <header className="header">
-        <div className="header-content">
+    <div className={styles.app}>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
           <h1>Paint By Number</h1>
           <p>Создай свою картину по номерам из любой фотографии</p>
         </div>
       </header>
       
-      <main className="main-content">
-        <section className="hero-section">
-          <div className="hero-content">
+      <main className={styles.mainContent}>
+        <section className={styles.heroSection}>
+          <div className={styles.heroContent}>
             <h2>Создавай свои шедевры</h2>
             <p>Преврати любую фотографию в картину по номерам</p>
-            <div className="upload-section">
+            <div className={styles.uploadSection}>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageFile}
                 id="image-upload"
-                className="file-input"
+                className={styles.fileInput}
               />
-              <label htmlFor="image-upload" className="upload-button">
+              <label htmlFor="image-upload" className={styles.uploadButton}>
                 Загрузить фото
               </label>
             </div>
@@ -79,18 +79,18 @@ function App() {
         </section>
 
         {previewImage && (
-          <section className="preview-section">
+          <section className={styles.previewSection}>
             <h3>Исходное изображение</h3>
-            <div className="preview-container">
-              <img src={previewImage} alt="Preview" className="preview-image" />
+            <div className={styles.previewContainer}>
+              <img src={previewImage} alt="Preview" className={styles.previewImage} />
             </div>
           </section>  
         )}
 
         {fName && (
-          <section className="canvas-section">
+          <section className={styles.canvasSection}>
             <h3>Картина по номерам</h3>
-            <div className="canvas-layout">
+            <div className={styles.canvasLayout}>
               <MultiCanvas
                 fName={fName}
                 setIdList={setIdList}
@@ -113,23 +113,23 @@ function App() {
           </section>
         )}
 
-        <section className="features-section">
-          <div className="feature">
+        <section className={styles.featuresSection}>
+          <div className={styles.feature}>
             <h3>Детализация</h3>
             <p>Высокое качество обработки изображения</p>
           </div>
-          <div className="feature">
+          <div className={styles.feature}>
             <h3>Качество</h3>
             <p>Точная передача цветов и оттенков</p>
           </div>
-          <div className="feature">
+          <div className={styles.feature}>
             <h3>Простота</h3>
             <p>Интуитивно понятный интерфейс</p>
           </div>
         </section>
       </main>
 
-      <footer className="footer">
+      <footer className={styles.footer}>
         <p>© 2024 Paint By Number. Все права защищены.</p>
       </footer>
     </div>

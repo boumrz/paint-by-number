@@ -1,5 +1,5 @@
 import React from 'react';
-import './ColorPalette.css';
+import styles from './ColorPalette.module.css';
 
 export const ColorPalette = ({ colors, currentColor, onColorSelect, colorCount }) => {
   const handleColorClick = (color) => {
@@ -7,9 +7,9 @@ export const ColorPalette = ({ colors, currentColor, onColorSelect, colorCount }
   };
 
   return (
-    <div className="color-palette">
-      <h4>Палитра цветов</h4>
-      <div className="colors-grid">
+    <div className={styles.palette}>
+      <h4 className={styles.title}>Палитра цветов</h4>
+      <div className={styles.colorsGrid}>
         {colors.map((item, index) => {
           if (index === 0) return null;
           const rgbColor = `rgb(${item.color[0]}, ${item.color[1]}, ${item.color[2]})`;
@@ -21,16 +21,16 @@ export const ColorPalette = ({ colors, currentColor, onColorSelect, colorCount }
           return (
             <div 
               key={index}
-              className={`color-item ${isSelected ? 'selected' : ''}`}
+              className={`${styles.colorItem} ${isSelected ? styles.selected : ''}`}
               onClick={() => handleColorClick(item.color)}
             >
               <div 
-                className="color-preview"
+                className={styles.colorPreview}
                 style={{ backgroundColor: rgbColor }}
               />
-              <div className="color-info">
-                <span className="color-number">{index}</span>
-                <span className="color-count">
+              <div className={styles.colorInfo}>
+                <span className={styles.colorNumber}>{index}</span>
+                <span className={styles.colorCount}>
                   {colorCount[item.color] || item.shapes.length} шт.
                 </span>
               </div>
