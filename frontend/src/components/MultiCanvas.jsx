@@ -22,19 +22,32 @@ const MultiCanvas = ({
 
   useEffect(() => {
     if (svgData && svgRef.current) {
-      svgRef.current.innerHTML = svgData;
+      svgRef.current.innerHTML = svgData;     
+    }
+  }, [svgData]);
+
+  useEffect(() => {
+    if (svgRef.current) {
       const elements = svgRef.current.querySelectorAll('g');
+
       elements.forEach(g => {
         g.addEventListener('click', handleElementClick);
       });
+
+      return () => {
+        elements.forEach(g => {
+          g.removeEventListener('click', handleElementClick);
+        });
+      };
     }
-  }, [svgData]);
+  }, [currentColor]);
 
   const handleElementClick = (event) => {
     if (currentColor) {
       const g = event.currentTarget;
+      const id = g.getAttribute('id');
       g.setAttribute('fill', `rgb(${currentColor[0]}, ${currentColor[1]}, ${currentColor[2]})`);
-      updateColorCount(g.getAttribute('id'));
+      updateColorCount(id);
     }
   };
 
