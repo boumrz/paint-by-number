@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './MultiCanvas.module.css';
 
-const paperSize = { name: 'A1', width: 841, height: "100%" };
-
 const MultiCanvas = ({
   fName,
   setIdList,
@@ -144,6 +142,13 @@ const MultiCanvas = ({
     setIsSelecting(false);
   };
 
+  const handleWheel = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Блокируем масштабирование
+    return false;
+  };
+
   const handleDoubleClick = () => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
@@ -165,22 +170,18 @@ const MultiCanvas = ({
           Alt + левая кнопка мыши для выделения области
         </div>
       </div>
-
+      
       <div className={styles.section}>
         <div 
           className={styles.wrapper}
-          style={{
-            width: `${paperSize.width}px`,
-            height: `${paperSize.height}px`,
-            maxWidth: '100%',
-            maxHeight: '100%',
-            overflow: 'hidden',
-            cursor: isDragging ? 'grabbing' : (isSelecting ? 'crosshair' : 'grab')
-          }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
+          onWheel={handleWheel}
+          style={{
+            cursor: isDragging ? 'grabbing' : (isSelecting ? 'crosshair' : 'grab')
+          }}
         >
           <div 
             className="svg-element" 
