@@ -101,9 +101,7 @@ function App() {
                 setLoading={setLoading}
                 svgData={svgData}
               />
-              
-            </div>
-            {idList.length > 0 && (
+              {idList.length > 0 && (
                 <ColorPalette
                   colors={idList}
                   currentColor={currentColor}
@@ -111,6 +109,7 @@ function App() {
                   colorCount={colorCount}
                 />
               )}
+            </div>
           </section>
         )}
 

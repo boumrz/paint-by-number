@@ -191,9 +191,7 @@ input:focus-visible {
 }
 
 .canvas-section {
-  margin-top: 2rem;
   background-color: #fff;
-  padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -385,7 +383,6 @@ input:focus-visible {
   .color-palette {
     position: static;
     width: 100%;
-    margin-bottom: 1rem;
   }
 }
 
@@ -400,10 +397,5 @@ input:focus-visible {
 
   .hero-content h2 {
     font-size: 2rem;
-  }
-
-  .preview-section,
-  .canvas-section {
-    padding: 1rem;
   }
 }
