@@ -22,14 +22,53 @@ const MultiCanvas = ({
 
   useEffect(() => {
     if (svgData && svgRef.current) {
-      svgRef.current.innerHTML = svgData;     
+      try {
+        // Модифицируем SVG для улучшения отображения цифр
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
+        
+        // Находим все текстовые элементы
+        const textElements = svgDoc.querySelectorAll('text');
+        textElements.forEach(text => {
+          // Устанавливаем стили для текста
+          text.setAttribute('font-family', 'Arial, sans-serif');
+          text.setAttribute('font-weight', '400');
+          text.setAttribute('font-size', '6px');
+          text.setAttribute('fill', '#000000');
+          text.setAttribute('stroke', 'none');
+          text.setAttribute('paint-order', 'stroke');
+          text.setAttribute('dominant-baseline', 'middle');
+          text.setAttribute('text-anchor', 'middle');
+          
+          // Добавляем атрибуты для предотвращения выделения
+          text.setAttribute('user-select', 'none');
+          text.setAttribute('pointer-events', 'none');
+          text.setAttribute('style', 'user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;');
+          text.setAttribute('unselectable', 'on');
+          text.setAttribute('onselectstart', 'return false;');
+          text.setAttribute('onmousedown', 'return false;');
+        });
+
+        // Добавляем стили для всего SVG
+        const svgElement = svgDoc.documentElement;
+        svgElement.setAttribute('style', 'user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;');
+
+        // Преобразуем обратно в строку
+        const serializer = new XMLSerializer();
+        const modifiedSvg = serializer.serializeToString(svgDoc);
+        
+        svgRef.current.innerHTML = modifiedSvg;
+      } catch (error) {
+        console.error('Error processing SVG:', error);
+        // В случае ошибки используем оригинальный SVG
+        svgRef.current.innerHTML = svgData;
+      }
     }
   }, [svgData]);
 
   useEffect(() => {
     if (svgRef.current) {
       const elements = svgRef.current.querySelectorAll('g');
-
       elements.forEach(g => {
         g.addEventListener('click', handleElementClick);
       });
@@ -40,7 +79,7 @@ const MultiCanvas = ({
         });
       };
     }
-  }, [currentColor]);
+  }, [svgData, currentColor]);
 
   const handleElementClick = (event) => {
     if (currentColor) {
