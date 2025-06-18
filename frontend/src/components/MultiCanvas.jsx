@@ -5,14 +5,17 @@ import useCanvas from '../hooks/useCanvas';
 
 const MultiCanvas = ({
   fName,
-  setIdList,
   idList,
+  svgData,
+  secondFName,
+  secondIdList,
+  secondSvgData,
   currentColor,
   setColorCount,
   loading,
-  setLoading,
-  svgData
+  setLoading
 }) => {
+  // Первый холст
   const {
     svgRef,
     scale,
@@ -107,9 +110,9 @@ const MultiCanvas = ({
       </div>
 
       <SecondCanvas
-        svgData={svgData}
+        svgData={secondSvgData}
         currentColor={currentColor}
-        idList={idList}
+        idList={secondIdList}
         setColorCount={setColorCount}
       />
     </div>

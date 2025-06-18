@@ -13,6 +13,11 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [svgData, setSvgData] = useState(null);
 
+  const [secondFName, setSecondFName] = useState(null);
+  const [secondPreviewImage, setSecondPreviewImage] = useState(null);
+  const [secondIdList, setSecondIdList] = useState([]);
+  const [secondSvgData, setSecondSvgData] = useState(null);
+
   const handleImageFile = async (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -34,6 +39,38 @@ function App() {
         if (response.data.palette && response.data.svg) {
           setIdList(response.data.palette);
           setSvgData(response.data.svg);
+        } else {
+          throw new Error('Invalid server response format');
+        }
+      } catch (error) {
+        console.error('Error processing image:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleSecondImageFile = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setSecondFName(url);
+      setSecondPreviewImage(url);
+      setLoading(true);
+
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await axios.post('http://localhost:5000/api/convert', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (response.data.palette && response.data.svg) {
+          setSecondIdList(response.data.palette);
+          setSecondSvgData(response.data.svg);
         } else {
           throw new Error('Invalid server response format');
         }
@@ -72,7 +109,17 @@ function App() {
                 className={styles.fileInput}
               />
               <label htmlFor="image-upload" className={styles.uploadButton}>
-                Загрузить фото
+                Загрузить фото для первого холста
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleSecondImageFile}
+                id="second-image-upload"
+                className={styles.fileInput}
+              />
+              <label htmlFor="second-image-upload" className={styles.uploadButton}>
+                Загрузить фото для второго холста
               </label>
             </div>
           </div>
@@ -100,6 +147,9 @@ function App() {
                 loading={loading}
                 setLoading={setLoading}
                 svgData={svgData}
+                secondFName={secondFName}
+                secondIdList={secondIdList}
+                secondSvgData={secondSvgData}
               />
               {idList.length > 0 && (
                 <ColorPalette
