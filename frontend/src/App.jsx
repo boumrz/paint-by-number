@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import styles from './App.module.css';
-import MultiCanvas from './components/MultiCanvas';
-import {ColorPalette} from './components/ColorPalette';
+import FirstCanvas from './components/FirstCanvas';
+import SecondCanvasFull from './components/SecondCanvasFull';
 import axios from 'axios';
 
 function App() {
+  // Первый холст
   const [fName, setFName] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [idList, setIdList] = useState([]);
@@ -13,9 +14,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [svgData, setSvgData] = useState(null);
 
+  // Второй холст
   const [secondFName, setSecondFName] = useState(null);
   const [secondPreviewImage, setSecondPreviewImage] = useState(null);
   const [secondIdList, setSecondIdList] = useState([]);
+  const [secondCurrentColor, setSecondCurrentColor] = useState(null);
+  const [secondColorCount, setSecondColorCount] = useState({});
   const [secondSvgData, setSecondSvgData] = useState(null);
 
   const handleImageFile = async (event) => {
@@ -82,10 +86,6 @@ function App() {
     }
   };
 
-  const handleColorSelect = (color) => {
-    setCurrentColor(color);
-  };
-
   return (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -125,43 +125,48 @@ function App() {
           </div>
         </section>
 
-        {previewImage && (
-          <section className={styles.previewSection}>
-            <h3>Исходное изображение</h3>
-            <div className={styles.previewContainer}>
-              <img src={previewImage} alt="Preview" className={styles.previewImage} />
-            </div>
-          </section>  
-        )}
-
-        {fName && (
-          <section className={styles.canvasSection}>
-            <h3>Картина по номерам</h3>
-            <div className={styles.canvasLayout}>
-              <MultiCanvas
-                fName={fName}
-                setIdList={setIdList}
+        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minWidth: 400 }}>
+            {previewImage && (
+              <section className={styles.previewSection}>
+                <h3>Исходное изображение</h3>
+                <div className={styles.previewContainer}>
+                  <img src={previewImage} alt="Preview" className={styles.previewImage} />
+                </div>
+              </section>
+            )}
+            {fName && (
+              <FirstCanvas
+                svgData={svgData}
                 idList={idList}
                 currentColor={currentColor}
                 setColorCount={setColorCount}
-                loading={loading}
-                setLoading={setLoading}
-                svgData={svgData}
-                secondFName={secondFName}
-                secondIdList={secondIdList}
-                secondSvgData={secondSvgData}
+                colorCount={colorCount}
+                setCurrentColor={setCurrentColor}
               />
-              {idList.length > 0 && (
-                <ColorPalette
-                  colors={idList}
-                  currentColor={currentColor}
-                  onColorSelect={handleColorSelect}
-                  colorCount={colorCount}
-                />
-              )}
-            </div>
-          </section>
-        )}
+            )}
+          </div>
+          <div style={{ flex: 1, minWidth: 400 }}>
+            {secondPreviewImage && (
+              <section className={styles.previewSection}>
+                <h3>Исходное изображение для второго холста</h3>
+                <div className={styles.previewContainer}>
+                  <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
+                </div>
+              </section>
+            )}
+            {secondFName && (
+              <SecondCanvasFull
+                svgData={secondSvgData}
+                idList={secondIdList}
+                currentColor={secondCurrentColor}
+                setColorCount={setSecondColorCount}
+                colorCount={secondColorCount}
+                setCurrentColor={setSecondCurrentColor}
+              />
+            )}
+          </div>
+        </div>
 
         <section className={styles.featuresSection}>
           <div className={styles.feature}>
