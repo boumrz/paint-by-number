@@ -31,7 +31,7 @@ export const ColorPalette = ({ colors, currentColor, onColorSelect, colorCount }
               <div className={styles.colorInfo}>
                 <span className={styles.colorNumber}>{index}</span>
                 <span className={styles.colorCount}>
-                  {colorCount[item.color] || item.shapes.length} шт.
+                  {colorCount[item.color] || (item.shapes ? item.shapes.length : (item.count || 1))} шт.
                 </span>
               </div>
             </div>

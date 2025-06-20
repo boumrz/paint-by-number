@@ -65,8 +65,10 @@ function App() {
       try {
         const formData = new FormData();
         formData.append('image', file);
+        const pixelSize = 10;
+        formData.append('pixel_size', pixelSize);
 
-        const response = await axios.post('http://localhost:5000/api/convert', formData, {
+        const response = await axios.post('http://localhost:5000/api/convert-pixels', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
