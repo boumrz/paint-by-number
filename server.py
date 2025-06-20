@@ -98,45 +98,54 @@ def convert_image_pixels():
             import cv2
             from PIL import Image
 
-            # Настройки размера пикселя
-            pixel_size = int(request.form.get('pixel_size', 20))  # по умолчанию 20
+            # Фиксированное количество пикселей
+            num_pixels_x = 50
+            num_pixels_y = 50
+            canvas_width = 800
+            canvas_height = 900
 
             # Открываем изображение
             img = cv2.imread(input_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             h, w, _ = img.shape
-            print(f"Image size: {w}x{h}, pixel size: {pixel_size}")
+            print(f"Original image size: {w}x{h}")
 
-            # Округляем размеры до кратных pixel_size
-            new_w = (w // pixel_size) * pixel_size
-            new_h = (h // pixel_size) * pixel_size
-            img = img[:new_h, :new_w]
+            # Изменяем размер изображения до фиксированного количества пикселей
+            img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
             h, w, _ = img.shape
+            print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
+
+            # Рассчитываем размер каждого пикселя на холсте
+            pixel_width = canvas_width / num_pixels_x
+            pixel_height = canvas_height / num_pixels_y
 
             # Разбиваем на пиксели
             palette = []
             color_map = {}
             color_idx = 1
             svg_elements = []
-            svg_w, svg_h = w, h
 
-            for y in range(0, h, pixel_size):
-                for x in range(0, w, pixel_size):
-                    block = img[y:y+pixel_size, x:x+pixel_size]
-                    avg_color = tuple(int(v) for v in np.mean(block.reshape(-1, 3), axis=0))
-                    if avg_color not in color_map:
-                        color_map[avg_color] = int(color_idx)
-                        palette.append({'color': [int(c) for c in avg_color], 'number': int(color_idx)})
+            for y in range(num_pixels_y):
+                for x in range(num_pixels_x):
+                    pixel_color = tuple(int(v) for v in img[y, x])
+                    if pixel_color not in color_map:
+                        color_map[pixel_color] = int(color_idx)
+                        palette.append({'color': [int(c) for c in pixel_color], 'number': int(color_idx)})
                         color_idx += 1
-                    number = color_map[avg_color]
+                    number = color_map[pixel_color]
+                    
+                    # Рассчитываем позицию пикселя на холсте
+                    canvas_x = x * pixel_width
+                    canvas_y = y * pixel_height
+                    
                     # SVG rect с заливкой и номером
-                    fill = f'rgb{avg_color}'
-                    rect = f'<rect x="{x}" y="{y}" width="{pixel_size}" height="{pixel_size}" fill="{fill}" stroke="black" stroke-width="1"/>'
-                    text = f'<text x="{x + pixel_size//2}" y="{y + pixel_size//2 + 5}" font-size="{pixel_size//2}" text-anchor="middle" fill="black">{number}</text>'
+                    fill = f'rgb{pixel_color}'
+                    rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="{fill}" stroke="black" stroke-width="1"/>'
+                    text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2 + 5}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black">{number}</text>'
                     svg_elements.append(rect)
                     svg_elements.append(text)
 
-            svg_content = f'<svg width="{svg_w}" height="{svg_h}" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
+            svg_content = f'<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
 
             print("Successfully processed pixel image")
             return jsonify({

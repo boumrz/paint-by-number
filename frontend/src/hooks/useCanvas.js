@@ -36,6 +36,9 @@ const useCanvas = (svgData, currentColor, idList, setColorCount) => {
 
         const svgElement = svgDoc.documentElement;
         svgElement.setAttribute('style', 'user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;');
+        svgElement.removeAttribute('width');
+        svgElement.removeAttribute('height');
+        svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
         const serializer = new XMLSerializer();
         const modifiedSvg = serializer.serializeToString(svgDoc);

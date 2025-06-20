@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './MultiCanvas.module.css';
 import useCanvas from '../hooks/useCanvas';
 import { ColorPalette } from './ColorPalette';
+import cn from 'clsx';
 
 const SecondCanvasFull = ({
   svgData,
@@ -80,14 +81,21 @@ const SecondCanvasFull = ({
           }}
         >
           <div
-            className="svg-element second-canvas"
-            ref={svgRef}
+            className="svg-container"
             style={{
               transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               transformOrigin: '0 0',
-              transition: isDragging || isSelecting ? 'none' : 'transform 0.1s'
+              transition: isDragging || isSelecting ? 'none' : 'transform 0.1s',
+              width: '100%',
+              height: '100%',
+              position: 'relative'
             }}
-          ></div>
+          >
+            <div
+              className={cn(styles['svg-element'], styles['second-canvas'])}
+              ref={svgRef}
+            />
+          </div>
           {isSelecting && (
             <div
               ref={selectionRef}

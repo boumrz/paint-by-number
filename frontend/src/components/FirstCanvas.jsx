@@ -80,14 +80,21 @@ const FirstCanvas = ({
           }}
         >
           <div
-            className="svg-element first-canvas"
-            ref={svgRef}
+            className="svg-container"
             style={{
               transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               transformOrigin: '0 0',
-              transition: isDragging || isSelecting ? 'none' : 'transform 0.1s'
+              transition: isDragging || isSelecting ? 'none' : 'transform 0.1s',
+              width: '100%',
+              height: '100%',
+              position: 'relative'
             }}
-          ></div>
+          >
+            <div
+              className="svg-element first-canvas"
+              ref={svgRef}
+            />
+          </div>
           {isSelecting && (
             <div
               ref={selectionRef}
