@@ -53,14 +53,14 @@ const useCanvas = (svgData, currentColor, idList, setColorCount) => {
 
   useEffect(() => {
     if (svgRef.current) {
-      const elements = svgRef.current.querySelectorAll('g');
-      elements.forEach(g => {
-        g.addEventListener('click', handleElementClick);
+      const elements = svgRef.current.querySelectorAll('rect');
+      elements.forEach(rect => {
+        rect.addEventListener('click', handleElementClick);
       });
 
       return () => {
-        elements.forEach(g => {
-          g.removeEventListener('click', handleElementClick);
+        elements.forEach(rect => {
+          rect.removeEventListener('click', handleElementClick);
         });
       };
     }
@@ -68,14 +68,14 @@ const useCanvas = (svgData, currentColor, idList, setColorCount) => {
 
   const handleElementClick = (event) => {
     if (currentColor) {
-      const g = event.currentTarget;
-      g.setAttribute('fill', `rgb(${currentColor[0]}, ${currentColor[1]}, ${currentColor[2]})`);
-      updateColorCount(g.getAttribute('id'));
+      const rect = event.currentTarget;
+      rect.setAttribute('fill', `rgb(${currentColor[0]}, ${currentColor[1]}, ${currentColor[2]})`);
+      updateColorCount(rect.getAttribute('data-number'));
     }
   };
 
-  const updateColorCount = (id) => {
-    const color = idList.find(item => item.shapes.includes(id))?.color;
+  const updateColorCount = (number) => {
+    const color = idList.find(item => item.number == number)?.color;
     if (color) {
       setColorCount(prev => {
         const newCount = { ...prev };

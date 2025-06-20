@@ -6,6 +6,9 @@ import tempfile
 import json
 import traceback
 import numpy as np
+import cv2
+from PIL import Image
+from sklearn.cluster import KMeans
 
 app = Flask(__name__)
 CORS(app)
@@ -95,14 +98,12 @@ def convert_image_pixels():
             file.save(input_path)
             print("Saved input file to:", input_path)
 
-            import cv2
-            from PIL import Image
-
             # Фиксированное количество пикселей
-            num_pixels_x = 50
-            num_pixels_y = 50
+            num_pixels_x = 70
+            num_pixels_y = 70
             canvas_width = 800
             canvas_height = 900
+            max_colors = 15  # Максимальное количество цветов
 
             # Открываем изображение
             img = cv2.imread(input_path)
@@ -114,6 +115,14 @@ def convert_image_pixels():
             img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
             h, w, _ = img.shape
             print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
+
+            # Квантование цветов с помощью K-means
+            pixels = img.reshape(-1, 3)  # Преобразуем в 2D массив
+            kmeans = KMeans(n_clusters=max_colors, random_state=42, n_init=10)
+            labels = kmeans.fit_predict(pixels)
+            quantized_img = kmeans.cluster_centers_[labels].reshape(h, w, 3).astype(np.uint8)
+            
+            print(f"Quantized to {max_colors} colors")
 
             # Рассчитываем размер каждого пикселя на холсте
             pixel_width = canvas_width / num_pixels_x
@@ -127,7 +136,7 @@ def convert_image_pixels():
 
             for y in range(num_pixels_y):
                 for x in range(num_pixels_x):
-                    pixel_color = tuple(int(v) for v in img[y, x])
+                    pixel_color = tuple(int(v) for v in quantized_img[y, x])
                     if pixel_color not in color_map:
                         color_map[pixel_color] = int(color_idx)
                         palette.append({'color': [int(c) for c in pixel_color], 'number': int(color_idx)})
@@ -138,9 +147,8 @@ def convert_image_pixels():
                     canvas_x = x * pixel_width
                     canvas_y = y * pixel_height
                     
-                    # SVG rect с заливкой и номером
-                    fill = f'rgb{pixel_color}'
-                    rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="{fill}" stroke="black" stroke-width="1"/>'
+                    # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
+                    rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb{pixel_color}" data-number="{number}"/>'
                     text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2 + 5}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black">{number}</text>'
                     svg_elements.append(rect)
                     svg_elements.append(text)

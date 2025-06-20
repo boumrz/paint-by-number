@@ -28,24 +28,27 @@ const SecondCanvasFull = ({
   } = useCanvas(svgData, currentColor, idList, setColorCount);
 
   const handleClearAll = () => {
-    const elements = document.querySelectorAll('.svg-element.second-canvas svg');
+    const elements = document.querySelectorAll('.MultiCanvas_svg-element.MultiCanvas_second-canvas svg');
     elements.forEach(el => {
-      const elements = el.querySelectorAll('g');
-      elements.forEach(g => {
-        g.setAttribute('fill', 'white');
+      const rects = el.querySelectorAll('rect');
+      rects.forEach(rect => {
+        rect.setAttribute('fill', 'white');
       });
     });
   };
 
   const handleFillAll = () => {
-    const elements = document.querySelectorAll('.svg-element.second-canvas svg');
+    const elements = document.querySelectorAll('.MultiCanvas_svg-element.MultiCanvas_second-canvas svg');
+
+    console.log('elements', elements);
+
     elements.forEach(el => {
-      const elements = el.querySelectorAll('g');
-      elements.forEach(g => {
-        const id = g.getAttribute('id');
-        const color = idList.find(item => item.shapes.includes(id))?.color;
-        if (color) {
-          g.setAttribute('fill', `rgb(${color[0]}, ${color[1]}, ${color[2]})`);
+      const rects = el.querySelectorAll('rect');
+      rects.forEach(rect => {
+        const dataColor = rect.getAttribute('data-color');
+      
+        if (dataColor) {
+          rect.setAttribute('fill', dataColor);
         }
       });
     });
