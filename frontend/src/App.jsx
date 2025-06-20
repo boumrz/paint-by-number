@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import styles from './App.module.css';
-import MultiCanvas from './components/MultiCanvas';
-import {ColorPalette} from './components/ColorPalette';
+import FirstCanvas from './components/FirstCanvas';
+import SecondCanvasFull from './components/SecondCanvasFull';
 import axios from 'axios';
 
 function App() {
+  // Первый холст
   const [fName, setFName] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [idList, setIdList] = useState([]);
@@ -12,6 +13,14 @@ function App() {
   const [colorCount, setColorCount] = useState({});
   const [loading, setLoading] = useState(false);
   const [svgData, setSvgData] = useState(null);
+
+  // Второй холст
+  const [secondFName, setSecondFName] = useState(null);
+  const [secondPreviewImage, setSecondPreviewImage] = useState(null);
+  const [secondIdList, setSecondIdList] = useState([]);
+  const [secondCurrentColor, setSecondCurrentColor] = useState(null);
+  const [secondColorCount, setSecondColorCount] = useState({});
+  const [secondSvgData, setSecondSvgData] = useState(null);
 
   const handleImageFile = async (event) => {
     const file = event.target.files[0];
@@ -45,8 +54,36 @@ function App() {
     }
   };
 
-  const handleColorSelect = (color) => {
-    setCurrentColor(color);
+  const handleSecondImageFile = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setSecondFName(url);
+      setSecondPreviewImage(url);
+      setLoading(true);
+
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await axios.post('http://localhost:5000/api/convert-pixels', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (response.data.palette && response.data.svg) {
+          setSecondIdList(response.data.palette);
+          setSecondSvgData(response.data.svg);
+        } else {
+          throw new Error('Invalid server response format');
+        }
+      } catch (error) {
+        console.error('Error processing image:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -72,46 +109,64 @@ function App() {
                 className={styles.fileInput}
               />
               <label htmlFor="image-upload" className={styles.uploadButton}>
-                Загрузить фото
+                Загрузить фото для первого холста
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleSecondImageFile}
+                id="second-image-upload"
+                className={styles.fileInput}
+              />
+              <label htmlFor="second-image-upload" className={styles.uploadButton}>
+                Загрузить фото для второго холста
               </label>
             </div>
           </div>
         </section>
 
-        {previewImage && (
-          <section className={styles.previewSection}>
-            <h3>Исходное изображение</h3>
-            <div className={styles.previewContainer}>
-              <img src={previewImage} alt="Preview" className={styles.previewImage} />
-            </div>
-          </section>  
-        )}
-
-        {fName && (
-          <section className={styles.canvasSection}>
-            <h3>Картина по номерам</h3>
-            <div className={styles.canvasLayout}>
-              <MultiCanvas
-                fName={fName}
-                setIdList={setIdList}
+        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minWidth: 400 }}>
+            {previewImage && (
+              <section className={styles.previewSection}>
+                <h3>Исходное изображение</h3>
+                <div className={styles.previewContainer}>
+                  <img src={previewImage} alt="Preview" className={styles.previewImage} />
+                </div>
+              </section>
+            )}
+            {fName && (
+              <FirstCanvas
+                svgData={svgData}
                 idList={idList}
                 currentColor={currentColor}
                 setColorCount={setColorCount}
-                loading={loading}
-                setLoading={setLoading}
-                svgData={svgData}
+                colorCount={colorCount}
+                setCurrentColor={setCurrentColor}
               />
-              {idList.length > 0 && (
-                <ColorPalette
-                  colors={idList}
-                  currentColor={currentColor}
-                  onColorSelect={handleColorSelect}
-                  colorCount={colorCount}
-                />
-              )}
-            </div>
-          </section>
-        )}
+            )}
+          </div>
+          <div style={{ flex: 1, minWidth: 400 }}>
+            {secondPreviewImage && (
+              <section className={styles.previewSection}>
+                <h3>Исходное изображение для второго холста</h3>
+                <div className={styles.previewContainer}>
+                  <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
+                </div>
+              </section>
+            )}
+            {secondFName && (
+              <SecondCanvasFull
+                svgData={secondSvgData}
+                idList={secondIdList}
+                currentColor={secondCurrentColor}
+                setColorCount={setSecondColorCount}
+                colorCount={secondColorCount}
+                setCurrentColor={setSecondCurrentColor}
+              />
+            )}
+          </div>
+        </div>
 
         <section className={styles.featuresSection}>
           <div className={styles.feature}>

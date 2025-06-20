@@ -6,6 +6,9 @@ import tempfile
 import json
 import traceback
 import numpy as np
+import cv2
+from PIL import Image
+from sklearn.cluster import KMeans
 
 app = Flask(__name__)
 CORS(app)
@@ -76,6 +79,92 @@ def convert_image():
         print(traceback.format_exc())
         return jsonify({
             'error': 'Error generating paint by number, try again later or try a smaller image size',
+            'details': str(e)
+        }), 500
+
+@app.route('/api/convert-pixels', methods=['POST'])
+def convert_image_pixels():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            print("Created temporary directory:", temp_dir)
+            input_path = os.path.join(temp_dir, 'input.jpg')
+            file.save(input_path)
+            print("Saved input file to:", input_path)
+
+            # Фиксированное количество пикселей
+            num_pixels_x = 70
+            num_pixels_y = 70
+            canvas_width = 800
+            canvas_height = 900
+            max_colors = 15  # Максимальное количество цветов
+
+            # Открываем изображение
+            img = cv2.imread(input_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            h, w, _ = img.shape
+            print(f"Original image size: {w}x{h}")
+
+            # Изменяем размер изображения до фиксированного количества пикселей
+            img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
+            h, w, _ = img.shape
+            print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
+
+            # Квантование цветов с помощью K-means
+            pixels = img.reshape(-1, 3)  # Преобразуем в 2D массив
+            kmeans = KMeans(n_clusters=max_colors, random_state=42, n_init=10)
+            labels = kmeans.fit_predict(pixels)
+            quantized_img = kmeans.cluster_centers_[labels].reshape(h, w, 3).astype(np.uint8)
+            
+            print(f"Quantized to {max_colors} colors")
+
+            # Рассчитываем размер каждого пикселя на холсте
+            pixel_width = canvas_width / num_pixels_x
+            pixel_height = canvas_height / num_pixels_y
+
+            # Разбиваем на пиксели
+            palette = []
+            color_map = {}
+            color_idx = 1
+            svg_elements = []
+
+            for y in range(num_pixels_y):
+                for x in range(num_pixels_x):
+                    pixel_color = tuple(int(v) for v in quantized_img[y, x])
+                    if pixel_color not in color_map:
+                        color_map[pixel_color] = int(color_idx)
+                        palette.append({'color': [int(c) for c in pixel_color], 'number': int(color_idx)})
+                        color_idx += 1
+                    number = color_map[pixel_color]
+                    
+                    # Рассчитываем позицию пикселя на холсте
+                    canvas_x = x * pixel_width
+                    canvas_y = y * pixel_height
+                    
+                    # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
+                    rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb{pixel_color}" data-number="{number}"/>'
+                    text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2 + 5}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black">{number}</text>'
+                    svg_elements.append(rect)
+                    svg_elements.append(text)
+
+            svg_content = f'<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
+
+            print("Successfully processed pixel image")
+            return jsonify({
+                'svg': svg_content,
+                'palette': palette
+            })
+    except Exception as e:
+        print("Error processing pixel image:")
+        print(traceback.format_exc())
+        return jsonify({
+            'error': 'Error generating pixel paint by number',
             'details': str(e)
         }), 500
 

@@ -1,21 +1,16 @@
 import React from 'react';
 import styles from './MultiCanvas.module.css';
-import SecondCanvas from './SecondCanvas';
 import useCanvas from '../hooks/useCanvas';
+import { ColorPalette } from './ColorPalette';
 
-const MultiCanvas = ({
-  fName,
-  idList,
+const FirstCanvas = ({
   svgData,
-  secondFName,
-  secondIdList,
-  secondSvgData,
+  idList,
   currentColor,
   setColorCount,
-  loading,
-  setLoading
+  colorCount,
+  setCurrentColor
 }) => {
-  // Первый холст
   const {
     svgRef,
     scale,
@@ -32,7 +27,7 @@ const MultiCanvas = ({
   } = useCanvas(svgData, currentColor, idList, setColorCount);
 
   const handleClearAll = () => {
-    const elements = document.querySelectorAll('.svg-element svg');
+    const elements = document.querySelectorAll('.svg-element.first-canvas svg');
     elements.forEach(el => {
       const elements = el.querySelectorAll('g');
       elements.forEach(g => {
@@ -42,7 +37,7 @@ const MultiCanvas = ({
   };
 
   const handleFillAll = () => {
-    const elements = document.querySelectorAll('.svg-element svg');
+    const elements = document.querySelectorAll('.svg-element.first-canvas svg');
     elements.forEach(el => {
       const elements = el.querySelectorAll('g');
       elements.forEach(g => {
@@ -71,9 +66,8 @@ const MultiCanvas = ({
           Alt + левая кнопка мыши для выделения области
         </div>
       </div>
-      
       <div className={styles.section}>
-        <div 
+        <div
           className={styles.wrapper}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -85,15 +79,22 @@ const MultiCanvas = ({
             cursor: isDragging ? 'grabbing' : (isSelecting ? 'crosshair' : 'grab')
           }}
         >
-          <div 
-            className="svg-element" 
-            ref={svgRef}
+          <div
+            className="svg-container"
             style={{
               transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               transformOrigin: '0 0',
-              transition: isDragging || isSelecting ? 'none' : 'transform 0.1s'
+              transition: isDragging || isSelecting ? 'none' : 'transform 0.1s',
+              width: '100%',
+              height: '100%',
+              position: 'relative'
             }}
-          ></div>
+          >
+            <div
+              className="svg-element first-canvas"
+              ref={svgRef}
+            />
+          </div>
           {isSelecting && (
             <div
               ref={selectionRef}
@@ -108,15 +109,16 @@ const MultiCanvas = ({
           )}
         </div>
       </div>
-
-      <SecondCanvas
-        svgData={secondSvgData}
-        currentColor={currentColor}
-        idList={secondIdList}
-        setColorCount={setColorCount}
-      />
+      {idList && idList.length > 0 && (
+        <ColorPalette
+          colors={idList}
+          currentColor={currentColor}
+          onColorSelect={setCurrentColor}
+          colorCount={colorCount}
+        />
+      )}
     </div>
   );
 };
 
-export default MultiCanvas; 
+export default FirstCanvas; 
