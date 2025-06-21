@@ -22,6 +22,13 @@ def convert_image():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
+    # Проверка размера файла (до 5 МБ)
+    file.seek(0, os.SEEK_END)
+    file_length = file.tell()
+    file.seek(0)
+    if file_length > 5 * 1024 * 1024:
+        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+
     try:
         # Create temporary directory for processing
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -31,6 +38,15 @@ def convert_image():
             input_path = os.path.join(temp_dir, 'input.jpg')
             file.save(input_path)
             print("Saved input file to:", input_path)
+
+            # Проверка разрешения изображения (до 2000x2000)
+            img = Image.open(input_path)
+            width, height = img.size
+            if width > 2000 or height > 2000:
+                return jsonify({'error': 'Изображение слишком большое. Максимальный размер: 2000x2000 пикселей.'}), 400
+            if width != height:
+                return jsonify({'error': 'Изображение должно быть квадратным (ширина = высота).'}), 400
+            img.close()
             
             # Process image
             print("Initializing PbnGen...")
@@ -91,6 +107,13 @@ def convert_image_pixels():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
+    # Проверка размера файла (до 5 МБ)
+    file.seek(0, os.SEEK_END)
+    file_length = file.tell()
+    file.seek(0)
+    if file_length > 5 * 1024 * 1024:
+        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             print("Created temporary directory:", temp_dir)
@@ -98,10 +121,19 @@ def convert_image_pixels():
             file.save(input_path)
             print("Saved input file to:", input_path)
 
+            # Проверка разрешения изображения (до 2000x2000)
+            img = Image.open(input_path)
+            width, height = img.size
+            if width > 2000 or height > 2000:
+                return jsonify({'error': 'Изображение слишком большое. Максимальный размер: 2000x2000 пикселей.'}), 400
+            if width != height:
+                return jsonify({'error': 'Изображение должно быть квадратным (ширина = высота).'}), 400
+            img.close()
+
             # Фиксированное количество пикселей
             num_pixels_x = 70
             num_pixels_y = 70
-            canvas_width = 800
+            canvas_width = 900
             canvas_height = 900
             max_colors = 15  # Максимальное количество цветов
 
