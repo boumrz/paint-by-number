@@ -54,6 +54,47 @@ const SecondCanvasFull = ({
     });
   };
 
+  // Генерация сетки 10x10
+  const generateGrid = () => {
+    const gridSize = 10;
+    const cellSize = 90; // 900 / 10
+    const cells = [];
+    
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        const number = row * gridSize + col + 1;
+        const x = col * cellSize;
+        const y = row * cellSize;
+        
+        cells.push(
+          <div
+            key={number}
+            style={{
+              position: 'absolute',
+              left: x,
+              top: y,
+              width: cellSize,
+              height: cellSize,
+              border: '1px solid #333',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              color: '#333',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              pointerEvents: 'none'
+            }}
+          >
+            {number}
+          </div>
+        );
+      }
+    }
+    
+    return cells;
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.controls}>
@@ -98,6 +139,19 @@ const SecondCanvasFull = ({
               className={cn(styles['svg-element'], styles['second-canvas'])}
               ref={svgRef}
             />
+            {/* Слой с сеткой 10x10 */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '900px',
+                height: '900px',
+                pointerEvents: 'none'
+              }}
+            >
+              {generateGrid()}
+            </div>
           </div>
           {isSelecting && (
             <div
