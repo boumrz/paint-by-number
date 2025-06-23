@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './MultiCanvas.module.css';
 import useCanvas from '../hooks/useCanvas';
-import { ColorPalette } from './ColorPalette';
+import { ColorPalette } from './ColorPalette/ColorPalette';
 import cn from 'clsx';
 
 const SecondCanvasFull = ({

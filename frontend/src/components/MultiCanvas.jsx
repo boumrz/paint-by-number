@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './MultiCanvas.module.css';
-import SecondCanvas from './SecondCanvas';
+import SecondCanvas from './SecondCanvas/SecondCanvas';
 import useCanvas from '../hooks/useCanvas';
 
 const MultiCanvas = ({
