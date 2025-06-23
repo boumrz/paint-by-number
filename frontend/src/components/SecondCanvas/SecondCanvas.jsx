@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './SecondCanvas.module.css';
-import useCanvas from '../hooks/useCanvas';
+import useCanvas from '../../hooks/useCanvas';
 
 const SecondCanvas = ({
   svgData,

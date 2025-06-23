@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './MultiCanvas.module.css';
 import useCanvas from '../hooks/useCanvas';
-import { ColorPalette } from './ColorPalette';
+import { ColorPalette } from './ColorPalette/ColorPalette';
 import cn from 'clsx';
 
 const SecondCanvasFull = ({
@@ -39,8 +39,6 @@ const SecondCanvasFull = ({
 
   const handleFillAll = () => {
     const elements = document.querySelectorAll('.MultiCanvas_svg-element.MultiCanvas_second-canvas svg');
-
-    console.log('elements', elements);
 
     elements.forEach(el => {
       const rects = el.querySelectorAll('rect');
