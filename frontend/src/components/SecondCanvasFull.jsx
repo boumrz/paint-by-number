@@ -40,8 +40,6 @@ const SecondCanvasFull = ({
   const handleFillAll = () => {
     const elements = document.querySelectorAll('.MultiCanvas_svg-element.MultiCanvas_second-canvas svg');
 
-    console.log('elements', elements);
-
     elements.forEach(el => {
       const rects = el.querySelectorAll('rect');
       rects.forEach(rect => {
