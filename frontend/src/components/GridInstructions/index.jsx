@@ -243,7 +243,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           });
                   
           // Создаем SVG для квадрата
-          const result = `<svg width="90" height="90" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #333;">
+          const result = `<svg width="100%" height="100%" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
           </svg>`;
           
@@ -271,7 +271,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           });
                   
           // Создаем SVG для квадрата
-          const result = `<svg width="90" height="90" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #333;">
+          const result = `<svg width="100%" height="100%" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
           </svg>`;
           
@@ -310,10 +310,10 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             justifyContent: 'flex-start',
           }}>
             <div style={{ fontWeight: 'bold', marginBottom: 8 }}>Квадрат {number}</div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12, justifyContent: 'center' }}>
+            <div style={{ flex: 1, width: '100%', height: '100%', minHeight: 0, minWidth: 0, marginBottom: 0, background: '#fff', borderRadius: 8, display: 'flex', alignItems: 'stretch', justifyContent: 'stretch' }}>
               <div
                 dangerouslySetInnerHTML={{ __html: getSquareSvg(number) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>' }}
-                style={{ margin: '0 auto', background: '#fff', borderRadius: 8 }}
+                style={{ width: '100%', height: '100%', minHeight: 0, minWidth: 0, display: 'block' }}
               />
             </div>
           </div>
