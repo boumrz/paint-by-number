@@ -170,20 +170,22 @@ function App() {
           />
         )}
 
-        <section className={styles.featuresSection}>
-          <div className={styles.feature}>
-            <h3>Детализация</h3>
-            <p>Высокое качество обработки изображения</p>
-          </div>
-          <div className={styles.feature}>
-            <h3>Качество</h3>
-            <p>Точная передача цветов и оттенков</p>
-          </div>
-          <div className={styles.feature}>
-            <h3>Простота</h3>
-            <p>Интуитивно понятный интерфейс</p>
-          </div>
-        </section>
+        {!isTablet && (
+            <section className={styles.featuresSection}>
+              <div className={styles.feature}>
+                <h3>Детализация</h3>
+                <p>Высокое качество обработки изображения</p>
+              </div>
+              <div className={styles.feature}>
+                <h3>Качество</h3>
+                <p>Точная передача цветов и оттенков</p>
+              </div>
+              <div className={styles.feature}>
+                <h3>Простота</h3>
+                <p>Интуитивно понятный интерфейс</p>
+              </div>
+            </section>
+        )}
 
         <Modal
           isOpen={showCrop}

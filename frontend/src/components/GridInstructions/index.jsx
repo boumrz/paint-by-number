@@ -209,44 +209,45 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           // Для pixel-based холста
           const rects = svgElement.querySelectorAll('rect[data-color]');
           const squareElements = [];
-          
+          const textElements = [];
           rects.forEach((rect, index) => {
             const x = parseFloat(rect.getAttribute('x'));
             const y = parseFloat(rect.getAttribute('y'));
             const width = parseFloat(rect.getAttribute('width'));
             const height = parseFloat(rect.getAttribute('height'));
             const dataColor = rect.getAttribute('data-color');
-            
+            const dataNumber = rect.getAttribute('data-number');
             // Более точная проверка границ
             const elementRight = x + width;
             const elementBottom = y + height;
             const squareRight = squareX + squareSize;
             const squareBottom = squareY + squareSize;
-            
             // Проверяем, пересекается ли элемент с квадратом
             const inSquare = x < squareRight && elementRight > squareX && 
                             y < squareBottom && elementBottom > squareY;
-            
             if (inSquare) {            
               // Создаем копию элемента с относительными координатами
               const newRect = rect.cloneNode(true);
               newRect.setAttribute('x', x - squareX);
               newRect.setAttribute('y', y - squareY);
-              
               // Устанавливаем правильный fill из data-color
               if (dataColor) {
                 newRect.setAttribute('fill', dataColor);
               }
-              
               squareElements.push(newRect.outerHTML);
+              // Добавляем текст с номером цвета по центру прямоугольника
+              if (dataNumber) {
+                const textX = x - squareX + width / 2;
+                const textY = y - squareY + height / 2 + 2; // +2 для вертикального центрирования
+                textElements.push(`<text x="${textX}" y="${textY}" font-size="6" font-family="Arial, sans-serif" fill="#222" stroke="#fff" stroke-width="0.1" text-anchor="middle" dominant-baseline="middle">${dataNumber}</text>`);
+              }
             }
           });
-                  
           // Создаем SVG для квадрата
           const result = `<svg width="100%" height="100%" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
+            ${textElements.join('')}
           </svg>`;
-          
           return result;
           
         } else {
@@ -357,7 +358,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             style={{
               overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
               content: { 
-                maxWidth: 400, 
+                maxWidth: 950, 
                 margin: 'auto',
                 height: 'auto', 
                 padding: '20px',
@@ -365,57 +366,50 @@ export const GridInstructions = ({ idList, svgData, title }) => {
               }
             }}
           >
-            <div>
+            <div style={{ width: '100%', height: '100%' }}>
               <h3 style={{ marginBottom: '1rem', color: '#333', textAlign: 'center' }}>
                 Квадрат {selectedSquare}
               </h3>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                marginBottom: '1rem',
-                backgroundColor: '#f8f9fa',
-                padding: '20px',
-                borderRadius: '8px'
-              }}>
+              <div
+                style={{ 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                    height: '100%',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                <div style={{ display: 'flex', width: '100%' }}>
+                    <div 
+                    dangerouslySetInnerHTML={{ 
+                        __html: getSquareSvg(selectedSquare) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>' 
+                    }}
+                    style={{
+                        transform: 'scale(2)',
+                        transformOrigin: 'top left'
+                    }}
+                    />
+                </div>
                 <div 
-                  dangerouslySetInnerHTML={{ 
-                    __html: getSquareSvg(selectedSquare) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>' 
-                  }}
-                  style={{
-                    transform: 'scale(2)', // Увеличиваем в 2 раза для лучшей видимости
-                    transformOrigin: 'top left'
-                  }}
-                />
-              </div>
-              <div style={{ 
-                marginTop: '1rem', 
-                padding: '1rem', 
-                backgroundColor: '#f8f9fa', 
-                borderRadius: '4px',
-                fontSize: '14px',
-                lineHeight: '1.5'
-              }}>
-                <h4 style={{ marginBottom: '0.5rem', color: '#333' }}>Инструкция:</h4>
-                <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-                  <li>Это увеличенный вид квадрата {selectedSquare}</li>
-                  <li>Закрашивайте области соответствующими цветами</li>
-                  <li>Используйте палитру справа от основного холста</li>
-                </ul>
-              </div>
-              <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                <button
-                  onClick={handleCloseModal}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#007bff',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
+                    style={{ 
+                        textAlign: 'center',
+                        marginTop: '1rem',
+                     }}
                 >
-                  Закрыть
-                </button>
+                    <button
+                        onClick={handleCloseModal}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                    Закрыть
+                    </button>
+                </div>
               </div>
             </div>
           </Modal>

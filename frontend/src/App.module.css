@@ -32,7 +32,6 @@
 
 .mainContent {
   flex: 1;
-  padding: 2rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -41,7 +40,6 @@
 .heroSection {
   text-align: center;
   padding: 4rem 0;
-  background: white;
   border-radius: 8px;
   margin-bottom: 2rem;
 }
@@ -98,6 +96,13 @@
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 400px) {
+    padding: 0;
+    max-width: 300px;
+    box-shadow: none;
+  }
+  
 }
 
 .previewImage {
@@ -183,6 +188,7 @@
 
   .mainContent {
     padding: 1rem;
+    box-sizing: border-box;
   }
 
   .heroSection {
