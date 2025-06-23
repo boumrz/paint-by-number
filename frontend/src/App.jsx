@@ -306,23 +306,6 @@ const GridInstructions = ({ idList, svgData, title }) => {
       }}>
         {generateInstructionGrid()}
       </div>
-      <div style={{ 
-        marginTop: '1rem', 
-        padding: '1rem', 
-        backgroundColor: '#f8f9fa', 
-        borderRadius: '4px',
-        fontSize: '14px',
-        lineHeight: '1.5'
-      }}>
-        <h4 style={{ marginBottom: '0.5rem', color: '#333' }}>Инструкция по закрашиванию:</h4>
-        <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-          <li>Каждый квадрат пронумерован от 1 до 100</li>
-          <li>Кликните на квадрат для просмотра цветов в нем</li>
-          <li>Закрашивайте квадраты в любом порядке</li>
-          <li>Используйте цвета из палитры справа</li>
-          <li>Для отмены закрашивания используйте кнопку "Очистить все"</li>
-        </ul>
-      </div>
 
       {/* Модальное окно с цветами квадрата */}
       {showColorModal && selectedSquare && (
