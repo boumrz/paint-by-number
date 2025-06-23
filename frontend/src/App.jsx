@@ -66,15 +66,9 @@ const GridInstructions = ({ idList, svgData, title }) => {
   // Извлечение цветов для конкретного квадрата
   const getSquareColors = (squareNumber) => {
     if (!svgData || !idList) {
-      console.log('Нет svgData или idList');
       return [];
     }
-    
-    console.log('=== ОТЛАДКА ===');
-    console.log('svgData (первые 500 символов):', svgData.substring(0, 500));
-    console.log('idList:', idList);
-    console.log('idList.length:', idList.length);
-    
+
     try {
       // Проверяем доступность DOMParser
       if (typeof DOMParser === 'undefined') {
@@ -106,30 +100,17 @@ const GridInstructions = ({ idList, svgData, title }) => {
       const col = (squareNumber - 1) % gridSize;
       const squareX = col * squareSize;
       const squareY = row * squareSize;
-      
-      console.log(`Анализируем квадрат ${squareNumber}:`, { row, col, squareX, squareY });
-      
+            
       // Проверяем тип холста по структуре данных
       const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
-      console.log('Тип холста:', isPixelCanvas ? 'pixel' : 'shape');
       
       const colors = new Map();
       
       if (isPixelCanvas) {
         // Для pixel-based холста (второй холст)
         const rects = svgElement.querySelectorAll('rect[data-color]');
-        console.log(`Найдено rect элементов с data-color: ${rects.length}`);
         
         rects.forEach((rect, index) => {
-          if (index < 5) {
-            console.log(`Rect ${index}:`, {
-              x: rect.getAttribute('x'),
-              y: rect.getAttribute('y'),
-              dataColor: rect.getAttribute('data-color'),
-              dataNumber: rect.getAttribute('data-number')
-            });
-          }
-          
           const x = parseFloat(rect.getAttribute('x'));
           const y = parseFloat(rect.getAttribute('y'));
           const width = parseFloat(rect.getAttribute('width'));
@@ -166,26 +147,15 @@ const GridInstructions = ({ idList, svgData, title }) => {
       } else {
         // Для shape-based холста (первый холст)
         const elements = svgElement.querySelectorAll('g[id], rect[id], path[id], circle[id], ellipse[id], polygon[id]');
-        console.log(`Найдено элементов с id: ${elements.length}`);
         
         elements.forEach((element, index) => {
-          if (index < 5) {
-            console.log(`Элемент ${index}:`, {
-              tagName: element.tagName,
-              id: element.getAttribute('id'),
-              className: element.getAttribute('class')
-            });
-          }
-          
           const id = element.getAttribute('id');
           if (id) {
             const colorItem = idList.find(item => {
               return item.shapes && item.shapes.includes(id);
             });
             
-            if (colorItem && colorItem.color) {
-              console.log(`Найден цвет для элемента ${id}:`, colorItem.color);
-              
+            if (colorItem && colorItem.color) {              
               const colorKey = colorItem.color.join(',');
               if (!colors.has(colorKey)) {
                 colors.set(colorKey, {
@@ -202,8 +172,7 @@ const GridInstructions = ({ idList, svgData, title }) => {
       }
       
       const result = Array.from(colors.values());
-      console.log(`Результат для квадрата ${squareNumber}:`, result);
-      console.log('=== КОНЕЦ ОТЛАДКИ ===');
+
       return result;
       
     } catch (error) {
@@ -215,10 +184,7 @@ const GridInstructions = ({ idList, svgData, title }) => {
   // Извлечение SVG фрагмента для конкретного квадрата
   const getSquareSvg = (squareNumber) => {
     if (!svgData) return null;
-    
-    console.log('=== СОЗДАНИЕ SVG КВАДРАТА ===');
-    console.log('Квадрат:', squareNumber);
-    
+
     try {
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
@@ -233,35 +199,14 @@ const GridInstructions = ({ idList, svgData, title }) => {
       const col = (squareNumber - 1) % gridSize;
       const squareX = col * squareSize;
       const squareY = row * squareSize;
-      
-      console.log('Границы квадрата:', { row, col, squareX, squareY, squareSize });
-      
-      // Специальная отладка для 7-го столбца
-      if (col === 6) {
-        console.log('=== ОТЛАДКА 7-ГО СТОЛБЦА ===');
-        console.log('Квадрат в 7-м столбце:', squareNumber);
-      }
-      
+            
       // Проверяем тип холста
       const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
-      console.log('Тип холста:', isPixelCanvas ? 'pixel' : 'shape');
       
       if (isPixelCanvas) {
         // Для pixel-based холста
         const rects = svgElement.querySelectorAll('rect[data-color]');
-        console.log(`Найдено rect элементов: ${rects.length}`);
         const squareElements = [];
-        
-        // Специальная отладка для 7-го столбца
-        if (col === 6) {
-          console.log('Проверяем все rect элементы для 7-го столбца:');
-          rects.forEach((rect, index) => {
-            const x = parseFloat(rect.getAttribute('x'));
-            const y = parseFloat(rect.getAttribute('y'));
-            const dataColor = rect.getAttribute('data-color');
-            console.log(`Rect ${index}: x=${x}, y=${y}, color=${dataColor}`);
-          });
-        }
         
         rects.forEach((rect, index) => {
           const x = parseFloat(rect.getAttribute('x'));
@@ -280,16 +225,7 @@ const GridInstructions = ({ idList, svgData, title }) => {
           const inSquare = x < squareRight && elementRight > squareX && 
                           y < squareBottom && elementBottom > squareY;
           
-          if (col === 6) {
-            console.log(`Rect ${index}: x=${x}, y=${y}, w=${width}, h=${height}, color=${dataColor}`);
-            console.log(`Границы: elementRight=${elementRight}, elementBottom=${elementBottom}`);
-            console.log(`Квадрат: squareRight=${squareRight}, squareBottom=${squareBottom}`);
-            console.log(`В квадрате: ${inSquare}`);
-          }
-          
-          if (inSquare) {
-            console.log(`Rect ${index} входит в квадрат ${squareNumber}`);
-            
+          if (inSquare) {            
             // Создаем копию элемента с относительными координатами
             const newRect = rect.cloneNode(true);
             newRect.setAttribute('x', x - squareX);
@@ -298,27 +234,22 @@ const GridInstructions = ({ idList, svgData, title }) => {
             // Устанавливаем правильный fill из data-color
             if (dataColor) {
               newRect.setAttribute('fill', dataColor);
-              console.log(`Установлен fill: ${dataColor}`);
             }
             
             squareElements.push(newRect.outerHTML);
           }
         });
-        
-        console.log(`Элементов в квадрате: ${squareElements.length}`);
-        
+                
         // Создаем SVG для квадрата
         const result = `<svg width="90" height="90" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #333;">
           ${squareElements.join('')}
         </svg>`;
         
-        console.log('Результирующий SVG:', result.substring(0, 200) + '...');
         return result;
         
       } else {
         // Для shape-based холста
         const elements = svgElement.querySelectorAll('g[id], rect[id], path[id], circle[id], ellipse[id], polygon[id]');
-        console.log(`Найдено элементов с id: ${elements.length}`);
         const squareElements = [];
         
         elements.forEach((element, index) => {
@@ -326,28 +257,22 @@ const GridInstructions = ({ idList, svgData, title }) => {
           if (id) {
             // Находим цвет для этого элемента
             const colorItem = idList.find(item => item.shapes && item.shapes.includes(id));
-            if (colorItem && colorItem.color) {
-              console.log(`Элемент ${id}: цвет ${colorItem.color}`);
-              
+            if (colorItem && colorItem.color) {              
               // Создаем копию элемента с правильным цветом
               const newElement = element.cloneNode(true);
               const fillColor = `rgb(${colorItem.color[0]}, ${colorItem.color[1]}, ${colorItem.color[2]})`;
               newElement.setAttribute('fill', fillColor);
-              console.log(`Установлен fill: ${fillColor}`);
               
               squareElements.push(newElement.outerHTML);
             }
           }
         });
-        
-        console.log(`Элементов в квадрате: ${squareElements.length}`);
-        
+                
         // Создаем SVG для квадрата
         const result = `<svg width="90" height="90" xmlns="http://www.w3.org/2000/svg" style="border: 2px solid #333;">
           ${squareElements.join('')}
         </svg>`;
         
-        console.log('Результирующий SVG:', result.substring(0, 200) + '...');
         return result;
       }
       
