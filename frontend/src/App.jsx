@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './App.module.css';
 import FirstCanvas from './components/FirstCanvas';
 import SecondCanvasFull from './components/SecondCanvasFull';
@@ -317,7 +317,7 @@ const GridInstructions = ({ idList, svgData, title }) => {
             overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
             content: { 
               maxWidth: 400, 
-              margin: 'auto', 
+              margin: 'auto',
               height: 'auto', 
               padding: '20px',
               borderRadius: '8px'
@@ -410,6 +410,14 @@ function App() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [croppingFor, setCroppingFor] = useState(null); // 'first' | 'second'
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const checkImageFile = (file, callback) => {
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
@@ -601,7 +609,7 @@ function App() {
                 </div>
               </section>
             )}
-            {fName && (
+            {fName && windowWidth >= 1010 && (
               <FirstCanvas
                 svgData={svgData}
                 idList={idList}
@@ -621,7 +629,7 @@ function App() {
                 </div>
               </section>
             )}
-            {secondFName && (
+            {secondFName && windowWidth >= 1010 && (
               <SecondCanvasFull
                 svgData={secondSvgData}
                 idList={secondIdList}
