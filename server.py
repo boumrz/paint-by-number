@@ -34,6 +34,25 @@ BW_PALETTE = [
     [255, 255, 255]   # Чистый белый: #FFFFFF
 ]
 
+# Сепийная палитра из 15 теплых коричневых оттенков
+SEPIA_PALETTE = [
+    [255, 251, 240],  # Почти белый с теплым отливом: #FFFBF0
+    [248, 240, 224],  # Слоновая кость: #F8F0E0
+    [240, 230, 210],  # Теплый кремовый: #F0E6D2
+    [232, 216, 192],  # Песочный: #E8D8C0
+    [224, 208, 176],  # Светлая сепия: #E0D0B0
+    [212, 192, 160],  # Золотисто-бежевый: #D4C0A0
+    [200, 176, 144],  # Натуральная сепия (база): #C8B090
+    [188, 160, 128],  # Теплый хаки: #BCA080
+    [176, 144, 112],  # Коричнево-желтый: #B09070
+    [160, 128, 96],   # Глубокий "кофе с молоком": #A08060
+    [140, 112, 80],   # Темная охра: #8C7050
+    [120, 96, 64],    # Теплый умбра: #786040
+    [100, 80, 48],    # Глубокий коричневый: #645030
+    [80, 56, 32],     # Шоколадно-коричневый: #503820
+    [60, 40, 16]      # Почти черный с сепийным отливом: #3C2810
+]
+
 @app.route('/api/convert', methods=['POST'])
 def convert_image():
     if 'image' not in request.files:
@@ -328,6 +347,116 @@ def convert_image_pixels_bw():
         print(traceback.format_exc())
         return jsonify({
             'error': 'Error generating black and white pixel paint by number',
+            'details': str(e)
+        }), 500
+
+@app.route('/api/convert-pixels-sepia', methods=['POST'])
+def convert_image_pixels_sepia():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    # Проверка размера файла (до 5 МБ)
+    file.seek(0, os.SEEK_END)
+    file_length = file.tell()
+    file.seek(0)
+    if file_length > 5 * 1024 * 1024:
+        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            print("Created temporary directory:", temp_dir)
+            input_path = os.path.join(temp_dir, 'input.jpg')
+            file.save(input_path)
+            print("Saved input file to:", input_path)
+
+            # Проверка разрешения изображения (до 2000x2000)
+            img = Image.open(input_path)
+            width, height = img.size
+            if width > 2000 or height > 2000:
+                return jsonify({'error': 'Изображение слишком большое. Максимальный размер: 2000x2000 пикселей.'}), 400
+            if width != height:
+                return jsonify({'error': 'Изображение должно быть квадратным (ширина = высота).'}), 400
+            img.close()
+
+            # Фиксированное количество пикселей
+            num_pixels_x = 70
+            num_pixels_y = 70
+            canvas_width = 900
+            canvas_height = 900
+
+            # Открываем изображение
+            img = cv2.imread(input_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            h, w, _ = img.shape
+            print(f"Original image size: {w}x{h}")
+
+            # Изменяем размер изображения до фиксированного количества пикселей
+            img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
+            h, w, _ = img.shape
+            print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
+
+            # Конвертируем в оттенки серого
+            gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+            
+            # Квантование в 15 уровней серого для сепийной палитры
+            quantized_gray = np.zeros_like(gray_img)
+            for i in range(15):
+                lower = i * 17  # 255 / 15 ≈ 17
+                upper = (i + 1) * 17
+                if i == 14:  # Последний уровень
+                    upper = 256
+                mask = (gray_img >= lower) & (gray_img < upper)
+                quantized_gray[mask] = i
+            
+            print("Quantized to 15 gray levels for sepia")
+
+            # Рассчитываем размер каждого пикселя на холсте
+            pixel_width = canvas_width / num_pixels_x
+            pixel_height = canvas_height / num_pixels_y
+
+            # Разбиваем на пиксели
+            palette = []
+            color_map = {}
+            color_idx = 1
+            svg_elements = []
+
+            for y in range(num_pixels_y):
+                for x in range(num_pixels_x):
+                    gray_level = int(quantized_gray[y, x])
+                    pixel_color = SEPIA_PALETTE[gray_level]  # 15 сепийных оттенков
+                    
+                    if tuple(pixel_color) not in color_map:
+                        color_map[tuple(pixel_color)] = int(color_idx)
+                        palette.append({'color': pixel_color, 'number': int(color_idx)})
+                        color_idx += 1
+                    number = color_map[tuple(pixel_color)]
+                    
+                    # Рассчитываем позицию пикселя на холсте
+                    canvas_x = x * pixel_width
+                    canvas_y = y * pixel_height
+                    
+                    # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
+                    rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb({pixel_color[0]}, {pixel_color[1]}, {pixel_color[2]})" data-number="{number}"/>'
+                    text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2 + 5}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black">{number}</text>'
+                    svg_elements.append(rect)
+                    svg_elements.append(text)
+
+            svg_content = f'<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
+
+            print("Successfully processed sepia pixel image")
+            return jsonify({
+                'svg': svg_content,
+                'palette': palette
+            })
+    except Exception as e:
+        print("Error processing sepia pixel image:")
+        print(traceback.format_exc())
+        return jsonify({
+            'error': 'Error generating sepia pixel paint by number',
             'details': str(e)
         }), 500
 

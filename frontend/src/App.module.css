@@ -97,6 +97,21 @@
   background-color: #888;
 }
 
+.uploadButtonSepia {
+  background-color: #8B4513;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.uploadButtonSepia:hover {
+  background-color: #A0522D;
+}
+
 .previewSection {
   margin-bottom: 2rem;
   padding: 1rem;
