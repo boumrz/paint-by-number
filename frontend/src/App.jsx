@@ -114,7 +114,7 @@ function App() {
     <div className={styles.app}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1>Paint By Number</h1>
+          <h1>Картина по пикселям</h1>
           <p>Создай свою картину по номерам из любой фотографии</p>
         </div>
       </header>
@@ -133,7 +133,7 @@ function App() {
                 className={styles.fileInput}
               />
               <label htmlFor="second-image-upload" className={styles.uploadButton}>
-                Загрузить фото для второго холста
+                Загрузить фото
               </label>
             </div>
           </div>
@@ -143,7 +143,7 @@ function App() {
           <div style={{ flex: 1, minWidth: 400 }}>
             {secondPreviewImage && (
               <section className={styles.previewSection}>
-                <h3>Исходное изображение для второго холста</h3>
+                <h3>Исходное изображение</h3>
                 <div className={styles.previewContainer}>
                   <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
                 </div>
@@ -166,7 +166,7 @@ function App() {
           <GridInstructions 
             idList={secondIdList} 
             svgData={secondSvgData} 
-            title="Инструкция для второго холста"
+            title="Инструкция"
           />
         )}
 
@@ -196,7 +196,7 @@ function App() {
             content: { maxWidth: 600, margin: 'auto', height: 600, padding: 0 }
           }}
         >
-          <div style={{ position: 'relative', width: 500, height: 500, background: '#222' }}>
+          <div style={{ position: 'relative', width: '100%', height: '88%', background: '#222' }}>
             {cropImage && (
               <Cropper
                 image={cropImage}

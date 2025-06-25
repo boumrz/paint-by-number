@@ -10,6 +10,8 @@ export const GridInstructions = ({ idList, svgData, title }) => {
     const [showColorModal, setShowColorModal] = useState(false);
 
     const isTablet = useMediaQuery('(max-width: 1010px)');
+    const isTabletMini = useMediaQuery('(max-width: 780px)');
+    const isPhone = useMediaQuery('(max-width: 400px)');
   
     const generateInstructionGrid = () => {
       const gridSize = 10;
@@ -244,7 +246,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             }
           });
           // Создаем SVG для квадрата
-          const result = `<svg width="100%" height="100%" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
+          const result = `<svg width="600px" height="600px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
             ${textElements.join('')}
           </svg>`;
@@ -272,7 +274,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           });
                   
           // Создаем SVG для квадрата
-          const result = `<svg width="100%" height="100%" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
+          const result = `<svg width="600px" height="600px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
           </svg>`;
           
@@ -322,14 +324,14 @@ export const GridInstructions = ({ idList, svgData, title }) => {
       };
       return (
         <div>
-          <h3 style={{ marginBottom: '1rem', color: '#333' }}>{title}</h3>
+          <h3 style={{ padding: '1rem', marginBottom: '1rem', color: '#333' }}>{title}</h3>
           <List
             height={window.innerHeight - 120}
             itemCount={100}
-            itemSize={300}
-            overscanCount={8}
+            itemSize={isPhone ? 300 : 600}
+            overscanCount={10}
             width={'100%'}
-            style={{ maxWidth: 420, margin: '0 auto' }}
+            style={{ maxWidth: 600, margin: '0 auto' }}
           >
             {Row}
           </List>
@@ -339,13 +341,12 @@ export const GridInstructions = ({ idList, svgData, title }) => {
     // Десктоп: прежняя логика
     return (
       <div>
-        <h3 style={{ marginBottom: '1rem', color: '#333' }}>{title}</h3>
+        <h3 style={{ padding: '1rem', marginBottom: '1rem', color: '#333' }}>{title}</h3>
         <div style={{ 
           position: 'relative', 
           width: '600px', 
           height: '600px', 
           margin: '0 auto',
-          border: '3px solid #333',
           backgroundColor: '#fff'
         }}>
           {generateInstructionGrid()}
@@ -358,9 +359,9 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             style={{
               overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
               content: { 
-                maxWidth: 950, 
+                maxWidth: 600, 
                 margin: 'auto',
-                height: 'auto', 
+                height: 'fit-content', 
                 padding: '20px',
                 borderRadius: '8px'
               }
@@ -374,18 +375,15 @@ export const GridInstructions = ({ idList, svgData, title }) => {
                 style={{ 
                     display: 'flex',
                     flexDirection: 'column',
-                    width: '100%',
-                    height: '100%',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                <div style={{ display: 'flex', width: '100%' }}>
+                <div style={{ display: 'flex', width: '600px', height: '600px', alignItems: 'center', justifyContent: 'center' }}>
                     <div 
                     dangerouslySetInnerHTML={{ 
                         __html: getSquareSvg(selectedSquare) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>' 
                     }}
                     style={{
-                        transform: 'scale(2)',
                         transformOrigin: 'top left'
                     }}
                     />

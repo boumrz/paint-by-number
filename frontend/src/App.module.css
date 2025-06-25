@@ -84,6 +84,7 @@
 
 .previewSection {
   margin-bottom: 2rem;
+  padding: 1rem;
 }
 
 .previewSection h3 {
@@ -102,7 +103,7 @@
     max-width: 300px;
     box-shadow: none;
   }
-  
+
 }
 
 .previewImage {
@@ -198,4 +199,4 @@
   .featuresSection {
     grid-template-columns: 1fr;
   }
-} 
+}
