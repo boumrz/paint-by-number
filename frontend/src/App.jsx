@@ -71,6 +71,15 @@ function App() {
     }
   };
 
+  const handleSecondImageFileBW = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setCroppingFor('second-bw');
+      setCropImage(URL.createObjectURL(file));
+      setShowCrop(true);
+    }
+  };
+
   const handleCropConfirm = async () => {
     if (!cropImage || !croppedAreaPixels) return;
     getCroppedImg(cropImage, croppedAreaPixels, async (croppedBlob, previewUrl) => {
@@ -96,6 +105,39 @@ function App() {
           }
         } catch (error) {
           console.error('Error processing image:', error);
+        }
+      } else if (croppingFor === 'second-bw') {
+        setSecondPreviewImage(previewUrl);
+        try {
+          const formData = new FormData();
+          formData.append('image', croppedBlob, 'cropped.jpg');
+          const response = await axios.post('http://localhost:5000/api/convert-pixels-bw', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          if (response.data.palette && response.data.svg) {
+            setSecondIdList(response.data.palette);
+            setSecondSvgData(response.data.svg);
+            
+            // Автоматически заполняем цвета для черно-белого изображения
+            setTimeout(() => {
+              const svgElement = document.querySelector('.svg-element');
+              if (svgElement) {
+                const rects = svgElement.querySelectorAll('rect[data-color]');
+                rects.forEach(rect => {
+                  const dataColor = rect.getAttribute('data-color');
+                  if (dataColor) {
+                    rect.setAttribute('fill', dataColor);
+                  }
+                });
+              }
+            }, 100);
+          } else {
+            throw new Error('Invalid server response format');
+          }
+        } catch (error) {
+          console.error('Error processing black and white image:', error);
         }
       }
       setCroppingFor(null);
@@ -134,6 +176,17 @@ function App() {
               />
               <label htmlFor="second-image-upload" className={styles.uploadButton}>
                 Загрузить фото
+              </label>
+              
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleSecondImageFileBW}
+                id="second-image-upload-bw"
+                className={styles.fileInput}
+              />
+              <label htmlFor="second-image-upload-bw" className={styles.uploadButtonBW}>
+                Загрузить чернобелое фото (18 оттенков)
               </label>
             </div>
           </div>

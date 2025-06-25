@@ -28,28 +28,24 @@ const SecondCanvasFull = ({
   } = useCanvas(svgData, currentColor, idList, setColorCount);
 
   const handleClearAll = () => {
-    const elements = document.querySelectorAll('.MultiCanvas_svg-element.MultiCanvas_second-canvas svg');
-    elements.forEach(el => {
-      const rects = el.querySelectorAll('rect');
+    if (svgRef.current) {
+      const rects = svgRef.current.querySelectorAll('rect[data-color]');
       rects.forEach(rect => {
         rect.setAttribute('fill', 'white');
       });
-    });
+    }
   };
 
   const handleFillAll = () => {
-    const elements = document.querySelectorAll('.MultiCanvas_svg-element.MultiCanvas_second-canvas svg');
-
-    elements.forEach(el => {
-      const rects = el.querySelectorAll('rect');
+    if (svgRef.current) {
+      const rects = svgRef.current.querySelectorAll('rect[data-color]');
       rects.forEach(rect => {
         const dataColor = rect.getAttribute('data-color');
-      
         if (dataColor) {
           rect.setAttribute('fill', dataColor);
         }
       });
-    });
+    }
   };
 
   // Генерация сетки 10x10

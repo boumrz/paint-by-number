@@ -11,7 +11,6 @@ export const ColorPalette = ({ colors, currentColor, onColorSelect, colorCount }
       <h4 className={styles.title}>Палитра цветов</h4>
       <div className={styles.colorsGrid}>
         {colors.map((item, index) => {
-          if (index === 0) return null;
           const rgbColor = `rgb(${item.color[0]}, ${item.color[1]}, ${item.color[2]})`;
           const isSelected = currentColor && 
             currentColor[0] === item.color[0] && 
@@ -29,9 +28,9 @@ export const ColorPalette = ({ colors, currentColor, onColorSelect, colorCount }
                 style={{ backgroundColor: rgbColor }}
               />
               <div className={styles.colorInfo}>
-                <span className={styles.colorNumber}>{index}</span>
+                <span className={styles.colorNumber}>{item.number || (index + 1)}</span>
                 <span className={styles.colorCount}>
-                  {colorCount[item.color] || (item.shapes ? item.shapes.length : (item.count || 1))} шт.
+                  {colorCount[item.color.join(',')] || (item.shapes ? item.shapes.length : (item.count || 1))} шт.
                 </span>
               </div>
             </div>
