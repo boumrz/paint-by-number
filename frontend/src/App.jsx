@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styles from './App.module.css';
 import SecondCanvasFull from './components/SecondCanvasFull';
+import { ColorPalette } from './components/ColorPalette/ColorPalette';
+
 import axios from 'axios';
+import { Select } from 'antd';
 import Cropper from 'react-easy-crop';
 import Modal from 'react-modal';
 import { useMediaQuery } from 'usehooks-ts';
@@ -15,6 +18,7 @@ function App() {
   const [secondCurrentColor, setSecondCurrentColor] = useState(null);
   const [secondColorCount, setSecondColorCount] = useState({});
   const [secondSvgData, setSecondSvgData] = useState(null);
+  const [typeGeneration, setTypeGeneration] = useState('Обычное');
 
   const [showCrop, setShowCrop] = useState(false);
   const [cropImage, setCropImage] = useState(null);
@@ -62,28 +66,10 @@ function App() {
     img.src = imageSrc;
   };
 
-  const handleSecondImageFile = (event) => {
+  const handleUploadImageFile = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setCroppingFor('second');
-      setCropImage(URL.createObjectURL(file));
-      setShowCrop(true);
-    }
-  };
-
-  const handleSecondImageFileBW = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setCroppingFor('second-bw');
-      setCropImage(URL.createObjectURL(file));
-      setShowCrop(true);
-    }
-  };
-
-  const handleSecondImageFileSepia = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setCroppingFor('second-sepia');
+      setCroppingFor(typeGeneration);
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
     }
@@ -96,7 +82,7 @@ function App() {
       setCropImage(null);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
-      if (croppingFor === 'second') {
+      if (croppingFor === 'Обычное') {
         setSecondPreviewImage(previewUrl);
         try {
           const formData = new FormData();
@@ -115,7 +101,7 @@ function App() {
         } catch (error) {
           console.error('Error processing image:', error);
         }
-      } else if (croppingFor === 'second-bw') {
+      } else if (croppingFor === 'Чернобелое') {
         setSecondPreviewImage(previewUrl);
         try {
           const formData = new FormData();
@@ -148,7 +134,7 @@ function App() {
         } catch (error) {
           console.error('Error processing black and white image:', error);
         }
-      } else if (croppingFor === 'second-sepia') {
+      } else if (croppingFor === 'Сепия') {
         setSecondPreviewImage(previewUrl);
         try {
           const formData = new FormData();
@@ -194,6 +180,10 @@ function App() {
     setZoom(1);
   };
 
+  const handleChangeTypeGeneration = (type) => {
+    setTypeGeneration(type);
+  }
+
   return (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -209,37 +199,25 @@ function App() {
             <h2>Создавай свои шедевры</h2>
             <p>Преврати любую фотографию в картину по номерам</p>
             <div className={styles.uploadSection}>
+              <Select
+                className={styles.select}
+                options={[
+                  { value: 'Обычное', label: 'Обычное' },
+                  { value: 'Чернобелое', label: 'Чернобелое' },
+                  { value: 'Сепия', label: 'Сепия' },
+                ]}
+                value={typeGeneration}
+                onChange={handleChangeTypeGeneration}
+              />
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleSecondImageFile}
-                id="second-image-upload"
+                onChange={handleUploadImageFile}
+                id="image-upload"
                 className={styles.fileInput}
               />
-              <label htmlFor="second-image-upload" className={styles.uploadButton}>
-                Загрузить фото
-              </label>
-              
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleSecondImageFileBW}
-                id="second-image-upload-bw"
-                className={styles.fileInput}
-              />
-              <label htmlFor="second-image-upload-bw" className={styles.uploadButtonBW}>
-                Загрузить чернобелое фото (18 оттенков)
-              </label>
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleSecondImageFileSepia}
-                id="second-image-upload-sepia"
-                className={styles.fileInput}
-              />
-              <label htmlFor="second-image-upload-sepia" className={styles.uploadButtonSepia}>
-                Загрузить сепию
+              <label htmlFor="image-upload" className={styles.uploadButton}>
+                Загрузить
               </label>
             </div>
           </div>
@@ -251,22 +229,33 @@ function App() {
               <section className={styles.previewSection}>
                 <h3>Исходное изображение</h3>
                 <div className={styles.previewContainer}>
-                  <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
+                  <div className={styles.previewItem}>
+                    <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
+                  </div>
+                  <div className={styles.previewItem}>
+                    {secondIdList && secondIdList.length > 0 && (
+                      <ColorPalette
+                        colors={secondIdList}
+                        currentColor={secondCurrentColor}
+                        onColorSelect={setSecondCurrentColor}
+                        colorCount={secondColorCount}
+                      />
+                    )}
+                  </div>
                 </div>
               </section>
             )}
-            {!isTablet && (
-              <SecondCanvasFull
-                svgData={secondSvgData}
-                idList={secondIdList}
-                currentColor={secondCurrentColor}
-                setColorCount={setSecondColorCount}
-                colorCount={secondColorCount}
-                setCurrentColor={setSecondCurrentColor}
-              />
-            )}
           </div>
         </div>
+
+        {!isTablet && (
+          <SecondCanvasFull
+            svgData={secondSvgData}
+            idList={secondIdList}
+            currentColor={secondCurrentColor}
+            setColorCount={setSecondColorCount}
+          />
+        )}
 
         {secondSvgData && (
           <GridInstructions 
@@ -274,23 +263,6 @@ function App() {
             svgData={secondSvgData} 
             title="Инструкция"
           />
-        )}
-
-        {!isTablet && (
-            <section className={styles.featuresSection}>
-              <div className={styles.feature}>
-                <h3>Детализация</h3>
-                <p>Высокое качество обработки изображения</p>
-              </div>
-              <div className={styles.feature}>
-                <h3>Качество</h3>
-                <p>Точная передача цветов и оттенков</p>
-              </div>
-              <div className={styles.feature}>
-                <h3>Простота</h3>
-                <p>Интуитивно понятный интерфейс</p>
-              </div>
-            </section>
         )}
 
         <Modal
@@ -325,7 +297,7 @@ function App() {
       </main>
 
       <footer className={styles.footer}>
-        <p>© 2024 Paint By Number. Все права защищены.</p>
+        <p>© 2025 Картина по пикселям. Все права защищены.</p>
       </footer>
     </div>
   );

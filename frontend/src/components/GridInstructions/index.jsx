@@ -340,7 +340,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
     }
     // Десктоп: прежняя логика
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
         <h3 style={{ padding: '1rem', marginBottom: '1rem', color: '#333' }}>{title}</h3>
         <div style={{ 
           position: 'relative', 

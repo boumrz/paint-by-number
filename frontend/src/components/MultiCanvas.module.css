@@ -2,8 +2,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 2rem;
+
+  h1 {
+    color: black;
+    margin: 0;
+  }
 }
 
 .second-canvas {

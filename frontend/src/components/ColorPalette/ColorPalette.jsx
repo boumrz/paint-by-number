@@ -8,7 +8,6 @@ export const ColorPalette = ({ colors, currentColor, onColorSelect, colorCount }
 
   return (
     <div className={styles.palette}>
-      <h4 className={styles.title}>Палитра цветов</h4>
       <div className={styles.colorsGrid}>
         {colors.map((item, index) => {
           const rgbColor = `rgb(${item.color[0]}, ${item.color[1]}, ${item.color[2]})`;

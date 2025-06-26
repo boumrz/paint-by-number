@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './MultiCanvas.module.css';
 import useCanvas from '../hooks/useCanvas';
-import { ColorPalette } from './ColorPalette/ColorPalette';
 import cn from 'clsx';
 
 const SecondCanvasFull = ({
@@ -9,8 +8,6 @@ const SecondCanvasFull = ({
   idList,
   currentColor,
   setColorCount,
-  colorCount,
-  setCurrentColor
 }) => {
   const {
     svgRef,
@@ -91,6 +88,7 @@ const SecondCanvasFull = ({
 
   return (
     <div className={styles.container}>
+      <h1>Холст</h1>
       <div className={styles.controls}>
         <button onClick={handleClearAll} className={styles.button}>
           Очистить все
@@ -161,14 +159,6 @@ const SecondCanvasFull = ({
           )}
         </div>
       </div>
-      {idList && idList.length > 0 && (
-        <ColorPalette
-          colors={idList}
-          currentColor={currentColor}
-          onColorSelect={setCurrentColor}
-          colorCount={colorCount}
-        />
-      )}
     </div>
   );
 };
