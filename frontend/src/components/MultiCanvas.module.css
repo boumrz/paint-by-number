@@ -2,8 +2,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 2rem;
+
+  h1 {
+    color: black;
+    margin: 0;
+  }
 }
 
 .second-canvas {
@@ -24,6 +28,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  margin-bottom: 32px;
 }
 
 .title {

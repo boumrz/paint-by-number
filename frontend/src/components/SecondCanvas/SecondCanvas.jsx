@@ -23,33 +23,37 @@ const SecondCanvas = ({
     handleDoubleClick
   } = useCanvas(svgData, currentColor, idList, setColorCount);
 
+  // Определяем класс курсора
+  let wrapperCursorClass = styles.grab;
+  if (isDragging) wrapperCursorClass = styles.grabbing;
+  else if (isSelecting) wrapperCursorClass = styles.crosshair;
+
+  // Определяем класс transition
+  const svgTransitionClass = (isDragging || isSelecting) ? styles.noTransition : styles.transformed;
+
   return (
     <div className={styles.section}>
       <div 
-        className={styles.wrapper}
+        className={`${styles.wrapper} ${wrapperCursorClass}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onWheel={handleWheel}
         onDoubleClick={handleDoubleClick}
-        style={{
-          cursor: isDragging ? 'grabbing' : (isSelecting ? 'crosshair' : 'grab')
-        }}
       >
         <div 
-          className="svg-element" 
+          className={`svg-element ${svgTransitionClass}`}
           ref={svgRef}
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            transformOrigin: '0 0',
-            transition: isDragging || isSelecting ? 'none' : 'transform 0.1s'
+            transformOrigin: '0 0'
           }}
         ></div>
         {isSelecting && (
           <div
             ref={selectionRef}
-            className={styles.selectionBox}
+            className={`${styles.selectionBox} ${styles.dynamic}`}
             style={{
               left: Math.min(selection.start.x, selection.end.x),
               top: Math.min(selection.start.y, selection.end.y),

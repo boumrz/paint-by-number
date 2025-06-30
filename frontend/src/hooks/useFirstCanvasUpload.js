@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { config } from '../config.js';
 
 const useFirstCanvasUpload = (setLoading) => {
   const [fName, setFName] = useState(null);
@@ -18,7 +19,7 @@ const useFirstCanvasUpload = (setLoading) => {
         const formData = new FormData();
         formData.append('image', file);
 
-        const response = await axios.post('http://localhost:5000/api/convert', formData, {
+        const response = await axios.post(`${config.apiUrl}/api/convert`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }

@@ -5,6 +5,11 @@
   background-color: #f8f9fa;
 }
 
+.select {
+  min-width: 120px;
+  height: auto;
+}
+
 .header {
   background-color: #000;
   color: #fff;
@@ -41,7 +46,6 @@
   text-align: center;
   padding: 4rem 0;
   border-radius: 8px;
-  margin-bottom: 2rem;
 }
 
 .heroContent h2 {
@@ -82,7 +86,40 @@
   background-color: #333;
 }
 
+.uploadButtonBW {
+  background-color: #666;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.uploadButtonBW:hover {
+  background-color: #888;
+}
+
+.uploadButtonSepia {
+  background-color: #8B4513;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.uploadButtonSepia:hover {
+  background-color: #A0522D;
+}
+
 .previewSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 2rem;
   padding: 1rem;
 }
@@ -92,7 +129,13 @@
   color: #333;
 }
 
+.previewItem {
+  flex: 1;
+  min-width: 0;
+}
+
 .previewContainer {
+  display: flex;
   background: white;
   padding: 1rem;
   border-radius: 8px;
@@ -128,10 +171,11 @@
 }
 
 .featuresSection {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 2rem;
-  margin-top: 4rem;
+  margin-bottom: 40px;
 }
 
 .feature {

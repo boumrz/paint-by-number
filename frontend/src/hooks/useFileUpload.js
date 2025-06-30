@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { config } from '../config.js';
 
 const useFileUpload = (setLoading) => {
   const [svgData, setSvgData] = useState(null);
@@ -11,7 +12,7 @@ const useFileUpload = (setLoading) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch('http://localhost:5000/api/upload', {
+        const response = await fetch(`${config.apiUrl}/api/upload`, {
           method: 'POST',
           body: formData,
         });

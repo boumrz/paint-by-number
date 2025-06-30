@@ -67,19 +67,28 @@ const useCanvas = (svgData, currentColor, idList, setColorCount) => {
   }, [svgData, currentColor]);
 
   const handleElementClick = (event) => {
-    if (currentColor) {
-      const rect = event.currentTarget;
-      rect.setAttribute('fill', `rgb(${currentColor[0]}, ${currentColor[1]}, ${currentColor[2]})`);
+    const rect = event.currentTarget;
+    const dataColor = rect.getAttribute('data-color');
+    
+    if (dataColor) {
+      if (currentColor) {
+        // Если выбран цвет в палитре, заполняем пиксель этим цветом
+        rect.setAttribute('fill', `rgb(${currentColor[0]}, ${currentColor[1]}, ${currentColor[2]})`);
+      } else {
+        // Если цвет не выбран, заполняем пиксель его правильным цветом
+        rect.setAttribute('fill', dataColor);
+      }
       updateColorCount(rect.getAttribute('data-number'));
     }
   };
 
   const updateColorCount = (number) => {
-    const color = idList.find(item => item.number == number)?.color;
-    if (color) {
+    // Находим элемент в idList по номеру
+    const item = idList.find(item => item.number == number);
+    if (item && item.color) {
       setColorCount(prev => {
         const newCount = { ...prev };
-        const colorKey = color.join(',');
+        const colorKey = item.color.join(',');
         newCount[colorKey] = (newCount[colorKey] || 0) + 1;
         return newCount;
       });

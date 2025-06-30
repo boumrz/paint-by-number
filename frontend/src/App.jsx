@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styles from './App.module.css';
 import SecondCanvasFull from './components/SecondCanvasFull';
+import { ColorPalette } from './components/ColorPalette/ColorPalette';
+
 import axios from 'axios';
+import { Select } from 'antd';
 import Cropper from 'react-easy-crop';
 import Modal from 'react-modal';
 import { useMediaQuery } from 'usehooks-ts';
+import { config } from './config.js';
 
 import { GridInstructions  } from './components/GridInstructions';
 
@@ -15,6 +19,7 @@ function App() {
   const [secondCurrentColor, setSecondCurrentColor] = useState(null);
   const [secondColorCount, setSecondColorCount] = useState({});
   const [secondSvgData, setSecondSvgData] = useState(null);
+  const [typeGeneration, setTypeGeneration] = useState('Обычное');
 
   const [showCrop, setShowCrop] = useState(false);
   const [cropImage, setCropImage] = useState(null);
@@ -24,6 +29,7 @@ function App() {
   const [croppingFor, setCroppingFor] = useState(null);
 
   const isTablet = useMediaQuery('(max-width: 1010px)');
+  const isPhone = useMediaQuery('(max-width: 400px)');
 
   // Crop image to square using react-easy-crop
   const onCropComplete = (croppedArea, croppedAreaPixels) => {
@@ -31,11 +37,20 @@ function App() {
   };
 
   const getCroppedImg = (imageSrc, cropPixels, callback) => {
+    console.log('=== getCroppedImg called ===');
+    console.log('Image source:', imageSrc);
+    console.log('Crop pixels:', cropPixels);
+    
     const img = new window.Image();
     img.onload = function () {
+      console.log('Image loaded successfully');
+      console.log('Original image size:', img.width, 'x', img.height);
+      
       const canvas = document.createElement('canvas');
       canvas.width = cropPixels.width;
       canvas.height = cropPixels.height;
+      console.log('Canvas size:', canvas.width, 'x', canvas.height);
+      
       const ctx = canvas.getContext('2d');
       ctx.drawImage(
         img,
@@ -48,24 +63,31 @@ function App() {
         cropPixels.width,
         cropPixels.height
       );
+      console.log('Image drawn to canvas');
+      
       canvas.toBlob((blob) => {
         if (blob) {
+          console.log('Blob created successfully');
+          console.log('Blob size:', blob.size);
+          console.log('Blob type:', blob.type);
           callback(blob, canvas.toDataURL('image/jpeg'));
         } else {
+          console.error('Failed to create blob');
           alert('Не удалось обработать изображение.');
         }
       }, 'image/jpeg');
     };
     img.onerror = function () {
+      console.error('Failed to load image');
       alert('Не удалось прочитать изображение.');
     };
     img.src = imageSrc;
   };
 
-  const handleSecondImageFile = (event) => {
+  const handleUploadImageFile = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setCroppingFor('second');
+      setCroppingFor(typeGeneration);
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
     }
@@ -78,16 +100,25 @@ function App() {
       setCropImage(null);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
-      if (croppingFor === 'second') {
+      if (croppingFor === 'Обычное') {
         setSecondPreviewImage(previewUrl);
         try {
+          console.log('=== Starting image processing ===');
+          console.log('API URL:', `${config.apiUrl}/api/convert-pixels`);
+          console.log('Cropped blob size:', croppedBlob.size);
+          console.log('Cropped blob type:', croppedBlob.type);
+          
           const formData = new FormData();
           formData.append('image', croppedBlob, 'cropped.jpg');
-          const response = await axios.post('http://localhost:5000/api/convert-pixels', formData, {
+          console.log('FormData created, sending request...');
+          
+          const response = await axios.post(`${config.apiUrl}/api/convert-pixels`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }
           });
+          console.log('Response received:', response.status, response.data);
+          
           if (response.data.palette && response.data.svg) {
             setSecondIdList(response.data.palette);
             setSecondSvgData(response.data.svg);
@@ -96,6 +127,94 @@ function App() {
           }
         } catch (error) {
           console.error('Error processing image:', error);
+          console.error('Error response:', error.response?.data);
+          console.error('Error status:', error.response?.status);
+        }
+      } else if (croppingFor === 'Чернобелое') {
+        setSecondPreviewImage(previewUrl);
+        try {
+          console.log('=== Starting black and white processing ===');
+          console.log('API URL:', `${config.apiUrl}/api/convert-pixels-bw`);
+          console.log('Cropped blob size:', croppedBlob.size);
+          
+          const formData = new FormData();
+          formData.append('image', croppedBlob, 'cropped.jpg');
+          console.log('FormData created, sending request...');
+          
+          const response = await axios.post(`${config.apiUrl}/api/convert-pixels-bw`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          console.log('Response received:', response.status, response.data);
+          
+          if (response.data.palette && response.data.svg) {
+            setSecondIdList(response.data.palette);
+            setSecondSvgData(response.data.svg);
+            
+            // Автоматически заполняем цвета для черно-белого изображения
+            setTimeout(() => {
+              const svgElement = document.querySelector('.svg-element');
+              if (svgElement) {
+                const rects = svgElement.querySelectorAll('rect[data-color]');
+                rects.forEach(rect => {
+                  const dataColor = rect.getAttribute('data-color');
+                  if (dataColor) {
+                    rect.setAttribute('fill', dataColor);
+                  }
+                });
+              }
+            }, 100);
+          } else {
+            throw new Error('Invalid server response format');
+          }
+        } catch (error) {
+          console.error('Error processing black and white image:', error);
+          console.error('Error response:', error.response?.data);
+          console.error('Error status:', error.response?.status);
+        }
+      } else if (croppingFor === 'Сепия') {
+        setSecondPreviewImage(previewUrl);
+        try {
+          console.log('=== Starting sepia processing ===');
+          console.log('API URL:', `${config.apiUrl}/api/convert-pixels-sepia`);
+          console.log('Cropped blob size:', croppedBlob.size);
+          
+          const formData = new FormData();
+          formData.append('image', croppedBlob, 'cropped.jpg');
+          console.log('FormData created, sending request...');
+          
+          const response = await axios.post(`${config.apiUrl}/api/convert-pixels-sepia`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          console.log('Response received:', response.status, response.data);
+          
+          if (response.data.palette && response.data.svg) {
+            setSecondIdList(response.data.palette);
+            setSecondSvgData(response.data.svg);
+            
+            // Автоматически заполняем цвета для сепии
+            setTimeout(() => {
+              const svgElement = document.querySelector('.svg-element');
+              if (svgElement) {
+                const rects = svgElement.querySelectorAll('rect[data-color]');
+                rects.forEach(rect => {
+                  const dataColor = rect.getAttribute('data-color');
+                  if (dataColor) {
+                    rect.setAttribute('fill', dataColor);
+                  }
+                });
+              }
+            }, 100);
+          } else {
+            throw new Error('Invalid server response format');
+          }
+        } catch (error) {
+          console.error('Error processing sepia image:', error);
+          console.error('Error response:', error.response?.data);
+          console.error('Error status:', error.response?.status);
         }
       }
       setCroppingFor(null);
@@ -109,6 +228,10 @@ function App() {
     setCrop({ x: 0, y: 0 });
     setZoom(1);
   };
+
+  const handleChangeTypeGeneration = (type) => {
+    setTypeGeneration(type);
+  }
 
   return (
     <div className={styles.app}>
@@ -125,42 +248,65 @@ function App() {
             <h2>Создавай свои шедевры</h2>
             <p>Преврати любую фотографию в картину по номерам</p>
             <div className={styles.uploadSection}>
+              <Select
+                className={styles.select}
+                options={[
+                  { value: 'Обычное', label: 'Обычное' },
+                  { value: 'Чернобелое', label: 'Чернобелое' },
+                  { value: 'Сепия', label: 'Сепия' },
+                ]}
+                value={typeGeneration}
+                onChange={handleChangeTypeGeneration}
+              />
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleSecondImageFile}
-                id="second-image-upload"
+                onChange={handleUploadImageFile}
+                id="image-upload"
                 className={styles.fileInput}
               />
-              <label htmlFor="second-image-upload" className={styles.uploadButton}>
-                Загрузить фото
+              <label htmlFor="image-upload" className={styles.uploadButton}>
+                Загрузить
               </label>
             </div>
           </div>
         </section>
 
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
-          <div style={{ flex: 1, minWidth: 400 }}>
+          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
             {secondPreviewImage && (
               <section className={styles.previewSection}>
                 <h3>Исходное изображение</h3>
                 <div className={styles.previewContainer}>
-                  <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
+                  <div className={styles.previewItem}>
+                    <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
+                  </div>
+                  {!isPhone && (
+                    <div className={styles.previewItem}>
+                      {secondIdList && secondIdList.length > 0 && (
+                        <ColorPalette
+                          colors={secondIdList}
+                          currentColor={secondCurrentColor}
+                          onColorSelect={setSecondCurrentColor}
+                          colorCount={secondColorCount}
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               </section>
             )}
-            {!isTablet && (
-              <SecondCanvasFull
-                svgData={secondSvgData}
-                idList={secondIdList}
-                currentColor={secondCurrentColor}
-                setColorCount={setSecondColorCount}
-                colorCount={secondColorCount}
-                setCurrentColor={setSecondCurrentColor}
-              />
-            )}
           </div>
         </div>
+
+        {!isTablet && (
+          <SecondCanvasFull
+            svgData={secondSvgData}
+            idList={secondIdList}
+            currentColor={secondCurrentColor}
+            setColorCount={setSecondColorCount}
+          />
+        )}
 
         {secondSvgData && (
           <GridInstructions 
@@ -168,23 +314,6 @@ function App() {
             svgData={secondSvgData} 
             title="Инструкция"
           />
-        )}
-
-        {!isTablet && (
-            <section className={styles.featuresSection}>
-              <div className={styles.feature}>
-                <h3>Детализация</h3>
-                <p>Высокое качество обработки изображения</p>
-              </div>
-              <div className={styles.feature}>
-                <h3>Качество</h3>
-                <p>Точная передача цветов и оттенков</p>
-              </div>
-              <div className={styles.feature}>
-                <h3>Простота</h3>
-                <p>Интуитивно понятный интерфейс</p>
-              </div>
-            </section>
         )}
 
         <Modal
@@ -219,7 +348,7 @@ function App() {
       </main>
 
       <footer className={styles.footer}>
-        <p>© 2024 Paint By Number. Все права защищены.</p>
+        <p>© 2025 Картина по пикселям. Все права защищены.</p>
       </footer>
     </div>
   );
