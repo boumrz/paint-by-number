@@ -14,25 +14,25 @@ export const GridInstructions = ({ idList, svgData, title }) => {
     const isPhone = useMediaQuery('(max-width: 400px)');
   
     const generateInstructionGrid = () => {
-      const gridSize = 10;
-      const cellSize = 60; // Увеличенный размер для инструкции
-      const cells = [];
-      
-      for (let row = 0; row < gridSize; row++) {
-        for (let col = 0; col < gridSize; col++) {
-          const number = row * gridSize + col + 1;
-          const x = col * cellSize;
-          const y = row * cellSize;
-          
-          cells.push(
+      const gridCols = 8;
+      const gridRows = 8;
+      const total = gridCols * gridRows;
+      return (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+            gridTemplateRows: `repeat(${gridRows}, 1fr)`,
+            width: '100%',
+            height: '100%',
+            gap: 0,
+            position: 'relative',
+          }}
+        >
+          {Array.from({ length: total }).map((_, idx) => (
             <div
-              key={number}
+              key={idx + 1}
               style={{
-                position: 'absolute',
-                left: x,
-                top: y,
-                width: cellSize,
-                height: cellSize,
                 border: '2px solid #000',
                 display: 'flex',
                 alignItems: 'center',
@@ -42,29 +42,28 @@ export const GridInstructions = ({ idList, svgData, title }) => {
                 color: '#000',
                 backgroundColor: '#f0f0f0',
                 cursor: 'pointer',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                width: '100%',
+                height: '100%',
+                boxSizing: 'border-box',
               }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#e0e0e0';
+              onMouseEnter={e => {
+                e.currentTarget.style.backgroundColor = '#e0e0e0';
               }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#f0f0f0';
+              onMouseLeave={e => {
+                e.currentTarget.style.backgroundColor = '#f0f0f0';
               }}
               onClick={() => {
-                setSelectedSquare(number);
+                setSelectedSquare(idx + 1);
                 setShowColorModal(true);
               }}
-              title={`Квадрат ${number} - кликните для просмотра цветов`}
+              title={`Сектор ${idx + 1} - кликните для просмотра цветов`}
             >
-              <div>
-                {number}
-              </div>
+              <div>{idx + 1}</div>
             </div>
-          );
-        }
-      }
-      
-      return cells;
+          ))}
+        </div>
+      );
     };
   
     // Извлечение цветов для конкретного квадрата
@@ -97,13 +96,14 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           return [];
         }
         
-        // Рассчитываем границы квадрата (90x90 пикселей)
-        const squareSize = 90;
-        const gridSize = 10;
-        const row = Math.floor((squareNumber - 1) / gridSize);
-        const col = (squareNumber - 1) % gridSize;
-        const squareX = col * squareSize;
-        const squareY = row * squareSize;
+        // Рассчитываем границы квадрата
+        const cellWidth = 100;
+        const cellHeight = 160;
+        const gridCols = 8;
+        const row = Math.floor((squareNumber - 1) / gridCols);
+        const col = (squareNumber - 1) % gridCols;
+        const squareX = col * cellWidth;
+        const squareY = row * cellHeight;
               
         // Проверяем тип холста по структуре данных
         const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
@@ -122,8 +122,8 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             
             // Проверяем, находится ли элемент в пределах квадрата
             if (x >= squareX && y >= squareY && 
-                x + width <= squareX + squareSize && 
-                y + height <= squareY + squareSize) {
+                x + width <= squareX + cellWidth && 
+                y + height <= squareY + cellHeight) {
               
               const dataColor = rect.getAttribute('data-color');
               if (dataColor) {
@@ -196,13 +196,14 @@ export const GridInstructions = ({ idList, svgData, title }) => {
         
         if (!svgElement) return null;
         
-        // Рассчитываем границы квадрата (90x90 пикселей)
-        const squareSize = 90;
-        const gridSize = 10;
-        const row = Math.floor((squareNumber - 1) / gridSize);
-        const col = (squareNumber - 1) % gridSize;
-        const squareX = col * squareSize;
-        const squareY = row * squareSize;
+        // Рассчитываем границы квадрата
+        const cellWidth = 100;
+        const cellHeight = 160;
+        const gridCols = 8;
+        const row = Math.floor((squareNumber - 1) / gridCols);
+        const col = (squareNumber - 1) % gridCols;
+        const squareX = col * cellWidth;
+        const squareY = row * cellHeight;
               
         // Проверяем тип холста
         const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
@@ -222,8 +223,8 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             // Более точная проверка границ
             const elementRight = x + width;
             const elementBottom = y + height;
-            const squareRight = squareX + squareSize;
-            const squareBottom = squareY + squareSize;
+            const squareRight = squareX + cellWidth;
+            const squareBottom = squareY + cellHeight;
             // Проверяем, пересекается ли элемент с квадратом
             const inSquare = x < squareRight && elementRight > squareX && 
                             y < squareBottom && elementBottom > squareY;
@@ -246,7 +247,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             }
           });
           // Создаем SVG для квадрата
-          const result = `<svg width="600px" height="600px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
+          const result = `<svg width="100px" height="160px" viewBox="0 0 100 161" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
             ${textElements.join('')}
           </svg>`;
@@ -274,7 +275,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           });
                   
           // Создаем SVG для квадрата
-          const result = `<svg width="600px" height="600px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
+          const result = `<svg width="100px" height="160px" viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
           </svg>`;
           
@@ -343,9 +344,11 @@ export const GridInstructions = ({ idList, svgData, title }) => {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
         <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>{title}</h3>
         <div style={{ 
-          position: 'relative', 
-          width: '600px', 
-          height: '600px', 
+          position: 'relative',
+          width: '600px',
+          height: '960px',
+          maxWidth: '100%',
+          maxHeight: '90vh',
           margin: '0 auto',
           backgroundColor: '#fff'
         }}>
@@ -358,55 +361,76 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             ariaHideApp={false}
             style={{
               overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
-              content: { 
-                maxWidth: 600, 
+              content: {
+                maxWidth: 600,
+                width: '95%',
                 margin: 'auto',
-                height: 'fit-content', 
+                maxHeight: '90vh',
+                height: 'auto',
                 padding: '20px',
-                borderRadius: '8px'
+                borderRadius: '8px',
+                overflow: 'auto',
               }
             }}
           >
             <div style={{ width: '100%', height: '100%' }}>
               <h3 style={{ marginBottom: '1rem', color: '#333', textAlign: 'center' }}>
-                Квадрат {selectedSquare}
+                Сектор {selectedSquare}
               </h3>
               <div
-                style={{ 
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  maxHeight: '70vh',
+                  overflow: 'auto',
+                  width: '100%',
                 }}>
-                <div style={{ display: 'flex', width: '600px', height: '600px', alignItems: 'center', justifyContent: 'center' }}>
-                    <div 
-                    dangerouslySetInnerHTML={{ 
-                        __html: getSquareSvg(selectedSquare) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>' 
+                <div style={{
+                  display: 'flex',
+                  width: '100%',
+                  maxWidth: 500,
+                  height: 700,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  background: '#fff',
+                  border: '1px solid #eee',
+                  margin: '0 auto'
+                }}>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: getSquareSvg(selectedSquare) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>'
                     }}
                     style={{
-                        transformOrigin: 'top left'
+                      transformOrigin: 'top left',
+                      width: '100%',
+                      height: '100%',
+                      overflow: 'auto',
                     }}
-                    />
+                  />
                 </div>
-                <div 
-                    style={{ 
-                        textAlign: 'center',
-                        marginTop: '1rem',
-                     }}
+                <div
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '1rem',
+                  }}
                 >
-                    <button
-                        onClick={handleCloseModal}
-                        style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
-                    >
+                  <button
+                    onClick={handleCloseModal}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#007bff',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
                     Закрыть
-                    </button>
+                  </button>
                 </div>
               </div>
             </div>
