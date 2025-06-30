@@ -14,16 +14,16 @@ export const GridInstructions = ({ idList, svgData, title }) => {
     const isPhone = useMediaQuery('(max-width: 400px)');
   
     const generateInstructionGrid = () => {
-      const gridSize = 10;
-      const cellSize = 60; // Увеличенный размер для инструкции
+      const gridCols = 8;
+      const gridRows = 10;
+      const cellWidth = 75; // 600 / 8
+      const cellHeight = 100; // 1000 / 10
       const cells = [];
-      
-      for (let row = 0; row < gridSize; row++) {
-        for (let col = 0; col < gridSize; col++) {
-          const number = row * gridSize + col + 1;
-          const x = col * cellSize;
-          const y = row * cellSize;
-          
+      for (let row = 0; row < gridRows; row++) {
+        for (let col = 0; col < gridCols; col++) {
+          const number = row * gridCols + col + 1;
+          const x = col * cellWidth;
+          const y = row * cellHeight;
           cells.push(
             <div
               key={number}
@@ -31,8 +31,8 @@ export const GridInstructions = ({ idList, svgData, title }) => {
                 position: 'absolute',
                 left: x,
                 top: y,
-                width: cellSize,
-                height: cellSize,
+                width: cellWidth,
+                height: cellHeight,
                 border: '2px solid #000',
                 display: 'flex',
                 alignItems: 'center',
@@ -63,7 +63,6 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           );
         }
       }
-      
       return cells;
     };
   
@@ -97,13 +96,14 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           return [];
         }
         
-        // Рассчитываем границы квадрата (90x90 пикселей)
-        const squareSize = 90;
-        const gridSize = 10;
-        const row = Math.floor((squareNumber - 1) / gridSize);
-        const col = (squareNumber - 1) % gridSize;
-        const squareX = col * squareSize;
-        const squareY = row * squareSize;
+        // Рассчитываем границы квадрата
+        const squareWidth = 100; // 800 / 8
+        const squareHeight = 100; // 1000 / 10
+        const gridCols = 8;
+        const row = Math.floor((squareNumber - 1) / gridCols);
+        const col = (squareNumber - 1) % gridCols;
+        const squareX = col * squareWidth;
+        const squareY = row * squareHeight;
               
         // Проверяем тип холста по структуре данных
         const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
@@ -122,8 +122,8 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             
             // Проверяем, находится ли элемент в пределах квадрата
             if (x >= squareX && y >= squareY && 
-                x + width <= squareX + squareSize && 
-                y + height <= squareY + squareSize) {
+                x + width <= squareX + squareWidth && 
+                y + height <= squareY + squareHeight) {
               
               const dataColor = rect.getAttribute('data-color');
               if (dataColor) {
@@ -196,13 +196,14 @@ export const GridInstructions = ({ idList, svgData, title }) => {
         
         if (!svgElement) return null;
         
-        // Рассчитываем границы квадрата (90x90 пикселей)
-        const squareSize = 90;
-        const gridSize = 10;
-        const row = Math.floor((squareNumber - 1) / gridSize);
-        const col = (squareNumber - 1) % gridSize;
-        const squareX = col * squareSize;
-        const squareY = row * squareSize;
+        // Рассчитываем границы квадрата
+        const squareWidth = 100; // 800 / 8
+        const squareHeight = 100; // 1000 / 10
+        const gridCols = 8;
+        const row = Math.floor((squareNumber - 1) / gridCols);
+        const col = (squareNumber - 1) % gridCols;
+        const squareX = col * squareWidth;
+        const squareY = row * squareHeight;
               
         // Проверяем тип холста
         const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
@@ -222,8 +223,8 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             // Более точная проверка границ
             const elementRight = x + width;
             const elementBottom = y + height;
-            const squareRight = squareX + squareSize;
-            const squareBottom = squareY + squareSize;
+            const squareRight = squareX + squareWidth;
+            const squareBottom = squareY + squareHeight;
             // Проверяем, пересекается ли элемент с квадратом
             const inSquare = x < squareRight && elementRight > squareX && 
                             y < squareBottom && elementBottom > squareY;
@@ -246,7 +247,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             }
           });
           // Создаем SVG для квадрата
-          const result = `<svg width="600px" height="600px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
+          const result = `<svg width="800px" height="1000px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
             ${textElements.join('')}
           </svg>`;
@@ -274,7 +275,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           });
                   
           // Создаем SVG для квадрата
-          const result = `<svg width="600px" height="600px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
+          const result = `<svg width="800px" height="1000px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
           </svg>`;
           
@@ -345,7 +346,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
         <div style={{ 
           position: 'relative', 
           width: '600px', 
-          height: '600px', 
+          height: '1000px', 
           margin: '0 auto',
           backgroundColor: '#fff'
         }}>
@@ -378,7 +379,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                <div style={{ display: 'flex', width: '600px', height: '600px', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', width: '600px', height: '1000px', alignItems: 'center', justifyContent: 'center' }}>
                     <div 
                     dangerouslySetInnerHTML={{ 
                         __html: getSquareSvg(selectedSquare) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>' 
