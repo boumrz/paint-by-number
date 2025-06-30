@@ -331,7 +331,7 @@ function App() {
                 image={cropImage}
                 crop={crop}
                 zoom={zoom}
-                aspect={0.8}
+                aspect={0.625}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
