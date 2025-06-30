@@ -86,36 +86,23 @@ def convert_image():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Если изображение слишком большое, масштабируем его
-            if width > 2000 or height > 2000:
-                print(f"Image too large, scaling down to 2000x2000")
-                # Масштабируем до 2000x2000, сохраняя пропорции
-                img.thumbnail((2000, 2000), Image.Resampling.LANCZOS)
-                # Создаем новое изображение 2000x2000 с белым фоном
-                new_img = Image.new('RGB', (2000, 2000), (255, 255, 255))
-                # Центрируем масштабированное изображение
-                paste_x = (2000 - img.width) // 2
-                paste_y = (2000 - img.height) // 2
-                new_img.paste(img, (paste_x, paste_y))
-                # Сохраняем обратно
-                new_img.save(input_path, 'JPEG', quality=95)
-                print(f"Image scaled and saved as 2000x2000")
-            
-            # Проверяем, что изображение квадратное
-            with Image.open(input_path) as final_img:
-                final_width, final_height = final_img.size
-                print(f"Final image dimensions: {final_width}x{final_height}")
-                if final_width != final_height:
-                    print("Image not square, cropping to square")
-                    # Обрезаем до квадрата, беря центральную часть
-                    size = min(final_width, final_height)
-                    left = (final_width - size) // 2
-                    top = (final_height - size) // 2
-                    right = left + size
-                    bottom = top + size
-                    cropped_img = final_img.crop((left, top, right, bottom))
-                    cropped_img.save(input_path, 'JPEG', quality=95)
-                    print(f"Image cropped to {size}x{size}")
+            # Вместо квадратной обрезки приводим к 4:5 (например, 800x1000)
+            target_ratio = 4 / 5
+            img_ratio = width / height
+            if img_ratio > target_ratio:
+                # слишком широкое, обрезаем по ширине
+                new_width = int(height * target_ratio)
+                left = (width - new_width) // 2
+                img = img.crop((left, 0, left + new_width, height))
+            elif img_ratio < target_ratio:
+                # слишком высокое, обрезаем по высоте
+                new_height = int(width / target_ratio)
+                top = (height - new_height) // 2
+                img = img.crop((0, top, width, top + new_height))
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
+            img.save(input_path, 'JPEG', quality=95)
+            print(f"Image scaled and saved as 800x1000")
         
         # Process image
         print("Initializing PbnGen...")
@@ -212,42 +199,29 @@ def convert_image_pixels():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Если изображение слишком большое, масштабируем его
-            if width > 2000 or height > 2000:
-                print(f"Image too large, scaling down to 2000x2000")
-                # Масштабируем до 2000x2000, сохраняя пропорции
-                img.thumbnail((2000, 2000), Image.Resampling.LANCZOS)
-                # Создаем новое изображение 2000x2000 с белым фоном
-                new_img = Image.new('RGB', (2000, 2000), (255, 255, 255))
-                # Центрируем масштабированное изображение
-                paste_x = (2000 - img.width) // 2
-                paste_y = (2000 - img.height) // 2
-                new_img.paste(img, (paste_x, paste_y))
-                # Сохраняем обратно
-                new_img.save(input_path, 'JPEG', quality=95)
-                print(f"Image scaled and saved as 2000x2000")
-            
-            # Проверяем, что изображение квадратное
-            with Image.open(input_path) as final_img:
-                final_width, final_height = final_img.size
-                print(f"Final image dimensions: {final_width}x{final_height}")
-                if final_width != final_height:
-                    print("Image not square, cropping to square")
-                    # Обрезаем до квадрата, беря центральную часть
-                    size = min(final_width, final_height)
-                    left = (final_width - size) // 2
-                    top = (final_height - size) // 2
-                    right = left + size
-                    bottom = top + size
-                    cropped_img = final_img.crop((left, top, right, bottom))
-                    cropped_img.save(input_path, 'JPEG', quality=95)
-                    print(f"Image cropped to {size}x{size}")
-
-        # Фиксированное количество пикселей
-        num_pixels_x = 70
-        num_pixels_y = 70
-        canvas_width = 900
-        canvas_height = 900
+            # Вместо квадратной обрезки приводим к 4:5 (например, 800x1000)
+            target_ratio = 4 / 5
+            img_ratio = width / height
+            if img_ratio > target_ratio:
+                # слишком широкое, обрезаем по ширине
+                new_width = int(height * target_ratio)
+                left = (width - new_width) // 2
+                img = img.crop((left, 0, left + new_width, height))
+            elif img_ratio < target_ratio:
+                # слишком высокое, обрезаем по высоте
+                new_height = int(width / target_ratio)
+                top = (height - new_height) // 2
+                img = img.crop((0, top, width, top + new_height))
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
+            img.save(input_path, 'JPEG', quality=95)
+            print(f"Image scaled and saved as 800x1000")
+        
+        # Фиксированное количество пикселей и размер холста под 4:5
+        num_pixels_x = 40
+        num_pixels_y = 50
+        canvas_width = 800
+        canvas_height = 1000
         max_colors = 15  # Максимальное количество цветов
 
         # Открываем изображение
@@ -359,42 +333,29 @@ def convert_image_pixels_bw():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Если изображение слишком большое, масштабируем его
-            if width > 2000 or height > 2000:
-                print(f"Image too large, scaling down to 2000x2000")
-                # Масштабируем до 2000x2000, сохраняя пропорции
-                img.thumbnail((2000, 2000), Image.Resampling.LANCZOS)
-                # Создаем новое изображение 2000x2000 с белым фоном
-                new_img = Image.new('RGB', (2000, 2000), (255, 255, 255))
-                # Центрируем масштабированное изображение
-                paste_x = (2000 - img.width) // 2
-                paste_y = (2000 - img.height) // 2
-                new_img.paste(img, (paste_x, paste_y))
-                # Сохраняем обратно
-                new_img.save(input_path, 'JPEG', quality=95)
-                print(f"Image scaled and saved as 2000x2000")
-            
-            # Проверяем, что изображение квадратное
-            with Image.open(input_path) as final_img:
-                final_width, final_height = final_img.size
-                print(f"Final image dimensions: {final_width}x{final_height}")
-                if final_width != final_height:
-                    print("Image not square, cropping to square")
-                    # Обрезаем до квадрата, беря центральную часть
-                    size = min(final_width, final_height)
-                    left = (final_width - size) // 2
-                    top = (final_height - size) // 2
-                    right = left + size
-                    bottom = top + size
-                    cropped_img = final_img.crop((left, top, right, bottom))
-                    cropped_img.save(input_path, 'JPEG', quality=95)
-                    print(f"Image cropped to {size}x{size}")
-
+            # Вместо квадратной обрезки приводим к 4:5 (например, 800x1000)
+            target_ratio = 4 / 5
+            img_ratio = width / height
+            if img_ratio > target_ratio:
+                # слишком широкое, обрезаем по ширине
+                new_width = int(height * target_ratio)
+                left = (width - new_width) // 2
+                img = img.crop((left, 0, left + new_width, height))
+            elif img_ratio < target_ratio:
+                # слишком высокое, обрезаем по высоте
+                new_height = int(width / target_ratio)
+                top = (height - new_height) // 2
+                img = img.crop((0, top, width, top + new_height))
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
+            img.save(input_path, 'JPEG', quality=95)
+            print(f"Image scaled and saved as 800x1000")
+        
         # Фиксированное количество пикселей
-        num_pixels_x = 70
-        num_pixels_y = 70
-        canvas_width = 900
-        canvas_height = 900
+        num_pixels_x = 40
+        num_pixels_y = 50
+        canvas_width = 800
+        canvas_height = 1000
 
         # Открываем изображение
         img = cv2.imread(input_path)
@@ -510,42 +471,29 @@ def convert_image_pixels_sepia():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Если изображение слишком большое, масштабируем его
-            if width > 2000 or height > 2000:
-                print(f"Image too large, scaling down to 2000x2000")
-                # Масштабируем до 2000x2000, сохраняя пропорции
-                img.thumbnail((2000, 2000), Image.Resampling.LANCZOS)
-                # Создаем новое изображение 2000x2000 с белым фоном
-                new_img = Image.new('RGB', (2000, 2000), (255, 255, 255))
-                # Центрируем масштабированное изображение
-                paste_x = (2000 - img.width) // 2
-                paste_y = (2000 - img.height) // 2
-                new_img.paste(img, (paste_x, paste_y))
-                # Сохраняем обратно
-                new_img.save(input_path, 'JPEG', quality=95)
-                print(f"Image scaled and saved as 2000x2000")
-            
-            # Проверяем, что изображение квадратное
-            with Image.open(input_path) as final_img:
-                final_width, final_height = final_img.size
-                print(f"Final image dimensions: {final_width}x{final_height}")
-                if final_width != final_height:
-                    print("Image not square, cropping to square")
-                    # Обрезаем до квадрата, беря центральную часть
-                    size = min(final_width, final_height)
-                    left = (final_width - size) // 2
-                    top = (final_height - size) // 2
-                    right = left + size
-                    bottom = top + size
-                    cropped_img = final_img.crop((left, top, right, bottom))
-                    cropped_img.save(input_path, 'JPEG', quality=95)
-                    print(f"Image cropped to {size}x{size}")
-
+            # Вместо квадратной обрезки приводим к 4:5 (например, 800x1000)
+            target_ratio = 4 / 5
+            img_ratio = width / height
+            if img_ratio > target_ratio:
+                # слишком широкое, обрезаем по ширине
+                new_width = int(height * target_ratio)
+                left = (width - new_width) // 2
+                img = img.crop((left, 0, left + new_width, height))
+            elif img_ratio < target_ratio:
+                # слишком высокое, обрезаем по высоте
+                new_height = int(width / target_ratio)
+                top = (height - new_height) // 2
+                img = img.crop((0, top, width, top + new_height))
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
+            img.save(input_path, 'JPEG', quality=95)
+            print(f"Image scaled and saved as 800x1000")
+        
         # Фиксированное количество пикселей
-        num_pixels_x = 70
-        num_pixels_y = 70
-        canvas_width = 900
-        canvas_height = 900
+        num_pixels_x = 40
+        num_pixels_y = 50
+        canvas_width = 800
+        canvas_height = 1000
 
         # Открываем изображение
         img = cv2.imread(input_path)
