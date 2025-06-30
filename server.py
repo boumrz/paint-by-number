@@ -218,8 +218,8 @@ def convert_image_pixels():
             print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей и размер холста под 4:5
-        num_pixels_x = 40
-        num_pixels_y = 50
+        num_pixels_x = 80  # 8 больших квадратов * 10 пикселей
+        num_pixels_y = 160 # 10 больших квадратов * 16 пикселей
         canvas_width = 800
         canvas_height = 1000
         max_colors = 15  # Максимальное количество цветов
@@ -352,8 +352,8 @@ def convert_image_pixels_bw():
             print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей
-        num_pixels_x = 40
-        num_pixels_y = 50
+        num_pixels_x = 80
+        num_pixels_y = 160
         canvas_width = 800
         canvas_height = 1000
 
@@ -490,8 +490,8 @@ def convert_image_pixels_sepia():
             print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей
-        num_pixels_x = 40
-        num_pixels_y = 50
+        num_pixels_x = 80
+        num_pixels_y = 160
         canvas_width = 800
         canvas_height = 1000
 
