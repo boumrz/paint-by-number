@@ -86,8 +86,8 @@ def convert_image():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Вместо квадратной обрезки приводим к 4:5 (например, 800x1000)
-            target_ratio = 4 / 5
+            # Приводим к соотношению 800x1280 (5:8)
+            target_ratio = 800 / 1280
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -99,10 +99,10 @@ def convert_image():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1000
-            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1280
+            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1000")
+            print(f"Image scaled and saved as 800x1280")
         
         # Process image
         print("Initializing PbnGen...")
@@ -199,8 +199,8 @@ def convert_image_pixels():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Вместо квадратной обрезки приводим к 4:5 (например, 800x1000)
-            target_ratio = 4 / 5
+            # Приводим к соотношению 800x1280 (5:8)
+            target_ratio = 800 / 1280
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -212,16 +212,16 @@ def convert_image_pixels():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1000
-            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1280
+            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1000")
+            print(f"Image scaled and saved as 800x1280")
         
         # Фиксированное количество пикселей и размер холста под 4:5
         num_pixels_x = 80  # 8 больших квадратов * 10 пикселей
-        num_pixels_y = 160 # 10 больших квадратов * 16 пикселей
+        num_pixels_y = 128 # 10 больших квадратов * 16 пикселей
         canvas_width = 800
-        canvas_height = 1000
+        canvas_height = 1280
         max_colors = 15  # Максимальное количество цветов
 
         # Открываем изображение
@@ -333,8 +333,8 @@ def convert_image_pixels_bw():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Вместо квадратной обрезки приводим к 4:5 (например, 800x1000)
-            target_ratio = 4 / 5
+            # Приводим к соотношению 800x1280 (5:8)
+            target_ratio = 800 / 1280
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -346,16 +346,16 @@ def convert_image_pixels_bw():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1000
-            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1280
+            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1000")
+            print(f"Image scaled and saved as 800x1280")
         
         # Фиксированное количество пикселей
         num_pixels_x = 80
-        num_pixels_y = 160
+        num_pixels_y = 128
         canvas_width = 800
-        canvas_height = 1000
+        canvas_height = 1280
 
         # Открываем изображение
         img = cv2.imread(input_path)
@@ -471,8 +471,8 @@ def convert_image_pixels_sepia():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Вместо квадратной обрезки приводим к 4:5 (например, 800x1000)
-            target_ratio = 4 / 5
+            # Приводим к соотношению 800x1280 (5:8)
+            target_ratio = 800 / 1280
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -484,16 +484,16 @@ def convert_image_pixels_sepia():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1000
-            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1280
+            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1000")
+            print(f"Image scaled and saved as 800x1280")
         
         # Фиксированное количество пикселей
         num_pixels_x = 80
-        num_pixels_y = 160
+        num_pixels_y = 128
         canvas_width = 800
-        canvas_height = 1000
+        canvas_height = 1280
 
         # Открываем изображение
         img = cv2.imread(input_path)

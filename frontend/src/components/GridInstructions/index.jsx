@@ -15,9 +15,9 @@ export const GridInstructions = ({ idList, svgData, title }) => {
   
     const generateInstructionGrid = () => {
       const gridCols = 8;
-      const gridRows = 10;
-      const cellWidth = 75; // 600 / 8
-      const cellHeight = 100; // 1000 / 10
+      const gridRows = 8;
+      const cellWidth = 100; // 800 / 8
+      const cellHeight = 160; // 1280 / 8
       const cells = [];
       for (let row = 0; row < gridRows; row++) {
         for (let col = 0; col < gridCols; col++) {
@@ -54,7 +54,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
                 setSelectedSquare(number);
                 setShowColorModal(true);
               }}
-              title={`Квадрат ${number} - кликните для просмотра цветов`}
+              title={`Сектор ${number} - кликните для просмотра цветов`}
             >
               <div>
                 {number}
@@ -97,13 +97,13 @@ export const GridInstructions = ({ idList, svgData, title }) => {
         }
         
         // Рассчитываем границы квадрата
-        const squareWidth = 100; // 800 / 8
-        const squareHeight = 100; // 1000 / 10
+        const cellWidth = 100;
+        const cellHeight = 160;
         const gridCols = 8;
         const row = Math.floor((squareNumber - 1) / gridCols);
         const col = (squareNumber - 1) % gridCols;
-        const squareX = col * squareWidth;
-        const squareY = row * squareHeight;
+        const squareX = col * cellWidth;
+        const squareY = row * cellHeight;
               
         // Проверяем тип холста по структуре данных
         const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
@@ -122,8 +122,8 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             
             // Проверяем, находится ли элемент в пределах квадрата
             if (x >= squareX && y >= squareY && 
-                x + width <= squareX + squareWidth && 
-                y + height <= squareY + squareHeight) {
+                x + width <= squareX + cellWidth && 
+                y + height <= squareY + cellHeight) {
               
               const dataColor = rect.getAttribute('data-color');
               if (dataColor) {
@@ -197,13 +197,13 @@ export const GridInstructions = ({ idList, svgData, title }) => {
         if (!svgElement) return null;
         
         // Рассчитываем границы квадрата
-        const squareWidth = 100; // 800 / 8
-        const squareHeight = 100; // 1000 / 10
+        const cellWidth = 100;
+        const cellHeight = 160;
         const gridCols = 8;
         const row = Math.floor((squareNumber - 1) / gridCols);
         const col = (squareNumber - 1) % gridCols;
-        const squareX = col * squareWidth;
-        const squareY = row * squareHeight;
+        const squareX = col * cellWidth;
+        const squareY = row * cellHeight;
               
         // Проверяем тип холста
         const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
@@ -223,8 +223,8 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             // Более точная проверка границ
             const elementRight = x + width;
             const elementBottom = y + height;
-            const squareRight = squareX + squareWidth;
-            const squareBottom = squareY + squareHeight;
+            const squareRight = squareX + cellWidth;
+            const squareBottom = squareY + cellHeight;
             // Проверяем, пересекается ли элемент с квадратом
             const inSquare = x < squareRight && elementRight > squareX && 
                             y < squareBottom && elementBottom > squareY;

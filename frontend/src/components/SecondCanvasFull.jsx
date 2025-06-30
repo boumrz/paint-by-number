@@ -45,12 +45,12 @@ const SecondCanvasFull = ({
     }
   };
 
-  // Генерация сетки 10x10
+  // Генерация сетки 10x16
   const generateGrid = () => {
-    const gridCols = 8; // 800 / 100 = 8
-    const gridRows = 10; // 1000 / 100 = 10
+    const gridCols = 10; // 800 / 100 = 8
+    const gridRows = 16; // 1000 / 100 = 10
     const cellWidth = 100; // 800 / 8
-    const cellHeight = 100; // 1000 / 10
+    const cellHeight = 160; // 1000 / 10
     const cells = [];
     for (let row = 0; row < gridRows; row++) {
       for (let col = 0; col < gridCols; col++) {
@@ -130,14 +130,14 @@ const SecondCanvasFull = ({
               className={cn(styles['svg-element'], styles['second-canvas'])}
               ref={svgRef}
             />
-            {/* Слой с сеткой 8x10 */}
+            {/* Слой с сеткой 10x16 */}
             <div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '800px',
-                height: '1000px',
+                height: '1280px',
                 pointerEvents: 'none'
               }}
             >
