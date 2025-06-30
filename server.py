@@ -275,7 +275,7 @@ def convert_image_pixels():
                 
                 # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
                 rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb({pixel_color[0]}, {pixel_color[1]}, {pixel_color[2]})" data-number="{number}"/>'
-                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2 + 5}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black">{number}</text>'
+                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black" stroke="white" stroke-width="2" paint-order="stroke">{number}</text>'
                 svg_elements.append(rect)
                 svg_elements.append(text)
 
@@ -413,7 +413,7 @@ def convert_image_pixels_bw():
                 
                 # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
                 rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb({pixel_color[0]}, {pixel_color[1]}, {pixel_color[2]})" data-number="{number}"/>'
-                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2 + 5}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black">{number}</text>'
+                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black" stroke="white" stroke-width="2" paint-order="stroke">{number}</text>'
                 svg_elements.append(rect)
                 svg_elements.append(text)
 
@@ -551,7 +551,7 @@ def convert_image_pixels_sepia():
                 
                 # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
                 rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb({pixel_color[0]}, {pixel_color[1]}, {pixel_color[2]})" data-number="{number}"/>'
-                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2 + 5}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black">{number}</text>'
+                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black" stroke="white" stroke-width="2" paint-order="stroke">{number}</text>'
                 svg_elements.append(rect)
                 svg_elements.append(text)
 
