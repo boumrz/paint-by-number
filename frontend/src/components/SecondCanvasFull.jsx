@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './MultiCanvas.module.css';
 import useCanvas from '../hooks/useCanvas';
 import cn from 'clsx';
@@ -24,14 +24,7 @@ const SecondCanvasFull = ({
     handleDoubleClick
   } = useCanvas(svgData, currentColor, idList, setColorCount);
 
-  const handleClearAll = () => {
-    if (svgRef.current) {
-      const rects = svgRef.current.querySelectorAll('rect[data-color]');
-      rects.forEach(rect => {
-        rect.setAttribute('fill', 'white');
-      });
-    }
-  };
+  const [isFilled, setIsFilled] = useState(false);
 
   const handleFillAll = () => {
     if (svgRef.current) {
@@ -43,9 +36,20 @@ const SecondCanvasFull = ({
         }
       });
     }
+    setIsFilled(true);
   };
 
-  // Генерация сетки 8x8 (100x160 px каждый)
+  const handleClearAll = () => {
+    if (svgRef.current) {
+      const rects = svgRef.current.querySelectorAll('rect[data-color]');
+      rects.forEach(rect => {
+        rect.setAttribute('fill', 'white');
+      });
+    }
+    setIsFilled(false);
+  };
+
+  // Генерация сетки 8x8 (100x160 px каждый) с шахматной заливкой
   const generateGrid = () => {
     const gridCols = 8;
     const gridRows = 8;
@@ -57,6 +61,8 @@ const SecondCanvasFull = ({
         const number = row * gridCols + col + 1;
         const x = col * cellWidth;
         const y = row * cellHeight;
+        // Шахматная заливка: если (row + col) % 2 === 0 — светло-серый с прозрачностью, иначе прозрачный
+        const bg = isFilled ? 'transparent' : ((row + col) % 2 === 0 ? 'rgba(243,243,243,0.5)' : 'rgba(255,255,255,0.0)');
         cells.push(
           <div
             key={number}
@@ -73,7 +79,7 @@ const SecondCanvasFull = ({
               fontSize: '12px',
               fontWeight: 'bold',
               color: '#333',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              backgroundColor: bg,
               pointerEvents: 'none'
             }}
           >
