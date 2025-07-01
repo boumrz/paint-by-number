@@ -374,7 +374,7 @@ def convert_image_pixels():
                 number = color_map[pixel_color]
                 canvas_x = x * pixel_width
                 canvas_y = y * pixel_height
-                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
+                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
         # --- 2. Поверх добавляем пиксельные номера ---
         digit_color = 'rgb(136,136,136)'
@@ -525,7 +525,7 @@ def convert_image_pixels_bw():
                 number = color_map[tuple(pixel_color)]
                 canvas_x = x * pixel_width
                 canvas_y = y * pixel_height
-                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
+                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
         digit_color = 'rgb(136,136,136)'
         for cell_idx in range(grid_cols * grid_rows):
@@ -675,7 +675,7 @@ def convert_image_pixels_sepia():
                 number = color_map[tuple(pixel_color)]
                 canvas_x = x * pixel_width
                 canvas_y = y * pixel_height
-                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
+                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
         digit_color = 'rgb(136,136,136)'
         for cell_idx in range(grid_cols * grid_rows):
