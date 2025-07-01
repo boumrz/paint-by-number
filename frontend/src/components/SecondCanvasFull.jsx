@@ -35,6 +35,11 @@ const SecondCanvasFull = ({
           rect.setAttribute('fill', dataColor);
         }
       });
+      // Скрыть номера
+      const digitRects = svgRef.current.querySelectorAll('rect[data-digit-label="1"]');
+      digitRects.forEach(rect => {
+        rect.style.display = 'none';
+      });
     }
     setIsFilled(true);
   };
@@ -44,6 +49,11 @@ const SecondCanvasFull = ({
       const rects = svgRef.current.querySelectorAll('rect[data-color]');
       rects.forEach(rect => {
         rect.setAttribute('fill', 'white');
+      });
+      // Показать номера
+      const digitRects = svgRef.current.querySelectorAll('rect[data-digit-label="1"]');
+      digitRects.forEach(rect => {
+        rect.style.display = '';
       });
     }
     setIsFilled(false);
