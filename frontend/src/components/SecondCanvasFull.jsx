@@ -92,9 +92,7 @@ const SecondCanvasFull = ({
               backgroundColor: bg,
               pointerEvents: 'none'
             }}
-          >
-            {number}
-          </div>
+          />
         );
       }
     }
