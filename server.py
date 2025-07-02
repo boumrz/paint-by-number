@@ -315,9 +315,9 @@ def convert_image_pixels():
             img.save(input_path, 'JPEG', quality=95)
             print(f"Image scaled and saved as 800x1000")
         
-        # Фиксированное количество пикселей и размер холста под 8x16
-        num_pixels_x = 80  # 8 больших квадратов * 10 пикселей
-        num_pixels_y = 160 # 16 больших квадратов * 10 пикселей
+        # Фиксированное количество пикселей и размер холста под 8x10
+        num_pixels_x = 128  # 8 больших квадратов * 16 пикселей
+        num_pixels_y = 160  # 10 больших квадратов * 16 пикселей
         canvas_width = 800
         canvas_height = 1000
         max_colors = 15  # Максимальное количество цветов
@@ -355,11 +355,11 @@ def convert_image_pixels():
         print("Generating SVG elements...")
         svg_elements = []
         grid_cols = 8
-        grid_rows = 16
+        grid_rows = 10
         cell_w = 800 / grid_cols
         cell_h = 1000 / grid_rows
-        px_w = cell_w / 10
-        px_h = cell_h / 10
+        px_w = cell_w / 16
+        px_h = cell_h / 16
         palette = []
         color_map = {}
         color_idx = 1
@@ -384,9 +384,9 @@ def convert_image_pixels():
             row = cell_idx // grid_cols
             cell_x = col * cell_w
             cell_y = row * cell_h
-            mask = get_digit_mask(number, grid_w=10, grid_h=10)
-            for py_idx in range(10):
-                for px_idx in range(10):
+            mask = get_digit_mask(number, grid_w=16, grid_h=16)
+            for py_idx in range(16):
+                for px_idx in range(16):
                     if mask[py_idx][px_idx]:
                         rx = cell_x + px_idx * px_w
                         ry = cell_y + py_idx * px_h
