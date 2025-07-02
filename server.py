@@ -136,7 +136,7 @@ def get_digit_mask(number, grid_w=10, grid_h=10):
     px = grid_w
     py = grid_h
     total_w = n_digits * digit_w + (n_digits-1)  # 1px между цифрами
-    start_x = (px - total_w) // 2
+    start_x = (px - total_w + 1) // 2
     start_y = (py - digit_h) // 2
     mask = [[0 for _ in range(grid_w)] for _ in range(grid_h)]
     for idx, digit in enumerate(number_str):
