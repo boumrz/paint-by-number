@@ -128,7 +128,7 @@ DIGIT_TEMPLATES = {
 }
 
 # Функция для получения маски цифры (3x5 на каждую цифру, по центру)
-def get_digit_mask(number, grid_w=10, grid_h=16):
+def get_digit_mask(number, grid_w=10, grid_h=10):
     number_str = str(number)
     digit_w = 3
     digit_h = 5
@@ -184,8 +184,8 @@ def convert_image():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Приводим к соотношению 800x1280 (5:8)
-            target_ratio = 800 / 1280
+            # Приводим к соотношению 800x1000 (0.8)
+            target_ratio = 800 / 1000
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -197,10 +197,10 @@ def convert_image():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1280
-            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1280")
+            print(f"Image scaled and saved as 800x1000")
         
         # Process image
         print("Initializing PbnGen...")
@@ -297,8 +297,8 @@ def convert_image_pixels():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Приводим к соотношению 800x1280 (5:8)
-            target_ratio = 800 / 1280
+            # Приводим к соотношению 800x1000 (0.8)
+            target_ratio = 800 / 1000
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -310,16 +310,16 @@ def convert_image_pixels():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1280
-            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1280")
+            print(f"Image scaled and saved as 800x1000")
         
-        # Фиксированное количество пикселей и размер холста под 4:5
+        # Фиксированное количество пикселей и размер холста под 8x16
         num_pixels_x = 80  # 8 больших квадратов * 10 пикселей
-        num_pixels_y = 128 # 10 больших квадратов * 16 пикселей
+        num_pixels_y = 160 # 16 больших квадратов * 10 пикселей
         canvas_width = 800
-        canvas_height = 1280
+        canvas_height = 1000
         max_colors = 15  # Максимальное количество цветов
 
         # Открываем изображение
@@ -355,11 +355,11 @@ def convert_image_pixels():
         print("Generating SVG elements...")
         svg_elements = []
         grid_cols = 8
-        grid_rows = 8
+        grid_rows = 16
         cell_w = 800 / grid_cols
-        cell_h = 1280 / grid_rows
+        cell_h = 1000 / grid_rows
         px_w = cell_w / 10
-        px_h = cell_h / 16
+        px_h = cell_h / 10
         palette = []
         color_map = {}
         color_idx = 1
@@ -384,8 +384,8 @@ def convert_image_pixels():
             row = cell_idx // grid_cols
             cell_x = col * cell_w
             cell_y = row * cell_h
-            mask = get_digit_mask(number, grid_w=10, grid_h=16)
-            for py_idx in range(16):
+            mask = get_digit_mask(number, grid_w=10, grid_h=10)
+            for py_idx in range(10):
                 for px_idx in range(10):
                     if mask[py_idx][px_idx]:
                         rx = cell_x + px_idx * px_w
@@ -446,8 +446,8 @@ def convert_image_pixels_bw():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Приводим к соотношению 800x1280 (5:8)
-            target_ratio = 800 / 1280
+            # Приводим к соотношению 800x1000 (0.8)
+            target_ratio = 800 / 1000
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -459,16 +459,16 @@ def convert_image_pixels_bw():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1280
-            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1280")
+            print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей
         num_pixels_x = 80
-        num_pixels_y = 128
+        num_pixels_y = 80
         canvas_width = 800
-        canvas_height = 1280
+        canvas_height = 1000
 
         # Открываем изображение
         img = cv2.imread(input_path)
@@ -508,9 +508,9 @@ def convert_image_pixels_bw():
         grid_cols = 8
         grid_rows = 8
         cell_w = 800 / grid_cols
-        cell_h = 1280 / grid_rows
+        cell_h = 1000 / grid_rows
         px_w = cell_w / 10
-        px_h = cell_h / 16
+        px_h = cell_h / 10
         palette = []
         color_map = {}
         color_idx = 1
@@ -534,8 +534,8 @@ def convert_image_pixels_bw():
             row = cell_idx // grid_cols
             cell_x = col * cell_w
             cell_y = row * cell_h
-            mask = get_digit_mask(number, grid_w=10, grid_h=16)
-            for py_idx in range(16):
+            mask = get_digit_mask(number, grid_w=10, grid_h=10)
+            for py_idx in range(10):
                 for px_idx in range(10):
                     if mask[py_idx][px_idx]:
                         rx = cell_x + px_idx * px_w
@@ -596,8 +596,8 @@ def convert_image_pixels_sepia():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Приводим к соотношению 800x1280 (5:8)
-            target_ratio = 800 / 1280
+            # Приводим к соотношению 800x1000 (0.8)
+            target_ratio = 800 / 1000
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -609,16 +609,16 @@ def convert_image_pixels_sepia():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1280
-            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1280")
+            print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей
         num_pixels_x = 80
-        num_pixels_y = 128
+        num_pixels_y = 80
         canvas_width = 800
-        canvas_height = 1280
+        canvas_height = 1000
 
         # Открываем изображение
         img = cv2.imread(input_path)
@@ -658,9 +658,9 @@ def convert_image_pixels_sepia():
         grid_cols = 8
         grid_rows = 8
         cell_w = 800 / grid_cols
-        cell_h = 1280 / grid_rows
+        cell_h = 1000 / grid_rows
         px_w = cell_w / 10
-        px_h = cell_h / 16
+        px_h = cell_h / 10
         palette = []
         color_map = {}
         color_idx = 1
@@ -684,8 +684,8 @@ def convert_image_pixels_sepia():
             row = cell_idx // grid_cols
             cell_x = col * cell_w
             cell_y = row * cell_h
-            mask = get_digit_mask(number, grid_w=10, grid_h=16)
-            for py_idx in range(16):
+            mask = get_digit_mask(number, grid_w=10, grid_h=10)
+            for py_idx in range(10):
                 for px_idx in range(10):
                     if mask[py_idx][px_idx]:
                         rx = cell_x + px_idx * px_w

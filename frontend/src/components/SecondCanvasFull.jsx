@@ -61,14 +61,14 @@ const SecondCanvasFull = ({
     setIsFilled(false);
   };
 
-  // Генерация сетки 8x8 (100x160 px каждый) с шахматной заливкой
+  // Генерация сетки 8x16 (100x62.5 px каждый) с шахматной заливкой
   const generateGrid = () => {
     const gridCols = 8;
-    const gridRows = 8;
+    const gridRows = 16;
     const cellWidth = 800 / gridCols;
-    const cellHeight = 1280 / gridRows;
+    const cellHeight = 1000 / gridRows;
     const pxPerCellX = 10;
-    const pxPerCellY = 16;
+    const pxPerCellY = 10;
     const pxWidth = cellWidth / pxPerCellX;
     const pxHeight = cellHeight / pxPerCellY;
     const cells = [];
@@ -120,7 +120,7 @@ const SecondCanvasFull = ({
                 </span>
               )
             ))}
-            {/* Нумерация по вертикали (1-16) в первом столбце */}
+            {/* Нумерация по вертикали (1-10) в первом столбце */}
             {Array.from({ length: pxPerCellY }).map((_, j) => (
               <span
                 key={`v-${j}`}
@@ -209,14 +209,14 @@ const SecondCanvasFull = ({
               className={cn(styles['svg-element'], styles['second-canvas'])}
               ref={svgRef}
             />
-            {/* Слой с сеткой 8x8 */}
+            {/* Слой с сеткой 8x16 */}
             <div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '800px',
-                height: '1280px',
+                height: '1000px',
                 pointerEvents: 'none'
               }}
             >
