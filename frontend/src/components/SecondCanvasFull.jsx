@@ -61,14 +61,14 @@ const SecondCanvasFull = ({
     setIsFilled(false);
   };
 
-  // Генерация сетки 8x10 (100x100 px каждый) с шахматной заливкой
+  // Генерация сетки 8x16 (128x160 px каждый) с шахматной заливкой
   const generateGrid = () => {
-    const gridCols = 8;
-    const gridRows = 10;
+    const gridCols = 8; // большие зоны по ширине
+    const gridRows = 16; // большие зоны по высоте
     const cellWidth = 800 / gridCols; // 100
-    const cellHeight = 1000 / gridRows; // 100
-    const pxPerCellX = 16;
-    const pxPerCellY = 16;
+    const cellHeight = 1000 / gridRows; // 62.5
+    const pxPerCellX = 16; // маленьких клеток в зоне по ширине
+    const pxPerCellY = 10; // маленьких клеток в зоне по высоте
     const pxWidth = cellWidth / pxPerCellX; // 6.25
     const pxHeight = cellHeight / pxPerCellY; // 6.25
     const cells = [];
@@ -110,8 +110,8 @@ const SecondCanvasFull = ({
                   key={`h-${i}`}
                   style={{
                     position: 'absolute',
-                    left: i * pxWidth + pxWidth / 2 - ((i + 1) < 10 ? 2.1 : 3),
-                    top: (i + 1) < 10 ? 0 : 0,
+                    left: i * pxWidth + pxWidth / 2 - ((i + 1) < 10 ? 1.2 : 2.3),
+                    top: (i + 1) < 10 ? 0.2 : 0.2,
                     fontSize: 4,
                     color: '#888',
                     pointerEvents: 'none',
@@ -130,8 +130,8 @@ const SecondCanvasFull = ({
                 key={`v-${j}`}
                 style={{
                   position: 'absolute',
-                  left: (j + 1) < 10 ? 2 : 1,
-                  top: j * pxHeight + pxHeight / 2 - ((j + 1) < 10 ? 3 : 3.5),
+                  left: (j + 1) < 10 ? 2 : 1.1,
+                  top: j * pxHeight + pxHeight / 2 - ((j + 1) < 10 ? 3 : 3.1),
                   fontSize: 4,
                   color: '#888',
                   pointerEvents: 'none',
@@ -213,7 +213,7 @@ const SecondCanvasFull = ({
               className={cn(styles['svg-element'], styles['second-canvas'])}
               ref={svgRef}
             />
-            {/* Слой с сеткой 8x10 */}
+            {/* Слой с сеткой 8x16 */}
             <div
               style={{
                 position: 'absolute',

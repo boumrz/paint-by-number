@@ -355,11 +355,11 @@ def convert_image_pixels():
         print("Generating SVG elements...")
         svg_elements = []
         grid_cols = 8
-        grid_rows = 10
+        grid_rows = 16
         cell_w = 800 / grid_cols
         cell_h = 1000 / grid_rows
         px_w = cell_w / 16
-        px_h = cell_h / 16
+        px_h = cell_h / 10
         palette = []
         color_map = {}
         color_idx = 1
@@ -384,8 +384,8 @@ def convert_image_pixels():
             row = cell_idx // grid_cols
             cell_x = col * cell_w
             cell_y = row * cell_h
-            mask = get_digit_mask(number, grid_w=16, grid_h=16)
-            for py_idx in range(16):
+            mask = get_digit_mask(number, grid_w=16, grid_h=10)
+            for py_idx in range(10):
                 for px_idx in range(16):
                     if mask[py_idx][px_idx]:
                         rx = cell_x + px_idx * px_w
