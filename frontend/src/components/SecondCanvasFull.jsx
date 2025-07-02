@@ -110,12 +110,12 @@ const SecondCanvasFull = ({
                   key={`h-${i}`}
                   style={{
                     position: 'absolute',
-                    left: i * pxWidth + pxWidth / 2 - ((i + 1) < 10 ? 1.2 : 2.3),
-                    top: (i + 1) < 10 ? 0.2 : 0.2,
+                    left: i * pxWidth + pxWidth / 2 - ((i + 1) < 10 ? 1 : 2),
+                    top: (i + 1) < 10 ? -2 : -2,
                     fontSize: 4,
                     color: '#888',
                     pointerEvents: 'none',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     zIndex: 2,
                     userSelect: 'none',
                   }}
@@ -130,12 +130,12 @@ const SecondCanvasFull = ({
                 key={`v-${j}`}
                 style={{
                   position: 'absolute',
-                  left: (j + 1) < 10 ? 2 : 1.1,
-                  top: j * pxHeight + pxHeight / 2 - ((j + 1) < 10 ? 3 : 3.1),
+                  left: (j + 1) < 10 ? 2 : 1,
+                  top: j * pxHeight + pxHeight / 2 - ((j + 1) < 10 ? 5 : 5),
                   fontSize: 4,
                   color: '#888',
                   pointerEvents: 'none',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   zIndex: 2,
                   userSelect: 'none',
                 }}

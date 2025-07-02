@@ -465,8 +465,8 @@ def convert_image_pixels_bw():
             print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей
-        num_pixels_x = 80
-        num_pixels_y = 80
+        num_pixels_x = 128
+        num_pixels_y = 160
         canvas_width = 800
         canvas_height = 1000
 
@@ -506,10 +506,10 @@ def convert_image_pixels_bw():
         # Разбиваем на пиксели
         svg_elements = []
         grid_cols = 8
-        grid_rows = 8
+        grid_rows = 16
         cell_w = 800 / grid_cols
         cell_h = 1000 / grid_rows
-        px_w = cell_w / 10
+        px_w = cell_w / 16
         px_h = cell_h / 10
         palette = []
         color_map = {}
@@ -534,9 +534,9 @@ def convert_image_pixels_bw():
             row = cell_idx // grid_cols
             cell_x = col * cell_w
             cell_y = row * cell_h
-            mask = get_digit_mask(number, grid_w=10, grid_h=10)
+            mask = get_digit_mask(number, grid_w=16, grid_h=10)
             for py_idx in range(10):
-                for px_idx in range(10):
+                for px_idx in range(16):
                     if mask[py_idx][px_idx]:
                         rx = cell_x + px_idx * px_w
                         ry = cell_y + py_idx * px_h
@@ -615,8 +615,8 @@ def convert_image_pixels_sepia():
             print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей
-        num_pixels_x = 80
-        num_pixels_y = 80
+        num_pixels_x = 128
+        num_pixels_y = 160
         canvas_width = 800
         canvas_height = 1000
 
@@ -656,10 +656,10 @@ def convert_image_pixels_sepia():
         # Разбиваем на пиксели
         svg_elements = []
         grid_cols = 8
-        grid_rows = 8
+        grid_rows = 16
         cell_w = 800 / grid_cols
         cell_h = 1000 / grid_rows
-        px_w = cell_w / 10
+        px_w = cell_w / 16
         px_h = cell_h / 10
         palette = []
         color_map = {}
@@ -684,9 +684,9 @@ def convert_image_pixels_sepia():
             row = cell_idx // grid_cols
             cell_x = col * cell_w
             cell_y = row * cell_h
-            mask = get_digit_mask(number, grid_w=10, grid_h=10)
+            mask = get_digit_mask(number, grid_w=16, grid_h=10)
             for py_idx in range(10):
-                for px_idx in range(10):
+                for px_idx in range(16):
                     if mask[py_idx][px_idx]:
                         rx = cell_x + px_idx * px_w
                         ry = cell_y + py_idx * px_h
