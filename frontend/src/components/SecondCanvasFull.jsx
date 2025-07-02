@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styles from './MultiCanvas.module.css';
 import useCanvas from '../hooks/useCanvas';
 import cn from 'clsx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const SecondCanvasFull = ({
   svgData,
@@ -144,6 +146,21 @@ const SecondCanvasFull = ({
     return cells;
   };
 
+  // PDF export handler
+  const handleExportPDF = async () => {
+    const section = document.querySelector(`.${styles.section}`);
+    if (!section) return;
+    const canvas = await html2canvas(section, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'px',
+      format: [section.offsetWidth, section.offsetHeight],
+    });
+    pdf.addImage(imgData, 'PNG', 0, 0, section.offsetWidth, section.offsetHeight);
+    pdf.save('canvas-section.pdf');
+  };
+
   return (
     <div className={styles.container}>
       <h1>Холст</h1>
@@ -156,6 +173,9 @@ const SecondCanvasFull = ({
         </button>
         <button onClick={handleDoubleClick} className={styles.button}>
           Сбросить масштаб
+        </button>
+        <button onClick={handleExportPDF} className={styles.button}>
+          Скачать PDF
         </button>
         <div className={styles.hint}>
           Alt + левая кнопка мыши для выделения области
