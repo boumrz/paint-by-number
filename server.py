@@ -53,6 +53,104 @@ SEPIA_PALETTE = [
     [60, 40, 16]      # Почти черный с сепийным отливом: #3C2810
 ]
 
+# Шаблоны цифр 3x5 (0 — пусто, 1 — чёрный пиксель)
+DIGIT_TEMPLATES = {
+    '0': [
+        [1,1,1],
+        [1,0,1],
+        [1,0,1],
+        [1,0,1],
+        [1,1,1],
+    ],
+    '1': [
+        [0,1,0],
+        [1,1,0],
+        [0,1,0],
+        [0,1,0],
+        [1,1,1],
+    ],
+    '2': [
+        [1,1,1],
+        [0,0,1],
+        [1,1,1],
+        [1,0,0],
+        [1,1,1],
+    ],
+    '3': [
+        [1,1,1],
+        [0,0,1],
+        [0,1,1],
+        [0,0,1],
+        [1,1,1],
+    ],
+    '4': [
+        [1,0,1],
+        [1,0,1],
+        [1,1,1],
+        [0,0,1],
+        [0,0,1],
+    ],
+    '5': [
+        [1,1,1],
+        [1,0,0],
+        [1,1,1],
+        [0,0,1],
+        [1,1,1],
+    ],
+    '6': [
+        [1,1,1],
+        [1,0,0],
+        [1,1,1],
+        [1,0,1],
+        [1,1,1],
+    ],
+    '7': [
+        [1,1,1],
+        [0,0,1],
+        [0,1,0],
+        [1,0,0],
+        [1,0,0],
+    ],
+    '8': [
+        [1,1,1],
+        [1,0,1],
+        [1,1,1],
+        [1,0,1],
+        [1,1,1],
+    ],
+    '9': [
+        [1,1,1],
+        [1,0,1],
+        [1,1,1],
+        [0,0,1],
+        [1,1,1],
+    ],
+}
+
+# Функция для получения маски цифры (3x5 на каждую цифру, по центру)
+def get_digit_mask(number, grid_w=10, grid_h=10):
+    number_str = str(number)
+    digit_w = 3
+    digit_h = 5
+    n_digits = len(number_str)
+    px = grid_w
+    py = grid_h
+    total_w = n_digits * digit_w + (n_digits-1)  # 1px между цифрами
+    start_x = (px - total_w + 1) // 2
+    start_y = (py - digit_h + 1) // 2
+    mask = [[0 for _ in range(grid_w)] for _ in range(grid_h)]
+    for idx, digit in enumerate(number_str):
+        template = DIGIT_TEMPLATES.get(digit, DIGIT_TEMPLATES['0'])
+        dx = start_x + idx * (digit_w + 1)
+        for row in range(digit_h):
+            for col in range(digit_w):
+                if template[row][col]:
+                    x = dx + col
+                    y = start_y + row
+                    if 0 <= x < grid_w and 0 <= y < grid_h:
+                        mask[y][x] = 1
+    return mask
+
 @app.route('/api/convert', methods=['POST'])
 def convert_image():
     if 'image' not in request.files:
@@ -86,8 +184,8 @@ def convert_image():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Приводим к соотношению 800x1280 (5:8)
-            target_ratio = 800 / 1280
+            # Приводим к соотношению 800x1000 (0.8)
+            target_ratio = 800 / 1000
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -99,10 +197,10 @@ def convert_image():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1280
-            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1280")
+            print(f"Image scaled and saved as 800x1000")
         
         # Process image
         print("Initializing PbnGen...")
@@ -199,8 +297,8 @@ def convert_image_pixels():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Приводим к соотношению 800x1280 (5:8)
-            target_ratio = 800 / 1280
+            # Приводим к соотношению 800x1000 (0.8)
+            target_ratio = 800 / 1000
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -212,16 +310,16 @@ def convert_image_pixels():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1280
-            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1280")
+            print(f"Image scaled and saved as 800x1000")
         
-        # Фиксированное количество пикселей и размер холста под 4:5
-        num_pixels_x = 80  # 8 больших квадратов * 10 пикселей
-        num_pixels_y = 128 # 10 больших квадратов * 16 пикселей
+        # Фиксированное количество пикселей и размер холста под 8x10
+        num_pixels_x = 128  # 8 больших квадратов * 16 пикселей
+        num_pixels_y = 160  # 10 больших квадратов * 16 пикселей
         canvas_width = 800
-        canvas_height = 1280
+        canvas_height = 1000
         max_colors = 15  # Максимальное количество цветов
 
         # Открываем изображение
@@ -255,11 +353,17 @@ def convert_image_pixels():
 
         # Разбиваем на пиксели
         print("Generating SVG elements...")
+        svg_elements = []
+        grid_cols = 8
+        grid_rows = 16
+        cell_w = 800 / grid_cols
+        cell_h = 1000 / grid_rows
+        px_w = cell_w / 16
+        px_h = cell_h / 10
         palette = []
         color_map = {}
         color_idx = 1
-        svg_elements = []
-
+        # --- 1. Рисуем картину (цветные пиксели) ---
         for y in range(num_pixels_y):
             for x in range(num_pixels_x):
                 pixel_color = tuple(int(v) for v in quantized_img[y, x])
@@ -268,17 +372,26 @@ def convert_image_pixels():
                     palette.append({'color': [int(c) for c in pixel_color], 'number': int(color_idx)})
                     color_idx += 1
                 number = color_map[pixel_color]
-                
-                # Рассчитываем позицию пикселя на холсте
                 canvas_x = x * pixel_width
                 canvas_y = y * pixel_height
-                
-                # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
-                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb({pixel_color[0]}, {pixel_color[1]}, {pixel_color[2]})" data-number="{number}"/>'
-                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black" stroke="white" stroke-width="2" paint-order="stroke">{number}</text>'
+                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
-                svg_elements.append(text)
-
+        # --- 2. Поверх добавляем пиксельные номера ---
+        digit_color = 'rgb(136,136,136)'
+        for cell_idx in range(grid_cols * grid_rows):
+            number = cell_idx + 1
+            col = cell_idx % grid_cols
+            row = cell_idx // grid_cols
+            cell_x = col * cell_w
+            cell_y = row * cell_h
+            mask = get_digit_mask(number, grid_w=16, grid_h=10)
+            for py_idx in range(10):
+                for px_idx in range(16):
+                    if mask[py_idx][px_idx]:
+                        rx = cell_x + px_idx * px_w
+                        ry = cell_y + py_idx * px_h
+                        rect = f'<rect x="{rx}" y="{ry}" width="{px_w}" height="{px_h}" fill="{digit_color}" opacity="0.4" stroke="none" data-digit-pixel="1" data-digit-label="1" style="pointer-events:none"/>'
+                        svg_elements.append(rect)
         svg_content = f'<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
 
         print("Successfully processed pixel image")
@@ -333,8 +446,8 @@ def convert_image_pixels_bw():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Приводим к соотношению 800x1280 (5:8)
-            target_ratio = 800 / 1280
+            # Приводим к соотношению 800x1000 (0.8)
+            target_ratio = 800 / 1000
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -346,16 +459,16 @@ def convert_image_pixels_bw():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1280
-            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1280")
+            print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей
-        num_pixels_x = 80
-        num_pixels_y = 128
+        num_pixels_x = 128
+        num_pixels_y = 160
         canvas_width = 800
-        canvas_height = 1280
+        canvas_height = 1000
 
         # Открываем изображение
         img = cv2.imread(input_path)
@@ -391,32 +504,44 @@ def convert_image_pixels_bw():
         pixel_height = canvas_height / num_pixels_y
 
         # Разбиваем на пиксели
+        svg_elements = []
+        grid_cols = 8
+        grid_rows = 16
+        cell_w = 800 / grid_cols
+        cell_h = 1000 / grid_rows
+        px_w = cell_w / 16
+        px_h = cell_h / 10
         palette = []
         color_map = {}
         color_idx = 1
-        svg_elements = []
-
         for y in range(num_pixels_y):
             for x in range(num_pixels_x):
                 gray_level = int(quantized_gray[y, x])
-                pixel_color = BW_PALETTE[gray_level]  # 18 цветов от черного до белого
-                
+                pixel_color = BW_PALETTE[gray_level]
                 if tuple(pixel_color) not in color_map:
                     color_map[tuple(pixel_color)] = int(color_idx)
                     palette.append({'color': pixel_color, 'number': int(color_idx)})
                     color_idx += 1
                 number = color_map[tuple(pixel_color)]
-                
-                # Рассчитываем позицию пикселя на холсте
                 canvas_x = x * pixel_width
                 canvas_y = y * pixel_height
-                
-                # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
-                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb({pixel_color[0]}, {pixel_color[1]}, {pixel_color[2]})" data-number="{number}"/>'
-                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black" stroke="white" stroke-width="2" paint-order="stroke">{number}</text>'
+                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
-                svg_elements.append(text)
-
+        digit_color = 'rgb(136,136,136)'
+        for cell_idx in range(grid_cols * grid_rows):
+            number = cell_idx + 1
+            col = cell_idx % grid_cols
+            row = cell_idx // grid_cols
+            cell_x = col * cell_w
+            cell_y = row * cell_h
+            mask = get_digit_mask(number, grid_w=16, grid_h=10)
+            for py_idx in range(10):
+                for px_idx in range(16):
+                    if mask[py_idx][px_idx]:
+                        rx = cell_x + px_idx * px_w
+                        ry = cell_y + py_idx * px_h
+                        rect = f'<rect x="{rx}" y="{ry}" width="{px_w}" height="{px_h}" fill="{digit_color}" opacity="0.4" stroke="none" data-digit-pixel="1" data-digit-label="1" style="pointer-events:none"/>'
+                        svg_elements.append(rect)
         svg_content = f'<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
 
         print("Successfully processed black and white pixel image")
@@ -471,8 +596,8 @@ def convert_image_pixels_sepia():
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
             
-            # Приводим к соотношению 800x1280 (5:8)
-            target_ratio = 800 / 1280
+            # Приводим к соотношению 800x1000 (0.8)
+            target_ratio = 800 / 1000
             img_ratio = width / height
             if img_ratio > target_ratio:
                 # слишком широкое, обрезаем по ширине
@@ -484,16 +609,16 @@ def convert_image_pixels_sepia():
                 new_height = int(width / target_ratio)
                 top = (height - new_height) // 2
                 img = img.crop((0, top, width, top + new_height))
-            # Масштабируем до 800x1280
-            img = img.resize((800, 1280), Image.Resampling.LANCZOS)
+            # Масштабируем до 800x1000
+            img = img.resize((800, 1000), Image.Resampling.LANCZOS)
             img.save(input_path, 'JPEG', quality=95)
-            print(f"Image scaled and saved as 800x1280")
+            print(f"Image scaled and saved as 800x1000")
         
         # Фиксированное количество пикселей
-        num_pixels_x = 80
-        num_pixels_y = 128
+        num_pixels_x = 128
+        num_pixels_y = 160
         canvas_width = 800
-        canvas_height = 1280
+        canvas_height = 1000
 
         # Открываем изображение
         img = cv2.imread(input_path)
@@ -529,32 +654,44 @@ def convert_image_pixels_sepia():
         pixel_height = canvas_height / num_pixels_y
 
         # Разбиваем на пиксели
+        svg_elements = []
+        grid_cols = 8
+        grid_rows = 16
+        cell_w = 800 / grid_cols
+        cell_h = 1000 / grid_rows
+        px_w = cell_w / 16
+        px_h = cell_h / 10
         palette = []
         color_map = {}
         color_idx = 1
-        svg_elements = []
-
         for y in range(num_pixels_y):
             for x in range(num_pixels_x):
                 gray_level = int(quantized_gray[y, x])
-                pixel_color = SEPIA_PALETTE[gray_level]  # 15 сепийных оттенков
-                
+                pixel_color = SEPIA_PALETTE[gray_level]
                 if tuple(pixel_color) not in color_map:
                     color_map[tuple(pixel_color)] = int(color_idx)
                     palette.append({'color': pixel_color, 'number': int(color_idx)})
                     color_idx += 1
                 number = color_map[tuple(pixel_color)]
-                
-                # Рассчитываем позицию пикселя на холсте
                 canvas_x = x * pixel_width
                 canvas_y = y * pixel_height
-                
-                # SVG rect с белой заливкой и номером, но с data-атрибутом для цвета
-                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="1" data-color="rgb({pixel_color[0]}, {pixel_color[1]}, {pixel_color[2]})" data-number="{number}"/>'
-                text = f'<text x="{canvas_x + pixel_width/2}" y="{canvas_y + pixel_height/2}" font-size="{min(pixel_width, pixel_height)/2}" text-anchor="middle" fill="black" stroke="white" stroke-width="2" paint-order="stroke">{number}</text>'
+                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
-                svg_elements.append(text)
-
+        digit_color = 'rgb(136,136,136)'
+        for cell_idx in range(grid_cols * grid_rows):
+            number = cell_idx + 1
+            col = cell_idx % grid_cols
+            row = cell_idx // grid_cols
+            cell_x = col * cell_w
+            cell_y = row * cell_h
+            mask = get_digit_mask(number, grid_w=16, grid_h=10)
+            for py_idx in range(10):
+                for px_idx in range(16):
+                    if mask[py_idx][px_idx]:
+                        rx = cell_x + px_idx * px_w
+                        ry = cell_y + py_idx * px_h
+                        rect = f'<rect x="{rx}" y="{ry}" width="{px_w}" height="{px_h}" fill="{digit_color}" opacity="0.4" stroke="none" data-digit-pixel="1" data-digit-label="1" style="pointer-events:none"/>'
+                        svg_elements.append(rect)
         svg_content = f'<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
 
         print("Successfully processed sepia pixel image")

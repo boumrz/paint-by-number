@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styles from './MultiCanvas.module.css';
 import useCanvas from '../hooks/useCanvas';
 import cn from 'clsx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const SecondCanvasFull = ({
   svgData,
@@ -35,6 +37,11 @@ const SecondCanvasFull = ({
           rect.setAttribute('fill', dataColor);
         }
       });
+      // Скрыть номера
+      const digitRects = svgRef.current.querySelectorAll('rect[data-digit-label="1"]');
+      digitRects.forEach(rect => {
+        rect.style.display = 'none';
+      });
     }
     setIsFilled(true);
   };
@@ -45,16 +52,25 @@ const SecondCanvasFull = ({
       rects.forEach(rect => {
         rect.setAttribute('fill', 'white');
       });
+      // Показать номера
+      const digitRects = svgRef.current.querySelectorAll('rect[data-digit-label="1"]');
+      digitRects.forEach(rect => {
+        rect.style.display = '';
+      });
     }
     setIsFilled(false);
   };
 
-  // Генерация сетки 8x8 (100x160 px каждый) с шахматной заливкой
+  // Генерация сетки 8x16 (128x160 px каждый) с шахматной заливкой
   const generateGrid = () => {
-    const gridCols = 8;
-    const gridRows = 8;
-    const cellWidth = 800 / gridCols;
-    const cellHeight = 1280 / gridRows;
+    const gridCols = 8; // большие зоны по ширине
+    const gridRows = 16; // большие зоны по высоте
+    const cellWidth = 800 / gridCols; // 100
+    const cellHeight = 1000 / gridRows; // 62.5
+    const pxPerCellX = 16; // маленьких клеток в зоне по ширине
+    const pxPerCellY = 10; // маленьких клеток в зоне по высоте
+    const pxWidth = cellWidth / pxPerCellX; // 6.25
+    const pxHeight = cellHeight / pxPerCellY; // 6.25
     const cells = [];
     for (let row = 0; row < gridRows; row++) {
       for (let col = 0; col < gridCols; col++) {
@@ -72,23 +88,81 @@ const SecondCanvasFull = ({
               top: y,
               width: cellWidth,
               height: cellHeight,
-              border: '1px solid #333',
+              boxSizing: 'border-box',
+              borderRight: col < gridCols - 1 ? '1px solid #333' : 'none',
+              borderBottom: row < gridRows - 1 ? '1px solid #333' : 'none',
+              borderLeft: col === 0 ? '1px solid #333' : 'none',
+              borderTop: row === 0 ? '1px solid #333' : 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '12px',
+              fontSize: 7,
               fontWeight: 'bold',
               color: '#333',
               backgroundColor: bg,
               pointerEvents: 'none'
             }}
           >
-            {number}
+            {/* Нумерация по горизонтали (1-16) в первой строке */}
+            {Array.from({ length: pxPerCellX }).map((_, i) => (
+              i === 0 ? null : (
+                <span
+                  key={`h-${i}`}
+                  style={{
+                    position: 'absolute',
+                    left: i * pxWidth + pxWidth / 2 - ((i + 1) < 10 ? 1 : 2),
+                    top: (i + 1) < 10 ? -2 : -2,
+                    fontSize: 4,
+                    color: '#888',
+                    pointerEvents: 'none',
+                    fontWeight: 500,
+                    zIndex: 2,
+                    userSelect: 'none',
+                  }}
+                >
+                  {i + 1}
+                </span>
+              )
+            ))}
+            {/* Нумерация по вертикали (1-16) в первом столбце */}
+            {Array.from({ length: pxPerCellY }).map((_, j) => (
+              <span
+                key={`v-${j}`}
+                style={{
+                  position: 'absolute',
+                  left: (j + 1) < 10 ? 2 : 1,
+                  top: j * pxHeight + pxHeight / 2 - ((j + 1) < 10 ? 5 : 5),
+                  fontSize: 4,
+                  color: '#888',
+                  pointerEvents: 'none',
+                  fontWeight: 500,
+                  zIndex: 2,
+                  userSelect: 'none',
+                }}
+              >
+                {j + 1}
+              </span>
+            ))}
           </div>
         );
       }
     }
     return cells;
+  };
+
+  // PDF export handler
+  const handleExportPDF = async () => {
+    const section = document.querySelector(`.${styles.section}`);
+    if (!section) return;
+    const canvas = await html2canvas(section, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'px',
+      format: [section.offsetWidth, section.offsetHeight],
+    });
+    pdf.addImage(imgData, 'PNG', 0, 0, section.offsetWidth, section.offsetHeight);
+    pdf.save('canvas-section.pdf');
   };
 
   return (
@@ -103,6 +177,9 @@ const SecondCanvasFull = ({
         </button>
         <button onClick={handleDoubleClick} className={styles.button}>
           Сбросить масштаб
+        </button>
+        <button onClick={handleExportPDF} className={styles.button}>
+          Скачать PDF
         </button>
         <div className={styles.hint}>
           Alt + левая кнопка мыши для выделения области
@@ -136,14 +213,14 @@ const SecondCanvasFull = ({
               className={cn(styles['svg-element'], styles['second-canvas'])}
               ref={svgRef}
             />
-            {/* Слой с сеткой 8x8 */}
+            {/* Слой с сеткой 8x16 */}
             <div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '800px',
-                height: '1280px',
+                height: '1000px',
                 pointerEvents: 'none'
               }}
             >
