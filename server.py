@@ -376,11 +376,6 @@ def convert_image_pixels():
                 canvas_y = y * pixel_height
                 rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
-                # Добавляем номер цвета по центру пикселя
-                text_x = canvas_x + pixel_width / 2
-                text_y = canvas_y + pixel_height / 2 + 2  # +2 для вертикального центрирования
-                text = f'<text x="{text_x}" y="{text_y}" font-size="6" font-family="Arial, sans-serif" fill="#222" stroke="#fff" stroke-width="0.5" text-anchor="middle" dominant-baseline="middle">{number}</text>'
-                svg_elements.append(text)
         # --- 2. Поверх добавляем пиксельные номера ---
         digit_color = 'rgb(136,136,136)'
         for cell_idx in range(grid_cols * grid_rows):
@@ -532,11 +527,6 @@ def convert_image_pixels_bw():
                 canvas_y = y * pixel_height
                 rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
-                # Добавляем номер цвета по центру пикселя
-                text_x = canvas_x + pixel_width / 2
-                text_y = canvas_y + pixel_height / 2 + 2  # +2 для вертикального центрирования
-                text = f'<text x="{text_x}" y="{text_y}" font-size="6" font-family="Arial, sans-serif" fill="#222" stroke="#fff" stroke-width="0.5" text-anchor="middle" dominant-baseline="middle">{number}</text>'
-                svg_elements.append(text)
         digit_color = 'rgb(136,136,136)'
         for cell_idx in range(grid_cols * grid_rows):
             number = cell_idx + 1
@@ -687,11 +677,6 @@ def convert_image_pixels_sepia():
                 canvas_y = y * pixel_height
                 rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
-                # Добавляем номер цвета по центру пикселя
-                text_x = canvas_x + pixel_width / 2
-                text_y = canvas_y + pixel_height / 2 + 2  # +2 для вертикального центрирования
-                text = f'<text x="{text_x}" y="{text_y}" font-size="6" font-family="Arial, sans-serif" fill="#222" stroke="#fff" stroke-width="0.5" text-anchor="middle" dominant-baseline="middle">{number}</text>'
-                svg_elements.append(text)
         digit_color = 'rgb(136,136,136)'
         for cell_idx in range(grid_cols * grid_rows):
             number = cell_idx + 1

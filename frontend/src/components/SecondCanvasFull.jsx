@@ -65,6 +65,10 @@ const SecondCanvasFull = ({
     const gridRows = 8;
     const cellWidth = 800 / gridCols;
     const cellHeight = 1280 / gridRows;
+    const pxPerCellX = 10;
+    const pxPerCellY = 16;
+    const pxWidth = cellWidth / pxPerCellX;
+    const pxHeight = cellHeight / pxPerCellY;
     const cells = [];
     for (let row = 0; row < gridRows; row++) {
       for (let col = 0; col < gridCols; col++) {
@@ -86,13 +90,54 @@ const SecondCanvasFull = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '12px',
+              fontSize: 7,
               fontWeight: 'bold',
               color: '#333',
               backgroundColor: bg,
               pointerEvents: 'none'
             }}
-          />
+          >
+            {/* Нумерация по горизонтали (1-10) в первой строке */}
+            {Array.from({ length: pxPerCellX }).map((_, i) => (
+              i === 0 ? null : (
+                <span
+                  key={`h-${i}`}
+                  style={{
+                    position: 'absolute',
+                    left: i * pxWidth + pxWidth / 2 - 4,
+                    top: -2,
+                    fontSize: 7,
+                    color: '#888',
+                    pointerEvents: 'none',
+                    fontWeight: 600,
+                    zIndex: 2,
+                    userSelect: 'none',
+                  }}
+                >
+                  {i + 1}
+                </span>
+              )
+            ))}
+            {/* Нумерация по вертикали (1-16) в первом столбце */}
+            {Array.from({ length: pxPerCellY }).map((_, j) => (
+              <span
+                key={`v-${j}`}
+                style={{
+                  position: 'absolute',
+                  left: 2,
+                  top: j * pxHeight + pxHeight / 2 - 7,
+                  fontSize: 7,
+                  color: '#888',
+                  pointerEvents: 'none',
+                  fontWeight: 600,
+                  zIndex: 2,
+                  userSelect: 'none',
+                }}
+              >
+                {j + 1}
+              </span>
+            ))}
+          </div>
         );
       }
     }
