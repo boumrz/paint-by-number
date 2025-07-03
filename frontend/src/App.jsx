@@ -124,156 +124,40 @@ function App() {
       setCrop({ x: 0, y: 0 });
       setZoom(1);
       if (croppingFor === 'Обычное' || croppingFor === 'Чернобелое' || croppingFor === 'Сепия') {
-        if (croppingFor === 'Обычное') {
-          setSecondPreviewImage(previewUrl);
-          try {
-            console.log('=== Starting image processing ===');
-            console.log('API URL:', `${config.apiUrl}/api/convert-pixels`);
-            console.log('Cropped blob size:', croppedBlob.size);
-            console.log('Cropped blob type:', croppedBlob.type);
-            
-            const formData = new FormData();
-            formData.append('image', croppedBlob, 'cropped.jpg');
-            console.log('FormData created, sending request...');
-            
-            const response = await axios.post(`${config.apiUrl}/api/convert-pixels`, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            });
-            console.log('Response received:', response.status, response.data);
-            
-            if (response.data.palette && response.data.svg) {
-              setSecondIdList(response.data.palette);
-              setSecondSvgData(response.data.svg);
-            } else {
-              throw new Error('Invalid server response format');
-            }
-          } catch (error) {
-            console.error('Error processing image:', error);
-            console.error('Error response:', error.response?.data);
-            console.error('Error status:', error.response?.status);
-          }
-        } else if (croppingFor === 'Чернобелое') {
-          setSecondPreviewImage(previewUrl);
-          try {
-            console.log('=== Starting black and white processing ===');
-            console.log('API URL:', `${config.apiUrl}/api/convert-pixels-bw`);
-            console.log('Cropped blob size:', croppedBlob.size);
-            
-            const formData = new FormData();
-            formData.append('image', croppedBlob, 'cropped.jpg');
-            console.log('FormData created, sending request...');
-            
-            const response = await axios.post(`${config.apiUrl}/api/convert-pixels-bw`, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            });
-            console.log('Response received:', response.status, response.data);
-            
-            if (response.data.palette && response.data.svg) {
-              setSecondIdList(response.data.palette);
-              setSecondSvgData(response.data.svg);
-              setSecondSvgDataBW(response.data.svgBW);
-              
-              // Автоматически заполняем цвета для черно-белого изображения
-              setTimeout(() => {
-                const svgElement = document.querySelector('.svg-element');
-                if (svgElement) {
-                  const rects = svgElement.querySelectorAll('rect[data-color]');
-                  rects.forEach(rect => {
-                    const dataColor = rect.getAttribute('data-color');
-                    if (dataColor) {
-                      rect.setAttribute('fill', dataColor);
-                    }
-                  });
-                }
-              }, 100);
-            } else {
-              throw new Error('Invalid server response format');
-            }
-          } catch (error) {
-            console.error('Error processing black and white image:', error);
-            console.error('Error response:', error.response?.data);
-            console.error('Error status:', error.response?.status);
-          }
-        } else if (croppingFor === 'Сепия') {
-          setSecondPreviewImage(previewUrl);
-          try {
-            console.log('=== Starting sepia processing ===');
-            console.log('API URL:', `${config.apiUrl}/api/convert-pixels-sepia`);
-            console.log('Cropped blob size:', croppedBlob.size);
-            
-            const formData = new FormData();
-            formData.append('image', croppedBlob, 'cropped.jpg');
-            console.log('FormData created, sending request...');
-            
-            const response = await axios.post(`${config.apiUrl}/api/convert-pixels-sepia`, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            });
-            console.log('Response received:', response.status, response.data);
-            
-            if (response.data.palette && response.data.svg) {
-              setSecondIdList(response.data.palette);
-              setSecondSvgData(response.data.svg);
-              setSecondSvgDataSepia(response.data.svgSepia);
-              
-              // Автоматически заполняем цвета для сепии
-              setTimeout(() => {
-                const svgElement = document.querySelector('.svg-element');
-                if (svgElement) {
-                  const rects = svgElement.querySelectorAll('rect[data-color]');
-                  rects.forEach(rect => {
-                    const dataColor = rect.getAttribute('data-color');
-                    if (dataColor) {
-                      rect.setAttribute('fill', dataColor);
-                    }
-                  });
-                }
-              }, 100);
-            } else {
-              throw new Error('Invalid server response format');
-            }
-          } catch (error) {
-            console.error('Error processing sepia image:', error);
-            console.error('Error response:', error.response?.data);
-            console.error('Error status:', error.response?.status);
-          }
+        setSecondPreviewImage(previewUrl);
+        try {
+          // Обычная генерация
+          const formData = new FormData();
+          formData.append('image', croppedBlob, 'cropped.jpg');
+          const respColor = await axios.post(`${config.apiUrl}/api/convert-pixels`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setSecondSvgData(respColor.data.svg);
+          setSecondIdList(respColor.data.palette);
+          // ЧБ генерация
+          const respBW = await axios.post(`${config.apiUrl}/api/convert-pixels-bw`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setSecondSvgDataBW(respBW.data.svg);
+          // Сепия генерация
+          const respSepia = await axios.post(`${config.apiUrl}/api/convert-pixels-sepia`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setSecondSvgDataSepia(respSepia.data.svg);
+        } catch (error) {
+          console.error('Error processing image:', error);
+          console.error('Error response:', error.response?.data);
+          console.error('Error status:', error.response?.status);
         }
       } else if (croppingFor === 'horizontal') {
         setHorizontalPreviewImage(previewUrl);
         try {
-          let apiUrl = '/api/convert-pixels-horizontal';
-          if (typeGenerationHorizontal === 'Чернобелое') apiUrl = '/api/convert-pixels-horizontal-bw';
-          else if (typeGenerationHorizontal === 'Сепия') apiUrl = '/api/convert-pixels-horizontal-sepia';
           const formData = new FormData();
           formData.append('image', croppedBlob, 'cropped.jpg');
-          const response = await axios.post(`${config.apiUrl}${apiUrl}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
-          if (response.data.palette && response.data.svg) {
-            setHorizontalIdList(response.data.palette);
-            setHorizontalSvgData(response.data.svg);
-            setHorizontalSvgDataBW(response.data.svgBW);
-            setHorizontalSvgDataSepia(response.data.svgSepia);
-            setTimeout(() => {
-              const svgElement = document.querySelector('.svg-element');
-              if (svgElement) {
-                const rects = svgElement.querySelectorAll('rect[data-color]');
-                rects.forEach(rect => {
-                  const dataColor = rect.getAttribute('data-color');
-                  if (dataColor) {
-                    rect.setAttribute('fill', dataColor);
-                  }
-                });
-              }
-            }, 100);
-          } else {
-            throw new Error('Invalid server response format');
-          }
+          // Обычная генерация
+          const respColor = await axios.post(`${config.apiUrl}/api/convert-pixels-horizontal`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setHorizontalSvgData(respColor.data.svg);
+          setHorizontalIdList(respColor.data.palette);
+          // ЧБ генерация
+          const respBW = await axios.post(`${config.apiUrl}/api/convert-pixels-horizontal-bw`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setHorizontalSvgDataBW(respBW.data.svg);
+          // Сепия генерация
+          const respSepia = await axios.post(`${config.apiUrl}/api/convert-pixels-horizontal-sepia`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setHorizontalSvgDataSepia(respSepia.data.svg);
         } catch (error) {
           console.error('Error processing horizontal image:', error);
           console.error('Error response:', error.response?.data);
@@ -361,7 +245,7 @@ function App() {
 
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {(secondPreviewImage || secondSvgData) && (
+            {(secondPreviewImage || secondSvgData || secondSvgDataBW || secondSvgDataSepia) && (
               <ImagePreviewGallery
                 original={secondPreviewImage}
                 pixel={secondSvgData}
@@ -374,7 +258,7 @@ function App() {
         </div>
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {(horizontalPreviewImage || horizontalSvgData) && (
+            {(horizontalPreviewImage || horizontalSvgData || horizontalSvgDataBW || horizontalSvgDataSepia) && (
               <ImagePreviewGallery
                 original={horizontalPreviewImage}
                 pixel={horizontalSvgData}
