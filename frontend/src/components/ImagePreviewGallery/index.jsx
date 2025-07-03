@@ -50,6 +50,61 @@ function normalizeSvgForPreview(svg, w, h) {
 }
 
 /**
+ * Оптимизация: объединяет подряд идущие rect с одинаковым цветом по строкам (только для предпросмотра)
+ */
+function optimizeRectsForPreview(svg) {
+  if (!svg) return svg;
+  try {
+    const parser = new window.DOMParser();
+    const doc = parser.parseFromString(svg, 'image/svg+xml');
+    const rects = Array.from(doc.querySelectorAll('rect[data-color]'));
+    if (rects.length === 0) return svg;
+    // Группируем rect по y, height, и цвету
+    const grouped = {};
+    rects.forEach(rect => {
+      const y = rect.getAttribute('y');
+      const height = rect.getAttribute('height');
+      const color = rect.getAttribute('data-color');
+      const fill = rect.getAttribute('fill');
+      const key = `${y}_${height}_${color || fill}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(rect);
+    });
+    // Для каждой строки объединяем подряд идущие rect с одинаковым цветом
+    const newRects = [];
+    Object.values(grouped).forEach(rectsInRow => {
+      // Сортируем по x
+      rectsInRow.sort((a, b) => parseFloat(a.getAttribute('x')) - parseFloat(b.getAttribute('x')));
+      let prev = null;
+      rectsInRow.forEach(rect => {
+        const x = parseFloat(rect.getAttribute('x'));
+        const width = parseFloat(rect.getAttribute('width'));
+        const color = rect.getAttribute('data-color') || rect.getAttribute('fill');
+        if (
+          prev &&
+          parseFloat(prev.getAttribute('x')) + parseFloat(prev.getAttribute('width')) === x &&
+          (prev.getAttribute('data-color') || prev.getAttribute('fill')) === color
+        ) {
+          // Объединяем rect
+          prev.setAttribute('width', parseFloat(prev.getAttribute('width')) + width);
+        } else {
+          prev = rect.cloneNode(true);
+          newRects.push(prev);
+        }
+      });
+    });
+    // Удаляем все старые rect
+    rects.forEach(rect => rect.parentNode.removeChild(rect));
+    // Добавляем новые
+    const svgEl = doc.documentElement;
+    newRects.forEach(rect => svgEl.appendChild(rect));
+    return svgEl.outerHTML;
+  } catch {
+    return svg;
+  }
+}
+
+/**
  * @param {object} props
  * @param {string} props.original - URL оригинального изображения
  * @param {string} props.pixelBW - dataURL/svg чб генерации
@@ -68,6 +123,7 @@ export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation
     let svgToShow = svg;
     if (fillColors && svg && !svg.startsWith('data:image')) {
       svgToShow = fillSvgWithColors(svg);
+      svgToShow = optimizeRectsForPreview(svgToShow);
     }
     // Определяем viewBox для ориентации
     const boxW = orientation === 'horizontal' ? 1000 : 800;
