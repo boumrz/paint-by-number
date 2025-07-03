@@ -61,14 +61,14 @@ const HorizontalCanvasFull = ({
     setIsFilled(false);
   };
 
-  // Генерация сетки 8x16 (128x160 px каждый) с шахматной заливкой
+  // Генерация сетки 16x8 (160x128 px каждый) с шахматной заливкой
   const generateGrid = () => {
-    const gridCols = 8; // большие зоны по ширине
-    const gridRows = 16; // большие зоны по высоте
-    const cellWidth = 800 / gridCols; // 100
-    const cellHeight = 1000 / gridRows; // 62.5
-    const pxPerCellX = 16; // маленьких клеток в зоне по ширине
-    const pxPerCellY = 10; // маленьких клеток в зоне по высоте
+    const gridCols = 16; // большие зоны по ширине
+    const gridRows = 8; // большие зоны по высоте
+    const cellWidth = 1000 / gridCols; // 62.5
+    const cellHeight = 800 / gridRows; // 100
+    const pxPerCellX = 10; // маленьких клеток в зоне по ширине
+    const pxPerCellY = 16; // маленьких клеток в зоне по высоте
     const pxWidth = cellWidth / pxPerCellX; // 6.25
     const pxHeight = cellHeight / pxPerCellY; // 6.25
     const cells = [];
@@ -103,7 +103,7 @@ const HorizontalCanvasFull = ({
               pointerEvents: 'none'
             }}
           >
-            {/* Нумерация по горизонтали (1-16) в первой строке */}
+            {/* Нумерация по горизонтали (1-10) в первой строке */}
             {Array.from({ length: pxPerCellX }).map((_, i) => (
               i === 0 ? null : (
                 <span
@@ -195,7 +195,9 @@ const HorizontalCanvasFull = ({
           onWheel={handleWheel}
           onDoubleClick={handleDoubleClick}
           style={{
-            cursor: isDragging ? 'grabbing' : (isSelecting ? 'crosshair' : 'grab')
+            cursor: isDragging ? 'grabbing' : (isSelecting ? 'crosshair' : 'grab'),
+            width: '1000px',
+            height: '800px',
           }}
         >
           <div
@@ -204,8 +206,8 @@ const HorizontalCanvasFull = ({
               transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               transformOrigin: '0 0',
               transition: isDragging || isSelecting ? 'none' : 'transform 0.1s',
-              width: '100%',
-              height: '100%',
+              width: '1000px',
+              height: '800px',
               position: 'relative'
             }}
           >
@@ -213,14 +215,14 @@ const HorizontalCanvasFull = ({
               className={cn(styles['svg-element'], styles['horizontal-canvas'])}
               ref={svgRef}
             />
-            {/* Слой с сеткой 8x16 */}
+            {/* Слой с сеткой 16x8 */}
             <div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                width: '800px',
-                height: '1000px',
+                width: '1000px',
+                height: '800px',
                 pointerEvents: 'none'
               }}
             >

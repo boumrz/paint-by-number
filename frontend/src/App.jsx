@@ -239,10 +239,9 @@ function App() {
       } else if (croppingFor === 'horizontal') {
         setHorizontalPreviewImage(previewUrl);
         try {
-          let apiUrl = '';
-          if (typeGenerationHorizontal === 'Обычное') apiUrl = '/api/convert-pixels';
-          else if (typeGenerationHorizontal === 'Чернобелое') apiUrl = '/api/convert-pixels-bw';
-          else if (typeGenerationHorizontal === 'Сепия') apiUrl = '/api/convert-pixels-sepia';
+          let apiUrl = '/api/convert-pixels-horizontal';
+          if (typeGenerationHorizontal === 'Чернобелое') apiUrl = '/api/convert-pixels-horizontal-bw';
+          else if (typeGenerationHorizontal === 'Сепия') apiUrl = '/api/convert-pixels-horizontal-sepia';
           const formData = new FormData();
           formData.append('image', croppedBlob, 'cropped.jpg');
           const response = await axios.post(`${config.apiUrl}${apiUrl}`, formData, {
@@ -455,7 +454,7 @@ function App() {
                 image={cropImage}
                 crop={crop}
                 zoom={zoom}
-                aspect={0.8}
+                aspect={croppingFor === 'horizontal' ? 1.25 : 0.8}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
