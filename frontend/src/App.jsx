@@ -172,6 +172,37 @@ function App() {
     setZoom(1);
   };
 
+  // Добавляю функции для заполнения и очистки SVG
+  function fillSvgColors(svg) {
+    if (!svg) return svg;
+    try {
+      const parser = new window.DOMParser();
+      const doc = parser.parseFromString(svg, 'image/svg+xml');
+      const rects = doc.querySelectorAll('rect[data-color]');
+      rects.forEach(rect => {
+        const color = rect.getAttribute('data-color');
+        if (color) rect.setAttribute('fill', color);
+      });
+      return doc.documentElement.outerHTML;
+    } catch {
+      return svg;
+    }
+  }
+  function clearSvgColors(svg) {
+    if (!svg) return svg;
+    try {
+      const parser = new window.DOMParser();
+      const doc = parser.parseFromString(svg, 'image/svg+xml');
+      const rects = doc.querySelectorAll('rect[data-color]');
+      rects.forEach(rect => {
+        rect.setAttribute('fill', 'white');
+      });
+      return doc.documentElement.outerHTML;
+    } catch {
+      return svg;
+    }
+  }
+
   return (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -236,10 +267,6 @@ function App() {
               />
             )}
           </div>
-        </div>
-        
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {/* Удалён рендер SecondCanvasFull и HorizontalCanvasFull */}
         </div>
         
         <Modal
