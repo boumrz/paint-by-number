@@ -151,6 +151,42 @@ def get_digit_mask(number, grid_w=10, grid_h=10):
                         mask[y][x] = 1
     return mask
 
+# --- Функция для маски с переносом третьей цифры ---
+def get_digit_mask_split3(number, grid_w=10, grid_h=16):
+    number_str = str(number)
+    assert len(number_str) == 3
+    digit_w = 3
+    digit_h = 5
+    px = grid_w
+    py = grid_h
+    mask = [[0 for _ in range(grid_w)] for _ in range(grid_h)]
+    # Верхняя строка: первые две цифры
+    total_w_top = 2 * digit_w + 1  # 1px между цифрами
+    start_x_top = (px - total_w_top + 1) // 2
+    start_y_top = (py // 2) - digit_h
+    for idx in range(2):
+        template = DIGIT_TEMPLATES.get(number_str[idx], DIGIT_TEMPLATES['0'])
+        dx = start_x_top + idx * (digit_w + 1)
+        for row in range(digit_h):
+            for col in range(digit_w):
+                if template[row][col]:
+                    x = dx + col
+                    y = start_y_top + row
+                    if 0 <= x < grid_w and 0 <= y < grid_h:
+                        mask[y][x] = 1
+    # Нижняя строка: третья цифра
+    template = DIGIT_TEMPLATES.get(number_str[2], DIGIT_TEMPLATES['0'])
+    start_x_bot = (px - digit_w + 1) // 2
+    start_y_bot = (py // 2) + 1
+    for row in range(digit_h):
+        for col in range(digit_w):
+            if template[row][col]:
+                x = start_x_bot + col
+                y = start_y_bot + row
+                if 0 <= x < grid_w and 0 <= y < grid_h:
+                    mask[y][x] = 1
+    return mask
+
 @app.route('/api/convert', methods=['POST'])
 def convert_image():
     if 'image' not in request.files:
@@ -831,7 +867,7 @@ def convert_image_pixels_horizontal():
                 canvas_y = y * pixel_height
                 rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
                 svg_elements.append(rect)
-        # --- 2. Поверх добавляем пиксельные номера ---
+        # --- 2. Поверх добавляем номера больших прямоугольников пиксельной маской ---
         digit_color = 'rgb(136,136,136)'
         for cell_idx in range(grid_cols * grid_rows):
             number = cell_idx + 1
@@ -839,7 +875,11 @@ def convert_image_pixels_horizontal():
             row = cell_idx // grid_cols
             cell_x = col * cell_w
             cell_y = row * cell_h
-            mask = get_digit_mask(number, grid_w=10, grid_h=16)
+            num_str = str(number)
+            if len(num_str) == 3:
+                mask = get_digit_mask_split3(number, grid_w=10, grid_h=16)
+            else:
+                mask = get_digit_mask(number, grid_w=10, grid_h=16)
             for py_idx in range(16):
                 for px_idx in range(10):
                     if mask[py_idx][px_idx]:
