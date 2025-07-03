@@ -242,7 +242,7 @@ function App() {
           </div>
         </section>
 
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
             {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && (
               <ImagePreviewGallery
@@ -255,7 +255,7 @@ function App() {
             )}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
             {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && (
               <ImagePreviewGallery

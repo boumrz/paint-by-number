@@ -135,7 +135,7 @@ function SvgCanvasPreview({ svg, width, height, alt }) {
 export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation = 'vertical', onSelect }) {
   // Размеры превью (одинаковые для всех)
   const width = orientation === 'horizontal' ? 300 : 240;
-  const height = orientation === 'horizontal' ? 192 : 300;
+  const height = orientation === 'horizontal' ? 240 : 300;
 
   // Вспомогательная функция для SVG превью
   const renderSvgPreview = (svg, alt, fillColors = false) => {
@@ -158,7 +158,7 @@ export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation
   };
 
   return (
-    <div className={styles.gallery}>
+    <div className={styles.gallery + (orientation === 'horizontal' ? ' ' + styles.horizontal : '')}>
       <div className={styles.item}>
         <div className={styles.label}>Оригинал</div>
         {original ? (
