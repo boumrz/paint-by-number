@@ -12,6 +12,7 @@ import { useMediaQuery } from 'usehooks-ts';
 import { config } from './config.js';
 
 import { GridInstructions  } from './components/GridInstructions';
+import { ImagePreviewGallery } from './components/ImagePreviewGallery';
 
 function App() {
   // Второй холст
@@ -20,6 +21,8 @@ function App() {
   const [secondCurrentColor, setSecondCurrentColor] = useState(null);
   const [secondColorCount, setSecondColorCount] = useState({});
   const [secondSvgData, setSecondSvgData] = useState(null);
+  const [secondSvgDataBW, setSecondSvgDataBW] = useState(null);
+  const [secondSvgDataSepia, setSecondSvgDataSepia] = useState(null);
   const [typeGeneration, setTypeGeneration] = useState('Обычное');
 
   // Третий холст (Horizontal)
@@ -28,6 +31,8 @@ function App() {
   const [horizontalCurrentColor, setHorizontalCurrentColor] = useState(null);
   const [horizontalColorCount, setHorizontalColorCount] = useState({});
   const [horizontalSvgData, setHorizontalSvgData] = useState(null);
+  const [horizontalSvgDataBW, setHorizontalSvgDataBW] = useState(null);
+  const [horizontalSvgDataSepia, setHorizontalSvgDataSepia] = useState(null);
   const [typeGenerationHorizontal, setTypeGenerationHorizontal] = useState('Обычное');
 
   const [showCrop, setShowCrop] = useState(false);
@@ -170,6 +175,7 @@ function App() {
             if (response.data.palette && response.data.svg) {
               setSecondIdList(response.data.palette);
               setSecondSvgData(response.data.svg);
+              setSecondSvgDataBW(response.data.svgBW);
               
               // Автоматически заполняем цвета для черно-белого изображения
               setTimeout(() => {
@@ -213,6 +219,7 @@ function App() {
             if (response.data.palette && response.data.svg) {
               setSecondIdList(response.data.palette);
               setSecondSvgData(response.data.svg);
+              setSecondSvgDataSepia(response.data.svgSepia);
               
               // Автоматически заполняем цвета для сепии
               setTimeout(() => {
@@ -250,6 +257,8 @@ function App() {
           if (response.data.palette && response.data.svg) {
             setHorizontalIdList(response.data.palette);
             setHorizontalSvgData(response.data.svg);
+            setHorizontalSvgDataBW(response.data.svgBW);
+            setHorizontalSvgDataSepia(response.data.svgSepia);
             setTimeout(() => {
               const svgElement = document.querySelector('.svg-element');
               if (svgElement) {
@@ -352,54 +361,27 @@ function App() {
 
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {secondPreviewImage && (
-              <section className={styles.previewSection}>
-                <h3>Исходное изображение</h3>
-                <div className={styles.previewContainer}>
-                  <div className={styles.previewItem}>
-                    <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
-                  </div>
-                  {!isPhone && (
-                    <div className={styles.previewItem}>
-                      {secondIdList && secondIdList.length > 0 && (
-                        <ColorPalette
-                          colors={secondIdList}
-                          currentColor={secondCurrentColor}
-                          onColorSelect={setSecondCurrentColor}
-                          colorCount={secondColorCount}
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              </section>
+            {(secondPreviewImage || secondSvgData) && (
+              <ImagePreviewGallery
+                original={secondPreviewImage}
+                pixel={secondSvgData}
+                pixelBW={secondSvgDataBW}
+                pixelSepia={secondSvgDataSepia}
+                orientation="vertical"
+              />
             )}
           </div>
         </div>
-
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {horizontalPreviewImage && (
-              <section className={styles.previewSection}>
-                <h3>Исходное изображение (горизонтальный)</h3>
-                <div className={styles.previewContainer}>
-                  <div className={styles.previewItem}>
-                    <img src={horizontalPreviewImage} alt="Horizontal Preview" className={styles.previewImage} />
-                  </div>
-                  {!isPhone && (
-                    <div className={styles.previewItem}>
-                      {horizontalIdList && horizontalIdList.length > 0 && (
-                        <ColorPalette
-                          colors={horizontalIdList}
-                          currentColor={horizontalCurrentColor}
-                          onColorSelect={setHorizontalCurrentColor}
-                          colorCount={horizontalColorCount}
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              </section>
+            {(horizontalPreviewImage || horizontalSvgData) && (
+              <ImagePreviewGallery
+                original={horizontalPreviewImage}
+                pixel={horizontalSvgData}
+                pixelBW={horizontalSvgDataBW}
+                pixelSepia={horizontalSvgDataSepia}
+                orientation="horizontal"
+              />
             )}
           </div>
         </div>
