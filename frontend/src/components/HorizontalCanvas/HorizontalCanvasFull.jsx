@@ -153,15 +153,19 @@ const HorizontalCanvasFull = ({
   // PDF export handler
   const handleExportPDF = async () => {
     const section = document.querySelector(`.${styles.section}`);
+
+    console.log({offsetWidth: section.offsetWidth, offsetHeight: section.offsetHeight});
+    
     if (!section) return;
     const canvas = await html2canvas(section, { scale: 2 });
+
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'px',
-      format: [section.offsetWidth, section.offsetHeight],
+      format: [3000, 3000],
     });
-    pdf.addImage(imgData, 'PNG', 0, 0, section.offsetWidth, section.offsetHeight);
+    pdf.addImage(imgData, 'PNG', 0, 0, 3000, 3000);
     pdf.save('canvas-section.pdf');
   };
 
