@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './App.module.css';
 import SecondCanvasFull from './components/SecondCanvasFull';
 import { ColorPalette } from './components/ColorPalette/ColorPalette';
+import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 
 import axios from 'axios';
 import { Select } from 'antd';
@@ -20,6 +21,14 @@ function App() {
   const [secondColorCount, setSecondColorCount] = useState({});
   const [secondSvgData, setSecondSvgData] = useState(null);
   const [typeGeneration, setTypeGeneration] = useState('Обычное');
+
+  // Третий холст (Horizontal)
+  const [horizontalPreviewImage, setHorizontalPreviewImage] = useState(null);
+  const [horizontalIdList, setHorizontalIdList] = useState([]);
+  const [horizontalCurrentColor, setHorizontalCurrentColor] = useState(null);
+  const [horizontalColorCount, setHorizontalColorCount] = useState({});
+  const [horizontalSvgData, setHorizontalSvgData] = useState(null);
+  const [typeGenerationHorizontal, setTypeGenerationHorizontal] = useState('Обычное');
 
   const [showCrop, setShowCrop] = useState(false);
   const [cropImage, setCropImage] = useState(null);
@@ -93,6 +102,15 @@ function App() {
     }
   };
 
+  const handleUploadImageFileHorizontal = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setCroppingFor('horizontal');
+      setCropImage(URL.createObjectURL(file));
+      setShowCrop(true);
+    }
+  };
+
   const handleCropConfirm = async () => {
     if (!cropImage || !croppedAreaPixels) return;
     getCroppedImg(cropImage, croppedAreaPixels, async (croppedBlob, previewUrl) => {
@@ -100,59 +118,139 @@ function App() {
       setCropImage(null);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
-      if (croppingFor === 'Обычное') {
-        setSecondPreviewImage(previewUrl);
-        try {
-          console.log('=== Starting image processing ===');
-          console.log('API URL:', `${config.apiUrl}/api/convert-pixels`);
-          console.log('Cropped blob size:', croppedBlob.size);
-          console.log('Cropped blob type:', croppedBlob.type);
-          
-          const formData = new FormData();
-          formData.append('image', croppedBlob, 'cropped.jpg');
-          console.log('FormData created, sending request...');
-          
-          const response = await axios.post(`${config.apiUrl}/api/convert-pixels`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          console.log('Response received:', response.status, response.data);
-          
-          if (response.data.palette && response.data.svg) {
-            setSecondIdList(response.data.palette);
-            setSecondSvgData(response.data.svg);
-          } else {
-            throw new Error('Invalid server response format');
-          }
-        } catch (error) {
-          console.error('Error processing image:', error);
-          console.error('Error response:', error.response?.data);
-          console.error('Error status:', error.response?.status);
-        }
-      } else if (croppingFor === 'Чернобелое') {
-        setSecondPreviewImage(previewUrl);
-        try {
-          console.log('=== Starting black and white processing ===');
-          console.log('API URL:', `${config.apiUrl}/api/convert-pixels-bw`);
-          console.log('Cropped blob size:', croppedBlob.size);
-          
-          const formData = new FormData();
-          formData.append('image', croppedBlob, 'cropped.jpg');
-          console.log('FormData created, sending request...');
-          
-          const response = await axios.post(`${config.apiUrl}/api/convert-pixels-bw`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          console.log('Response received:', response.status, response.data);
-          
-          if (response.data.palette && response.data.svg) {
-            setSecondIdList(response.data.palette);
-            setSecondSvgData(response.data.svg);
+      if (croppingFor === 'Обычное' || croppingFor === 'Чернобелое' || croppingFor === 'Сепия') {
+        if (croppingFor === 'Обычное') {
+          setSecondPreviewImage(previewUrl);
+          try {
+            console.log('=== Starting image processing ===');
+            console.log('API URL:', `${config.apiUrl}/api/convert-pixels`);
+            console.log('Cropped blob size:', croppedBlob.size);
+            console.log('Cropped blob type:', croppedBlob.type);
             
-            // Автоматически заполняем цвета для черно-белого изображения
+            const formData = new FormData();
+            formData.append('image', croppedBlob, 'cropped.jpg');
+            console.log('FormData created, sending request...');
+            
+            const response = await axios.post(`${config.apiUrl}/api/convert-pixels`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+            console.log('Response received:', response.status, response.data);
+            
+            if (response.data.palette && response.data.svg) {
+              setSecondIdList(response.data.palette);
+              setSecondSvgData(response.data.svg);
+            } else {
+              throw new Error('Invalid server response format');
+            }
+          } catch (error) {
+            console.error('Error processing image:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+          }
+        } else if (croppingFor === 'Чернобелое') {
+          setSecondPreviewImage(previewUrl);
+          try {
+            console.log('=== Starting black and white processing ===');
+            console.log('API URL:', `${config.apiUrl}/api/convert-pixels-bw`);
+            console.log('Cropped blob size:', croppedBlob.size);
+            
+            const formData = new FormData();
+            formData.append('image', croppedBlob, 'cropped.jpg');
+            console.log('FormData created, sending request...');
+            
+            const response = await axios.post(`${config.apiUrl}/api/convert-pixels-bw`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+            console.log('Response received:', response.status, response.data);
+            
+            if (response.data.palette && response.data.svg) {
+              setSecondIdList(response.data.palette);
+              setSecondSvgData(response.data.svg);
+              
+              // Автоматически заполняем цвета для черно-белого изображения
+              setTimeout(() => {
+                const svgElement = document.querySelector('.svg-element');
+                if (svgElement) {
+                  const rects = svgElement.querySelectorAll('rect[data-color]');
+                  rects.forEach(rect => {
+                    const dataColor = rect.getAttribute('data-color');
+                    if (dataColor) {
+                      rect.setAttribute('fill', dataColor);
+                    }
+                  });
+                }
+              }, 100);
+            } else {
+              throw new Error('Invalid server response format');
+            }
+          } catch (error) {
+            console.error('Error processing black and white image:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+          }
+        } else if (croppingFor === 'Сепия') {
+          setSecondPreviewImage(previewUrl);
+          try {
+            console.log('=== Starting sepia processing ===');
+            console.log('API URL:', `${config.apiUrl}/api/convert-pixels-sepia`);
+            console.log('Cropped blob size:', croppedBlob.size);
+            
+            const formData = new FormData();
+            formData.append('image', croppedBlob, 'cropped.jpg');
+            console.log('FormData created, sending request...');
+            
+            const response = await axios.post(`${config.apiUrl}/api/convert-pixels-sepia`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+            console.log('Response received:', response.status, response.data);
+            
+            if (response.data.palette && response.data.svg) {
+              setSecondIdList(response.data.palette);
+              setSecondSvgData(response.data.svg);
+              
+              // Автоматически заполняем цвета для сепии
+              setTimeout(() => {
+                const svgElement = document.querySelector('.svg-element');
+                if (svgElement) {
+                  const rects = svgElement.querySelectorAll('rect[data-color]');
+                  rects.forEach(rect => {
+                    const dataColor = rect.getAttribute('data-color');
+                    if (dataColor) {
+                      rect.setAttribute('fill', dataColor);
+                    }
+                  });
+                }
+              }, 100);
+            } else {
+              throw new Error('Invalid server response format');
+            }
+          } catch (error) {
+            console.error('Error processing sepia image:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+          }
+        }
+      } else if (croppingFor === 'horizontal') {
+        setHorizontalPreviewImage(previewUrl);
+        try {
+          let apiUrl = '';
+          if (typeGenerationHorizontal === 'Обычное') apiUrl = '/api/convert-pixels';
+          else if (typeGenerationHorizontal === 'Чернобелое') apiUrl = '/api/convert-pixels-bw';
+          else if (typeGenerationHorizontal === 'Сепия') apiUrl = '/api/convert-pixels-sepia';
+          const formData = new FormData();
+          formData.append('image', croppedBlob, 'cropped.jpg');
+          const response = await axios.post(`${config.apiUrl}${apiUrl}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          if (response.data.palette && response.data.svg) {
+            setHorizontalIdList(response.data.palette);
+            setHorizontalSvgData(response.data.svg);
             setTimeout(() => {
               const svgElement = document.querySelector('.svg-element');
               if (svgElement) {
@@ -169,50 +267,7 @@ function App() {
             throw new Error('Invalid server response format');
           }
         } catch (error) {
-          console.error('Error processing black and white image:', error);
-          console.error('Error response:', error.response?.data);
-          console.error('Error status:', error.response?.status);
-        }
-      } else if (croppingFor === 'Сепия') {
-        setSecondPreviewImage(previewUrl);
-        try {
-          console.log('=== Starting sepia processing ===');
-          console.log('API URL:', `${config.apiUrl}/api/convert-pixels-sepia`);
-          console.log('Cropped blob size:', croppedBlob.size);
-          
-          const formData = new FormData();
-          formData.append('image', croppedBlob, 'cropped.jpg');
-          console.log('FormData created, sending request...');
-          
-          const response = await axios.post(`${config.apiUrl}/api/convert-pixels-sepia`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          console.log('Response received:', response.status, response.data);
-          
-          if (response.data.palette && response.data.svg) {
-            setSecondIdList(response.data.palette);
-            setSecondSvgData(response.data.svg);
-            
-            // Автоматически заполняем цвета для сепии
-            setTimeout(() => {
-              const svgElement = document.querySelector('.svg-element');
-              if (svgElement) {
-                const rects = svgElement.querySelectorAll('rect[data-color]');
-                rects.forEach(rect => {
-                  const dataColor = rect.getAttribute('data-color');
-                  if (dataColor) {
-                    rect.setAttribute('fill', dataColor);
-                  }
-                });
-              }
-            }, 100);
-          } else {
-            throw new Error('Invalid server response format');
-          }
-        } catch (error) {
-          console.error('Error processing sepia image:', error);
+          console.error('Error processing horizontal image:', error);
           console.error('Error response:', error.response?.data);
           console.error('Error status:', error.response?.status);
         }
@@ -231,6 +286,10 @@ function App() {
 
   const handleChangeTypeGeneration = (type) => {
     setTypeGeneration(type);
+  }
+
+  const handleChangeTypeGenerationHorizontal = (type) => {
+    setTypeGenerationHorizontal(type);
   }
 
   return (
@@ -268,6 +327,26 @@ function App() {
               <label htmlFor="image-upload" className={styles.uploadButton}>
                 Загрузить
               </label>
+              <Select
+                className={styles.select}
+                options={[
+                  { value: 'Обычное', label: 'Обычное' },
+                  { value: 'Чернобелое', label: 'Чернобелое' },
+                  { value: 'Сепия', label: 'Сепия' },
+                ]}
+                value={typeGenerationHorizontal}
+                onChange={handleChangeTypeGenerationHorizontal}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleUploadImageFileHorizontal}
+                id="image-upload-horizontal"
+                className={styles.fileInput}
+              />
+              <label htmlFor="image-upload-horizontal" className={styles.uploadButton}>
+                Загрузить (горизонтальный)
+              </label>
             </div>
           </div>
         </section>
@@ -299,20 +378,65 @@ function App() {
           </div>
         </div>
 
-        {!isTablet && (
-          <SecondCanvasFull
-            svgData={secondSvgData}
-            idList={secondIdList}
-            currentColor={secondCurrentColor}
-            setColorCount={setSecondColorCount}
-          />
-        )}
+        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+            {horizontalPreviewImage && (
+              <section className={styles.previewSection}>
+                <h3>Исходное изображение (горизонтальный)</h3>
+                <div className={styles.previewContainer}>
+                  <div className={styles.previewItem}>
+                    <img src={horizontalPreviewImage} alt="Horizontal Preview" className={styles.previewImage} />
+                  </div>
+                  {!isPhone && (
+                    <div className={styles.previewItem}>
+                      {horizontalIdList && horizontalIdList.length > 0 && (
+                        <ColorPalette
+                          colors={horizontalIdList}
+                          currentColor={horizontalCurrentColor}
+                          onColorSelect={setHorizontalCurrentColor}
+                          colorCount={horizontalColorCount}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {!isTablet && (
+            <SecondCanvasFull
+              svgData={secondSvgData}
+              idList={secondIdList}
+              currentColor={secondCurrentColor}
+              setColorCount={setSecondColorCount}
+            />
+          )}
 
+          {!isTablet && (
+            <HorizontalCanvasFull
+              svgData={horizontalSvgData}
+              idList={horizontalIdList}
+              currentColor={horizontalCurrentColor}
+              setColorCount={setHorizontalColorCount}
+            />
+          )}
+        </div>
+        
         {secondSvgData && (
           <GridInstructions 
             idList={secondIdList} 
             svgData={secondSvgData} 
             title="Инструкция"
+          />
+        )}
+        {horizontalSvgData && (
+          <GridInstructions 
+            idList={horizontalIdList} 
+            svgData={horizontalSvgData} 
+            title="Инструкция (горизонтальный)"
           />
         )}
 
