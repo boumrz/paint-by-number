@@ -40,6 +40,9 @@ function App() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [croppingFor, setCroppingFor] = useState(null);
 
+  // Добавляю состояния для выбранной инструкции
+  const [selectedInstructionVertical, setSelectedInstructionVertical] = useState(null);
+  const [selectedInstructionHorizontal, setSelectedInstructionHorizontal] = useState(null);
   const isTablet = useMediaQuery('(max-width: 1010px)');
   const isPhone = useMediaQuery('(max-width: 400px)');
 
@@ -217,6 +220,7 @@ function App() {
                 pixelBW={secondSvgDataBW}
                 pixelSepia={secondSvgDataSepia}
                 orientation="vertical"
+                onSelect={type => setSelectedInstructionVertical(type)}
               />
             )}
           </div>
@@ -229,6 +233,7 @@ function App() {
                 pixelBW={horizontalSvgDataBW}
                 pixelSepia={horizontalSvgDataSepia}
                 orientation="horizontal"
+                onSelect={type => setSelectedInstructionHorizontal(type)}
               />
             )}
           </div>
@@ -267,6 +272,35 @@ function App() {
             <button onClick={handleCropCancel} style={{ padding: '8px 24px', fontSize: 16 }}>Отмена</button>
           </div>
         </Modal>
+
+        {selectedInstructionVertical === 'bw' && secondSvgDataBW && (
+          <GridInstructions
+            idList={secondIdList}
+            svgData={secondSvgDataBW}
+            title="Инструкция (ЧБ)"
+          />
+        )}
+        {selectedInstructionVertical === 'sepia' && secondSvgDataSepia && (
+          <GridInstructions
+            idList={secondIdList}
+            svgData={secondSvgDataSepia}
+            title="Инструкция (Сепия)"
+          />
+        )}
+        {selectedInstructionHorizontal === 'bw' && horizontalSvgDataBW && (
+          <GridInstructions
+            idList={horizontalIdList}
+            svgData={horizontalSvgDataBW}
+            title="Инструкция (ЧБ, горизонтальный)"
+          />
+        )}
+        {selectedInstructionHorizontal === 'sepia' && horizontalSvgDataSepia && (
+          <GridInstructions
+            idList={horizontalIdList}
+            svgData={horizontalSvgDataSepia}
+            title="Инструкция (Сепия, горизонтальный)"
+          />
+        )}
       </main>
 
       <footer className={styles.footer}>
