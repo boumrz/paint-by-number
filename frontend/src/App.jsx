@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './App.module.css';
 import SecondCanvasFull from './components/SecondCanvasFull';
 import { ColorPalette } from './components/ColorPalette/ColorPalette';
+import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 
 import axios from 'axios';
 import { Select } from 'antd';
@@ -11,6 +12,7 @@ import { useMediaQuery } from 'usehooks-ts';
 import { config } from './config.js';
 
 import { GridInstructions  } from './components/GridInstructions';
+import { ImagePreviewGallery } from './components/ImagePreviewGallery';
 
 function App() {
   // Второй холст
@@ -19,7 +21,17 @@ function App() {
   const [secondCurrentColor, setSecondCurrentColor] = useState(null);
   const [secondColorCount, setSecondColorCount] = useState({});
   const [secondSvgData, setSecondSvgData] = useState(null);
-  const [typeGeneration, setTypeGeneration] = useState('Обычное');
+  const [secondSvgDataBW, setSecondSvgDataBW] = useState(null);
+  const [secondSvgDataSepia, setSecondSvgDataSepia] = useState(null);
+
+  // Третий холст (Horizontal)
+  const [horizontalPreviewImage, setHorizontalPreviewImage] = useState(null);
+  const [horizontalIdList, setHorizontalIdList] = useState([]);
+  const [horizontalCurrentColor, setHorizontalCurrentColor] = useState(null);
+  const [horizontalColorCount, setHorizontalColorCount] = useState({});
+  const [horizontalSvgData, setHorizontalSvgData] = useState(null);
+  const [horizontalSvgDataBW, setHorizontalSvgDataBW] = useState(null);
+  const [horizontalSvgDataSepia, setHorizontalSvgDataSepia] = useState(null);
 
   const [showCrop, setShowCrop] = useState(false);
   const [cropImage, setCropImage] = useState(null);
@@ -28,6 +40,8 @@ function App() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [croppingFor, setCroppingFor] = useState(null);
 
+  // Делаю одно:
+  const [selectedInstruction, setSelectedInstruction] = useState(null); // { type: 'bw'|'sepia', orientation: 'vertical'|'horizontal' }
   const isTablet = useMediaQuery('(max-width: 1010px)');
   const isPhone = useMediaQuery('(max-width: 400px)');
 
@@ -87,7 +101,16 @@ function App() {
   const handleUploadImageFile = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setCroppingFor(typeGeneration);
+      setCroppingFor('Обычное');
+      setCropImage(URL.createObjectURL(file));
+      setShowCrop(true);
+    }
+  };
+
+  const handleUploadImageFileHorizontal = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setCroppingFor('horizontal');
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
     }
@@ -100,119 +123,39 @@ function App() {
       setCropImage(null);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
-      if (croppingFor === 'Обычное') {
+      if (croppingFor === 'Обычное' || croppingFor === 'Чернобелое' || croppingFor === 'Сепия') {
         setSecondPreviewImage(previewUrl);
         try {
-          console.log('=== Starting image processing ===');
-          console.log('API URL:', `${config.apiUrl}/api/convert-pixels`);
-          console.log('Cropped blob size:', croppedBlob.size);
-          console.log('Cropped blob type:', croppedBlob.type);
-          
+          // Обычная генерация
           const formData = new FormData();
           formData.append('image', croppedBlob, 'cropped.jpg');
-          console.log('FormData created, sending request...');
-          
-          const response = await axios.post(`${config.apiUrl}/api/convert-pixels`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          console.log('Response received:', response.status, response.data);
-          
-          if (response.data.palette && response.data.svg) {
-            setSecondIdList(response.data.palette);
-            setSecondSvgData(response.data.svg);
-          } else {
-            throw new Error('Invalid server response format');
-          }
+          const respColor = await axios.post(`${config.apiUrl}/api/convert-pixels`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setSecondSvgData(respColor.data.svg);
+          setSecondIdList(respColor.data.palette);
+          // ЧБ генерация
+          const respBW = await axios.post(`${config.apiUrl}/api/convert-pixels-bw`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setSecondSvgDataBW(respBW.data.svg);
+          // Сепия генерация
+          const respSepia = await axios.post(`${config.apiUrl}/api/convert-pixels-sepia`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setSecondSvgDataSepia(respSepia.data.svg);
         } catch (error) {
           console.error('Error processing image:', error);
           console.error('Error response:', error.response?.data);
           console.error('Error status:', error.response?.status);
         }
-      } else if (croppingFor === 'Чернобелое') {
-        setSecondPreviewImage(previewUrl);
+      } else if (croppingFor === 'horizontal') {
+        setHorizontalPreviewImage(previewUrl);
         try {
-          console.log('=== Starting black and white processing ===');
-          console.log('API URL:', `${config.apiUrl}/api/convert-pixels-bw`);
-          console.log('Cropped blob size:', croppedBlob.size);
-          
           const formData = new FormData();
           formData.append('image', croppedBlob, 'cropped.jpg');
-          console.log('FormData created, sending request...');
-          
-          const response = await axios.post(`${config.apiUrl}/api/convert-pixels-bw`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          console.log('Response received:', response.status, response.data);
-          
-          if (response.data.palette && response.data.svg) {
-            setSecondIdList(response.data.palette);
-            setSecondSvgData(response.data.svg);
-            
-            // Автоматически заполняем цвета для черно-белого изображения
-            setTimeout(() => {
-              const svgElement = document.querySelector('.svg-element');
-              if (svgElement) {
-                const rects = svgElement.querySelectorAll('rect[data-color]');
-                rects.forEach(rect => {
-                  const dataColor = rect.getAttribute('data-color');
-                  if (dataColor) {
-                    rect.setAttribute('fill', dataColor);
-                  }
-                });
-              }
-            }, 100);
-          } else {
-            throw new Error('Invalid server response format');
-          }
+          // ЧБ генерация
+          const respBW = await axios.post(`${config.apiUrl}/api/convert-pixels-horizontal-bw`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setHorizontalSvgDataBW(respBW.data.svg);
+          // Сепия генерация
+          const respSepia = await axios.post(`${config.apiUrl}/api/convert-pixels-horizontal-sepia`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          setHorizontalSvgDataSepia(respSepia.data.svg);
         } catch (error) {
-          console.error('Error processing black and white image:', error);
-          console.error('Error response:', error.response?.data);
-          console.error('Error status:', error.response?.status);
-        }
-      } else if (croppingFor === 'Сепия') {
-        setSecondPreviewImage(previewUrl);
-        try {
-          console.log('=== Starting sepia processing ===');
-          console.log('API URL:', `${config.apiUrl}/api/convert-pixels-sepia`);
-          console.log('Cropped blob size:', croppedBlob.size);
-          
-          const formData = new FormData();
-          formData.append('image', croppedBlob, 'cropped.jpg');
-          console.log('FormData created, sending request...');
-          
-          const response = await axios.post(`${config.apiUrl}/api/convert-pixels-sepia`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          console.log('Response received:', response.status, response.data);
-          
-          if (response.data.palette && response.data.svg) {
-            setSecondIdList(response.data.palette);
-            setSecondSvgData(response.data.svg);
-            
-            // Автоматически заполняем цвета для сепии
-            setTimeout(() => {
-              const svgElement = document.querySelector('.svg-element');
-              if (svgElement) {
-                const rects = svgElement.querySelectorAll('rect[data-color]');
-                rects.forEach(rect => {
-                  const dataColor = rect.getAttribute('data-color');
-                  if (dataColor) {
-                    rect.setAttribute('fill', dataColor);
-                  }
-                });
-              }
-            }, 100);
-          } else {
-            throw new Error('Invalid server response format');
-          }
-        } catch (error) {
-          console.error('Error processing sepia image:', error);
+          console.error('Error processing horizontal image:', error);
           console.error('Error response:', error.response?.data);
           console.error('Error status:', error.response?.status);
         }
@@ -229,8 +172,35 @@ function App() {
     setZoom(1);
   };
 
-  const handleChangeTypeGeneration = (type) => {
-    setTypeGeneration(type);
+  // Добавляю функции для заполнения и очистки SVG
+  function fillSvgColors(svg) {
+    if (!svg) return svg;
+    try {
+      const parser = new window.DOMParser();
+      const doc = parser.parseFromString(svg, 'image/svg+xml');
+      const rects = doc.querySelectorAll('rect[data-color]');
+      rects.forEach(rect => {
+        const color = rect.getAttribute('data-color');
+        if (color) rect.setAttribute('fill', color);
+      });
+      return doc.documentElement.outerHTML;
+    } catch {
+      return svg;
+    }
+  }
+  function clearSvgColors(svg) {
+    if (!svg) return svg;
+    try {
+      const parser = new window.DOMParser();
+      const doc = parser.parseFromString(svg, 'image/svg+xml');
+      const rects = doc.querySelectorAll('rect[data-color]');
+      rects.forEach(rect => {
+        rect.setAttribute('fill', 'white');
+      });
+      return doc.documentElement.outerHTML;
+    } catch {
+      return svg;
+    }
   }
 
   return (
@@ -248,16 +218,6 @@ function App() {
             <h2>Создавай свои шедевры</h2>
             <p>Преврати любую фотографию в картину по номерам</p>
             <div className={styles.uploadSection}>
-              <Select
-                className={styles.select}
-                options={[
-                  { value: 'Обычное', label: 'Обычное' },
-                  { value: 'Чернобелое', label: 'Чернобелое' },
-                  { value: 'Сепия', label: 'Сепия' },
-                ]}
-                value={typeGeneration}
-                onChange={handleChangeTypeGeneration}
-              />
               <input
                 type="file"
                 accept="image/*"
@@ -268,54 +228,47 @@ function App() {
               <label htmlFor="image-upload" className={styles.uploadButton}>
                 Загрузить
               </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleUploadImageFileHorizontal}
+                id="image-upload-horizontal"
+                className={styles.fileInput}
+              />
+              <label htmlFor="image-upload-horizontal" className={styles.uploadButton}>
+                Загрузить (горизонтальный)
+              </label>
             </div>
           </div>
         </section>
 
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {secondPreviewImage && (
-              <section className={styles.previewSection}>
-                <h3>Исходное изображение</h3>
-                <div className={styles.previewContainer}>
-                  <div className={styles.previewItem}>
-                    <img src={secondPreviewImage} alt="Second Preview" className={styles.previewImage} />
-                  </div>
-                  {!isPhone && (
-                    <div className={styles.previewItem}>
-                      {secondIdList && secondIdList.length > 0 && (
-                        <ColorPalette
-                          colors={secondIdList}
-                          currentColor={secondCurrentColor}
-                          onColorSelect={setSecondCurrentColor}
-                          colorCount={secondColorCount}
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              </section>
+            {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && (
+              <ImagePreviewGallery
+                original={secondPreviewImage}
+                pixelBW={secondSvgDataBW}
+                pixelSepia={secondSvgDataSepia}
+                orientation="vertical"
+                onSelect={type => setSelectedInstruction({ type, orientation: 'vertical' })}
+              />
             )}
           </div>
         </div>
-
-        {!isTablet && (
-          <SecondCanvasFull
-            svgData={secondSvgData}
-            idList={secondIdList}
-            currentColor={secondCurrentColor}
-            setColorCount={setSecondColorCount}
-          />
-        )}
-
-        {secondSvgData && (
-          <GridInstructions 
-            idList={secondIdList} 
-            svgData={secondSvgData} 
-            title="Инструкция"
-          />
-        )}
-
+        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+            {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && (
+              <ImagePreviewGallery
+                original={horizontalPreviewImage}
+                pixelBW={horizontalSvgDataBW}
+                pixelSepia={horizontalSvgDataSepia}
+                orientation="horizontal"
+                onSelect={type => setSelectedInstruction({ type, orientation: 'horizontal' })}
+              />
+            )}
+          </div>
+        </div>
+        
         <Modal
           isOpen={showCrop}
           onRequestClose={handleCropCancel}
@@ -331,7 +284,7 @@ function App() {
                 image={cropImage}
                 crop={crop}
                 zoom={zoom}
-                aspect={0.8}
+                aspect={croppingFor === 'horizontal' ? 1.25 : 0.8}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
@@ -345,6 +298,39 @@ function App() {
             <button onClick={handleCropCancel} style={{ padding: '8px 24px', fontSize: 16 }}>Отмена</button>
           </div>
         </Modal>
+
+        {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
+          <GridInstructions
+            idList={secondIdList}
+            svgData={secondSvgDataBW}
+            title="Инструкция (ЧБ)"
+            orientation="vertical"
+          />
+        )}
+        {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
+          <GridInstructions
+            idList={secondIdList}
+            svgData={secondSvgDataSepia}
+            title="Инструкция (Сепия)"
+            orientation="vertical"
+          />
+        )}
+        {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
+          <GridInstructions
+            idList={horizontalIdList}
+            svgData={horizontalSvgDataBW}
+            title="Инструкция (ЧБ, горизонтальный)"
+            orientation="horizontal"
+          />
+        )}
+        {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
+          <GridInstructions
+            idList={horizontalIdList}
+            svgData={horizontalSvgDataSepia}
+            title="Инструкция (Сепия, горизонтальный)"
+            orientation="horizontal"
+          />
+        )}
       </main>
 
       <footer className={styles.footer}>

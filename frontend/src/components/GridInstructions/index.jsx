@@ -4,7 +4,7 @@ import { useMediaQuery } from 'usehooks-ts';
 import { FixedSizeList as List } from 'react-window';
 
 // Компонент инструкции для квадратов 10x10
-export const GridInstructions = ({ idList, svgData, title }) => {
+export const GridInstructions = ({ idList, svgData, title, orientation = 'vertical' }) => {
     console.log('idList', idList);
     const [selectedSquare, setSelectedSquare] = useState(null);
     const [showColorModal, setShowColorModal] = useState(false);
@@ -13,10 +13,16 @@ export const GridInstructions = ({ idList, svgData, title }) => {
     const isTabletMini = useMediaQuery('(max-width: 780px)');
     const isPhone = useMediaQuery('(max-width: 400px)');
   
+    // Параметры сетки в зависимости от ориентации
+    const gridCols = orientation === 'horizontal' ? 16 : 8;
+    const gridRows = orientation === 'horizontal' ? 8 : 16;
+    const total = gridCols * gridRows;
+    const canvasWidth = orientation === 'horizontal' ? 1000 : 800;
+    const canvasHeight = orientation === 'horizontal' ? 800 : 1000;
+    const cellWidth = canvasWidth / gridCols;
+    const cellHeight = canvasHeight / gridRows;
+  
     const generateInstructionGrid = () => {
-      const gridCols = 8;
-      const gridRows = 16;
-      const total = gridCols * gridRows;
       return (
         <div
           style={{
@@ -97,9 +103,6 @@ export const GridInstructions = ({ idList, svgData, title }) => {
         }
         
         // Рассчитываем границы квадрата
-        const cellWidth = 100;
-        const cellHeight = 62.5;
-        const gridCols = 8;
         const row = Math.floor((squareNumber - 1) / gridCols);
         const col = (squareNumber - 1) % gridCols;
         const squareX = col * cellWidth;
@@ -197,9 +200,6 @@ export const GridInstructions = ({ idList, svgData, title }) => {
         if (!svgElement) return null;
         
         // Рассчитываем границы квадрата
-        const cellWidth = 100;
-        const cellHeight = 62.5;
-        const gridCols = 8;
         const row = Math.floor((squareNumber - 1) / gridCols);
         const col = (squareNumber - 1) % gridCols;
         const squareX = col * cellWidth;
@@ -242,12 +242,12 @@ export const GridInstructions = ({ idList, svgData, title }) => {
               if (dataNumber) {
                 const textX = x - squareX + width / 2;
                 const textY = y - squareY + height / 2 + 2; // +2 для вертикального центрирования
-                textElements.push(`<text x="${textX}" y="${textY}" font-size="6" font-family="Arial, sans-serif" fill="#222" stroke="#fff" stroke-width="0.1" text-anchor="middle" dominant-baseline="middle">${dataNumber}</text>`);
+                textElements.push(`<text x="${textX}" y="${textY}" font-size="3.5" font-family="Arial, sans-serif" fill="#222" stroke="#fff" stroke-width="0.1" text-anchor="middle" dominant-baseline="middle">${dataNumber}</text>`);
               }
             }
           });
           // Создаем SVG для квадрата
-          const result = `<svg width="100px" height="62.5px" viewBox="0 0 100 62.5" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
+          const result = `<svg width="${cellWidth}px" height="${cellHeight}px" viewBox="0 0 ${cellWidth} ${cellHeight}" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
             ${textElements.join('')}
           </svg>`;
@@ -275,7 +275,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
           });
                   
           // Создаем SVG для квадрата
-          const result = `<svg width="100px" height="62.5px" viewBox="0 0 100 62.5" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
+          const result = `<svg width="${cellWidth}px" height="${cellHeight}px" viewBox="0 0 ${cellWidth} ${cellHeight}" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
             ${squareElements.join('')}
           </svg>`;
           
@@ -362,7 +362,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
             style={{
               overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
               content: {
-                maxWidth: 600,
+                maxWidth: 750,
                 width: '95%',
                 margin: 'auto',
                 maxHeight: '90vh',
@@ -373,7 +373,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
               }
             }}
           >
-            <div style={{ width: '100%', height: '100%' }}>
+            <div>
               <h3 style={{ marginBottom: '1rem', color: '#333', textAlign: 'center' }}>
                 Сектор {selectedSquare}
               </h3>
@@ -390,8 +390,7 @@ export const GridInstructions = ({ idList, svgData, title }) => {
                 <div style={{
                   display: 'flex',
                   width: '100%',
-                  maxWidth: 500,
-                  height: 700,
+                  maxWidth: 700,
                   alignItems: 'center',
                   justifyContent: 'center',
                   overflowY: 'auto',
