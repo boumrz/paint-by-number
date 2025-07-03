@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import styles from './ImagePreviewGallery.module.css';
 
 /**
@@ -104,6 +104,26 @@ function optimizeRectsForPreview(svg) {
   }
 }
 
+// Компонент предпросмотра SVG через canvas
+function SvgCanvasPreview({ svg, width, height, alt }) {
+  const canvasRef = useRef();
+  useEffect(() => {
+    if (!svg || !canvasRef.current) return;
+    const img = new window.Image();
+    const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(svgBlob);
+    img.onload = function () {
+      const ctx = canvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+    return () => URL.revokeObjectURL(url);
+  }, [svg, width, height]);
+  return <canvas ref={canvasRef} width={width} height={height} style={{ width, height, borderRadius: 8, background: '#fafafa' }} aria-label={alt} />;
+}
+
 /**
  * @param {object} props
  * @param {string} props.original - URL оригинального изображения
@@ -123,7 +143,6 @@ export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation
     let svgToShow = svg;
     if (fillColors && svg && !svg.startsWith('data:image')) {
       svgToShow = fillSvgWithColors(svg);
-      svgToShow = optimizeRectsForPreview(svgToShow);
     }
     // Определяем viewBox для ориентации
     const boxW = orientation === 'horizontal' ? 1000 : 800;
@@ -134,17 +153,8 @@ export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation
     if (svgToShow.startsWith('data:image')) {
       return <img src={svgToShow} alt={alt} width={width} height={height} className={styles.img} />;
     }
-    return (
-      <div
-        className={styles.svgWrap}
-        style={{ width, height, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <div
-          style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          dangerouslySetInnerHTML={{ __html: svgToShow }}
-        />
-      </div>
-    );
+    // Показываем canvas вместо SVG
+    return <SvgCanvasPreview svg={svgToShow} width={width} height={height} alt={alt} />;
   };
 
   return (
