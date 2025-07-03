@@ -40,9 +40,8 @@ function App() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [croppingFor, setCroppingFor] = useState(null);
 
-  // Добавляю состояния для выбранной инструкции
-  const [selectedInstructionVertical, setSelectedInstructionVertical] = useState(null);
-  const [selectedInstructionHorizontal, setSelectedInstructionHorizontal] = useState(null);
+  // Делаю одно:
+  const [selectedInstruction, setSelectedInstruction] = useState(null); // { type: 'bw'|'sepia', orientation: 'vertical'|'horizontal' }
   const isTablet = useMediaQuery('(max-width: 1010px)');
   const isPhone = useMediaQuery('(max-width: 400px)');
 
@@ -220,7 +219,7 @@ function App() {
                 pixelBW={secondSvgDataBW}
                 pixelSepia={secondSvgDataSepia}
                 orientation="vertical"
-                onSelect={type => setSelectedInstructionVertical(type)}
+                onSelect={type => setSelectedInstruction({ type, orientation: 'vertical' })}
               />
             )}
           </div>
@@ -233,7 +232,7 @@ function App() {
                 pixelBW={horizontalSvgDataBW}
                 pixelSepia={horizontalSvgDataSepia}
                 orientation="horizontal"
-                onSelect={type => setSelectedInstructionHorizontal(type)}
+                onSelect={type => setSelectedInstruction({ type, orientation: 'horizontal' })}
               />
             )}
           </div>
@@ -249,7 +248,7 @@ function App() {
           ariaHideApp={false}
           style={{
             overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
-            content: { maxWidth: 750, margin: 'auto', height: 600, padding: 0 }
+            content: { maxWidth: 600, margin: 'auto', height: 600, padding: 0 }
           }}
         >
           <div style={{ position: 'relative', width: '100%', height: '88%', background: '#222' }}>
@@ -273,28 +272,28 @@ function App() {
           </div>
         </Modal>
 
-        {selectedInstructionVertical === 'bw' && secondSvgDataBW && (
+        {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
           <GridInstructions
             idList={secondIdList}
             svgData={secondSvgDataBW}
             title="Инструкция (ЧБ)"
           />
         )}
-        {selectedInstructionVertical === 'sepia' && secondSvgDataSepia && (
+        {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
           <GridInstructions
             idList={secondIdList}
             svgData={secondSvgDataSepia}
             title="Инструкция (Сепия)"
           />
         )}
-        {selectedInstructionHorizontal === 'bw' && horizontalSvgDataBW && (
+        {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
           <GridInstructions
             idList={horizontalIdList}
             svgData={horizontalSvgDataBW}
             title="Инструкция (ЧБ, горизонтальный)"
           />
         )}
-        {selectedInstructionHorizontal === 'sepia' && horizontalSvgDataSepia && (
+        {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
           <GridInstructions
             idList={horizontalIdList}
             svgData={horizontalSvgDataSepia}
