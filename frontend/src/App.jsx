@@ -23,7 +23,6 @@ function App() {
   const [secondSvgData, setSecondSvgData] = useState(null);
   const [secondSvgDataBW, setSecondSvgDataBW] = useState(null);
   const [secondSvgDataSepia, setSecondSvgDataSepia] = useState(null);
-  const [typeGeneration, setTypeGeneration] = useState('Обычное');
 
   // Третий холст (Horizontal)
   const [horizontalPreviewImage, setHorizontalPreviewImage] = useState(null);
@@ -33,7 +32,6 @@ function App() {
   const [horizontalSvgData, setHorizontalSvgData] = useState(null);
   const [horizontalSvgDataBW, setHorizontalSvgDataBW] = useState(null);
   const [horizontalSvgDataSepia, setHorizontalSvgDataSepia] = useState(null);
-  const [typeGenerationHorizontal, setTypeGenerationHorizontal] = useState('Обычное');
 
   const [showCrop, setShowCrop] = useState(false);
   const [cropImage, setCropImage] = useState(null);
@@ -101,7 +99,7 @@ function App() {
   const handleUploadImageFile = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setCroppingFor(typeGeneration);
+      setCroppingFor('Обычное');
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
     }
@@ -148,10 +146,6 @@ function App() {
         try {
           const formData = new FormData();
           formData.append('image', croppedBlob, 'cropped.jpg');
-          // Обычная генерация
-          const respColor = await axios.post(`${config.apiUrl}/api/convert-pixels-horizontal`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-          setHorizontalSvgData(respColor.data.svg);
-          setHorizontalIdList(respColor.data.palette);
           // ЧБ генерация
           const respBW = await axios.post(`${config.apiUrl}/api/convert-pixels-horizontal-bw`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
           setHorizontalSvgDataBW(respBW.data.svg);
@@ -176,14 +170,6 @@ function App() {
     setZoom(1);
   };
 
-  const handleChangeTypeGeneration = (type) => {
-    setTypeGeneration(type);
-  }
-
-  const handleChangeTypeGenerationHorizontal = (type) => {
-    setTypeGenerationHorizontal(type);
-  }
-
   return (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -199,16 +185,6 @@ function App() {
             <h2>Создавай свои шедевры</h2>
             <p>Преврати любую фотографию в картину по номерам</p>
             <div className={styles.uploadSection}>
-              <Select
-                className={styles.select}
-                options={[
-                  { value: 'Обычное', label: 'Обычное' },
-                  { value: 'Чернобелое', label: 'Чернобелое' },
-                  { value: 'Сепия', label: 'Сепия' },
-                ]}
-                value={typeGeneration}
-                onChange={handleChangeTypeGeneration}
-              />
               <input
                 type="file"
                 accept="image/*"
@@ -219,16 +195,6 @@ function App() {
               <label htmlFor="image-upload" className={styles.uploadButton}>
                 Загрузить
               </label>
-              <Select
-                className={styles.select}
-                options={[
-                  { value: 'Обычное', label: 'Обычное' },
-                  { value: 'Чернобелое', label: 'Чернобелое' },
-                  { value: 'Сепия', label: 'Сепия' },
-                ]}
-                value={typeGenerationHorizontal}
-                onChange={handleChangeTypeGenerationHorizontal}
-              />
               <input
                 type="file"
                 accept="image/*"
@@ -245,10 +211,9 @@ function App() {
 
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {(secondPreviewImage || secondSvgData || secondSvgDataBW || secondSvgDataSepia) && (
+            {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && (
               <ImagePreviewGallery
                 original={secondPreviewImage}
-                pixel={secondSvgData}
                 pixelBW={secondSvgDataBW}
                 pixelSepia={secondSvgDataSepia}
                 orientation="vertical"
@@ -258,10 +223,9 @@ function App() {
         </div>
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {(horizontalPreviewImage || horizontalSvgData || horizontalSvgDataBW || horizontalSvgDataSepia) && (
+            {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && (
               <ImagePreviewGallery
                 original={horizontalPreviewImage}
-                pixel={horizontalSvgData}
                 pixelBW={horizontalSvgDataBW}
                 pixelSepia={horizontalSvgDataSepia}
                 orientation="horizontal"
@@ -271,40 +235,9 @@ function App() {
         </div>
         
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {!isTablet && (
-            <SecondCanvasFull
-              svgData={secondSvgData}
-              idList={secondIdList}
-              currentColor={secondCurrentColor}
-              setColorCount={setSecondColorCount}
-            />
-          )}
-
-          {!isTablet && (
-            <HorizontalCanvasFull
-              svgData={horizontalSvgData}
-              idList={horizontalIdList}
-              currentColor={horizontalCurrentColor}
-              setColorCount={setHorizontalColorCount}
-            />
-          )}
+          {/* Удалён рендер SecondCanvasFull и HorizontalCanvasFull */}
         </div>
         
-        {secondSvgData && (
-          <GridInstructions 
-            idList={secondIdList} 
-            svgData={secondSvgData} 
-            title="Инструкция"
-          />
-        )}
-        {horizontalSvgData && (
-          <GridInstructions 
-            idList={horizontalIdList} 
-            svgData={horizontalSvgData} 
-            title="Инструкция (горизонтальный)"
-          />
-        )}
-
         <Modal
           isOpen={showCrop}
           onRequestClose={handleCropCancel}

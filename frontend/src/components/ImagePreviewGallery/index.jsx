@@ -52,12 +52,11 @@ function normalizeSvgForPreview(svg, w, h) {
 /**
  * @param {object} props
  * @param {string} props.original - URL оригинального изображения
- * @param {string} props.pixel - dataURL/svg пиксельной генерации (обычное)
  * @param {string} props.pixelBW - dataURL/svg чб генерации
  * @param {string} props.pixelSepia - dataURL/svg сепия генерации
  * @param {'vertical'|'horizontal'} props.orientation - ориентация (для размеров)
  */
-export function ImagePreviewGallery({ original, pixel, pixelBW, pixelSepia, orientation = 'vertical' }) {
+export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation = 'vertical' }) {
   // Размеры превью (одинаковые для всех)
   const width = orientation === 'horizontal' ? 300 : 240;
   const height = orientation === 'horizontal' ? 192 : 300;
@@ -100,10 +99,6 @@ export function ImagePreviewGallery({ original, pixel, pixelBW, pixelSepia, orie
         ) : (
           <div className={styles.empty}>Нет изображения</div>
         )}
-      </div>
-      <div className={styles.item}>
-        <div className={styles.label}>Пиксельная</div>
-        {renderSvgPreview(pixel, 'Пиксельная', true)}
       </div>
       <div className={styles.item}>
         <div className={styles.label}>Чёрно-белая</div>
