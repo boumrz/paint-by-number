@@ -102,11 +102,15 @@ export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation
       </div>
       <div className={styles.item}>
         <div className={styles.label}>Чёрно-белая</div>
-        {renderSvgPreview(pixelBW, 'ЧБ', true)}
+        <button className={styles.previewButton} type="button" onClick={() => console.log('bw')}>
+          {renderSvgPreview(pixelBW, 'ЧБ', true)}
+        </button>
       </div>
       <div className={styles.item}>
         <div className={styles.label}>Сепия</div>
-        {renderSvgPreview(pixelSepia, 'Сепия', true)}
+        <button className={styles.previewButton} type="button" onClick={() => console.log('sepia')}>
+          {renderSvgPreview(pixelSepia, 'Сепия', true)}
+        </button>
       </div>
     </div>
   );
