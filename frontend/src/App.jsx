@@ -277,6 +277,7 @@ function App() {
             idList={secondIdList}
             svgData={secondSvgDataBW}
             title="Инструкция (ЧБ)"
+            orientation="vertical"
           />
         )}
         {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
@@ -284,6 +285,7 @@ function App() {
             idList={secondIdList}
             svgData={secondSvgDataSepia}
             title="Инструкция (Сепия)"
+            orientation="vertical"
           />
         )}
         {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
@@ -291,6 +293,7 @@ function App() {
             idList={horizontalIdList}
             svgData={horizontalSvgDataBW}
             title="Инструкция (ЧБ, горизонтальный)"
+            orientation="horizontal"
           />
         )}
         {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
@@ -298,6 +301,7 @@ function App() {
             idList={horizontalIdList}
             svgData={horizontalSvgDataSepia}
             title="Инструкция (Сепия, горизонтальный)"
+            orientation="horizontal"
           />
         )}
       </main>
