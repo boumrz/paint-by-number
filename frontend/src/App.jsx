@@ -249,7 +249,7 @@ function App() {
           ariaHideApp={false}
           style={{
             overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
-            content: { maxWidth: 600, margin: 'auto', height: 600, padding: 0 }
+            content: { maxWidth: 750, margin: 'auto', height: 600, padding: 0 }
           }}
         >
           <div style={{ position: 'relative', width: '100%', height: '88%', background: '#222' }}>
