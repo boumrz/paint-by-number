@@ -911,5 +911,303 @@ def convert_image_pixels_horizontal():
             except Exception as cleanup_error:
                 print(f"Warning: Could not clean up temporary directory {temp_dir}: {cleanup_error}")
 
+@app.route('/api/convert-pixels-horizontal-bw', methods=['POST'])
+def convert_image_pixels_horizontal_bw():
+    print("=== Starting convert_image_pixels_horizontal_bw ===")
+    if 'image' not in request.files:
+        print("ERROR: No image in request.files")
+        return jsonify({'error': 'No image provided'}), 400
+    
+    file = request.files['image']
+    print(f"File received: {file.filename}")
+    if file.filename == '':
+        print("ERROR: Empty filename")
+        return jsonify({'error': 'No selected file'}), 400
+
+    # Проверка размера файла (до 5 МБ)
+    file.seek(0, os.SEEK_END)
+    file_length = file.tell()
+    file.seek(0)
+    print(f"File size: {file_length} bytes")
+    if file_length > 5 * 1024 * 1024:
+        print("ERROR: File too large")
+        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+
+    temp_dir = None
+    try:
+        temp_dir = tempfile.mkdtemp()
+        print("Created temporary directory:", temp_dir)
+        input_path = os.path.join(temp_dir, 'input.jpg')
+        file.save(input_path)
+        print("Saved input file to:", input_path)
+
+        # Проверка разрешения изображения (до 2000x2000)
+        print("Checking image dimensions...")
+        with Image.open(input_path) as img:
+            width, height = img.size
+            print(f"Image dimensions: {width}x{height}")
+            
+            # Приводим к соотношению 1000x800 (1.25)
+            target_ratio = 1000 / 800
+            img_ratio = width / height
+            if img_ratio > target_ratio:
+                new_width = int(height * target_ratio)
+                left = (width - new_width) // 2
+                img = img.crop((left, 0, left + new_width, height))
+            elif img_ratio < target_ratio:
+                new_height = int(width / target_ratio)
+                top = (height - new_height) // 2
+                img = img.crop((0, top, width, top + new_height))
+            img = img.resize((1000, 800), Image.Resampling.LANCZOS)
+            img.save(input_path, 'JPEG', quality=95)
+            print(f"Image scaled and saved as 1000x800")
+        
+        num_pixels_x = 160
+        num_pixels_y = 128
+        canvas_width = 1000
+        canvas_height = 800
+
+        # Открываем изображение
+        img = cv2.imread(input_path)
+        if img is None:
+            print("ERROR: OpenCV could not read image")
+            return jsonify({'error': 'Не удалось прочитать изображение'}), 400
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        h, w, _ = img.shape
+        print(f"Original image size: {w}x{h}")
+        img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
+        h, w, _ = img.shape
+        print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
+
+        # Конвертируем в оттенки серого
+        gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        # Квантование в 18 уровней серого
+        quantized_gray = np.zeros_like(gray_img)
+        for i in range(18):
+            lower = i * 15
+            upper = (i + 1) * 15
+            if i == 17:
+                upper = 256
+            mask = (gray_img >= lower) & (gray_img < upper)
+            quantized_gray[mask] = i
+        print("Quantized to 18 gray levels")
+
+        pixel_width = canvas_width / num_pixels_x
+        pixel_height = canvas_height / num_pixels_y
+        svg_elements = []
+        grid_cols = 16
+        grid_rows = 8
+        cell_w = 1000 / grid_cols
+        cell_h = 800 / grid_rows
+        px_w = cell_w / 10
+        px_h = cell_h / 16
+        palette = []
+        color_map = {}
+        color_idx = 1
+        for y in range(num_pixels_y):
+            for x in range(num_pixels_x):
+                gray_level = quantized_gray[y, x]
+                color = BW_PALETTE[gray_level]
+                pixel_color = tuple(color)
+                if pixel_color not in color_map:
+                    color_map[pixel_color] = int(color_idx)
+                    palette.append({'color': [int(c) for c in pixel_color], 'number': int(color_idx)})
+                    color_idx += 1
+                number = color_map[pixel_color]
+                canvas_x = x * pixel_width
+                canvas_y = y * pixel_height
+                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
+                svg_elements.append(rect)
+        # --- 2. Поверх добавляем номера больших прямоугольников пиксельной маской ---
+        digit_color = 'rgb(136,136,136)'
+        for cell_idx in range(grid_cols * grid_rows):
+            number = cell_idx + 1
+            col = cell_idx % grid_cols
+            row = cell_idx // grid_cols
+            cell_x = col * cell_w
+            cell_y = row * cell_h
+            num_str = str(number)
+            if len(num_str) == 3:
+                mask = get_digit_mask_split3(number, grid_w=10, grid_h=16)
+            else:
+                mask = get_digit_mask(number, grid_w=10, grid_h=16)
+            for py_idx in range(16):
+                for px_idx in range(10):
+                    if mask[py_idx][px_idx]:
+                        rx = cell_x + px_idx * px_w
+                        ry = cell_y + py_idx * px_h
+                        rect = f'<rect x="{rx}" y="{ry}" width="{px_w}" height="{px_h}" fill="{digit_color}" opacity="0.4" stroke="none" data-digit-pixel="1" data-digit-label="1" style="pointer-events:none"/>'
+                        svg_elements.append(rect)
+        svg_content = f'<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
+        print("Successfully processed horizontal bw pixel image")
+        return jsonify({
+            'svg': svg_content,
+            'palette': palette
+        })
+    except Exception as e:
+        print("Error processing horizontal bw pixel image:")
+        print(traceback.format_exc())
+        return jsonify({
+            'error': 'Error generating horizontal bw pixel paint by number',
+            'details': str(e)
+        }), 500
+    finally:
+        if temp_dir and os.path.exists(temp_dir):
+            try:
+                import shutil
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                print(f"Cleaned up temporary directory: {temp_dir}")
+            except Exception as cleanup_error:
+                print(f"Warning: Could not clean up temporary directory {temp_dir}: {cleanup_error}")
+
+@app.route('/api/convert-pixels-horizontal-sepia', methods=['POST'])
+def convert_image_pixels_horizontal_sepia():
+    print("=== Starting convert_image_pixels_horizontal_sepia ===")
+    if 'image' not in request.files:
+        print("ERROR: No image in request.files")
+        return jsonify({'error': 'No image provided'}), 400
+    
+    file = request.files['image']
+    print(f"File received: {file.filename}")
+    if file.filename == '':
+        print("ERROR: Empty filename")
+        return jsonify({'error': 'No selected file'}), 400
+
+    # Проверка размера файла (до 5 МБ)
+    file.seek(0, os.SEEK_END)
+    file_length = file.tell()
+    file.seek(0)
+    print(f"File size: {file_length} bytes")
+    if file_length > 5 * 1024 * 1024:
+        print("ERROR: File too large")
+        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+
+    temp_dir = None
+    try:
+        temp_dir = tempfile.mkdtemp()
+        print("Created temporary directory:", temp_dir)
+        input_path = os.path.join(temp_dir, 'input.jpg')
+        file.save(input_path)
+        print("Saved input file to:", input_path)
+
+        # Проверка разрешения изображения (до 2000x2000)
+        print("Checking image dimensions...")
+        with Image.open(input_path) as img:
+            width, height = img.size
+            print(f"Image dimensions: {width}x{height}")
+            
+            # Приводим к соотношению 1000x800 (1.25)
+            target_ratio = 1000 / 800
+            img_ratio = width / height
+            if img_ratio > target_ratio:
+                new_width = int(height * target_ratio)
+                left = (width - new_width) // 2
+                img = img.crop((left, 0, left + new_width, height))
+            elif img_ratio < target_ratio:
+                new_height = int(width / target_ratio)
+                top = (height - new_height) // 2
+                img = img.crop((0, top, width, top + new_height))
+            img = img.resize((1000, 800), Image.Resampling.LANCZOS)
+            img.save(input_path, 'JPEG', quality=95)
+            print(f"Image scaled and saved as 1000x800")
+        
+        num_pixels_x = 160
+        num_pixels_y = 128
+        canvas_width = 1000
+        canvas_height = 800
+
+        # Открываем изображение
+        img = cv2.imread(input_path)
+        if img is None:
+            print("ERROR: OpenCV could not read image")
+            return jsonify({'error': 'Не удалось прочитать изображение'}), 400
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        h, w, _ = img.shape
+        print(f"Original image size: {w}x{h}")
+        img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
+        h, w, _ = img.shape
+        print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
+
+        # Конвертируем в оттенки серого
+        gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        # Квантование в 15 уровней серого для сепии
+        quantized_gray = np.zeros_like(gray_img)
+        for i in range(15):
+            lower = i * 17
+            upper = (i + 1) * 17
+            if i == 14:
+                upper = 256
+            mask = (gray_img >= lower) & (gray_img < upper)
+            quantized_gray[mask] = i
+        print("Quantized to 15 gray levels for sepia")
+
+        pixel_width = canvas_width / num_pixels_x
+        pixel_height = canvas_height / num_pixels_y
+        svg_elements = []
+        grid_cols = 16
+        grid_rows = 8
+        cell_w = 1000 / grid_cols
+        cell_h = 800 / grid_rows
+        px_w = cell_w / 10
+        px_h = cell_h / 16
+        palette = []
+        color_map = {}
+        color_idx = 1
+        for y in range(num_pixels_y):
+            for x in range(num_pixels_x):
+                gray_level = quantized_gray[y, x]
+                color = SEPIA_PALETTE[gray_level]
+                pixel_color = tuple(color)
+                if pixel_color not in color_map:
+                    color_map[pixel_color] = int(color_idx)
+                    palette.append({'color': [int(c) for c in pixel_color], 'number': int(color_idx)})
+                    color_idx += 1
+                number = color_map[pixel_color]
+                canvas_x = x * pixel_width
+                canvas_y = y * pixel_height
+                rect = f'<rect x="{canvas_x}" y="{canvas_y}" width="{pixel_width}" height="{pixel_height}" fill="white" stroke="black" stroke-width="0.5" data-color="rgb({pixel_color[0]},{pixel_color[1]},{pixel_color[2]})" data-number="{number}"/>'
+                svg_elements.append(rect)
+        # --- 2. Поверх добавляем номера больших прямоугольников пиксельной маской ---
+        digit_color = 'rgb(136,136,136)'
+        for cell_idx in range(grid_cols * grid_rows):
+            number = cell_idx + 1
+            col = cell_idx % grid_cols
+            row = cell_idx // grid_cols
+            cell_x = col * cell_w
+            cell_y = row * cell_h
+            num_str = str(number)
+            if len(num_str) == 3:
+                mask = get_digit_mask_split3(number, grid_w=10, grid_h=16)
+            else:
+                mask = get_digit_mask(number, grid_w=10, grid_h=16)
+            for py_idx in range(16):
+                for px_idx in range(10):
+                    if mask[py_idx][px_idx]:
+                        rx = cell_x + px_idx * px_w
+                        ry = cell_y + py_idx * px_h
+                        rect = f'<rect x="{rx}" y="{ry}" width="{px_w}" height="{px_h}" fill="{digit_color}" opacity="0.4" stroke="none" data-digit-pixel="1" data-digit-label="1" style="pointer-events:none"/>'
+                        svg_elements.append(rect)
+        svg_content = f'<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">' + ''.join(svg_elements) + '</svg>'
+        print("Successfully processed horizontal sepia pixel image")
+        return jsonify({
+            'svg': svg_content,
+            'palette': palette
+        })
+    except Exception as e:
+        print("Error processing horizontal sepia pixel image:")
+        print(traceback.format_exc())
+        return jsonify({
+            'error': 'Error generating horizontal sepia pixel paint by number',
+            'details': str(e)
+        }), 500
+    finally:
+        if temp_dir and os.path.exists(temp_dir):
+            try:
+                import shutil
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                print(f"Cleaned up temporary directory: {temp_dir}")
+            except Exception as cleanup_error:
+                print(f"Warning: Could not clean up temporary directory {temp_dir}: {cleanup_error}")
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000) 
