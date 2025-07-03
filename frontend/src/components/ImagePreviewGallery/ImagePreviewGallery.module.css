@@ -77,7 +77,6 @@
   border: none;
   outline: none;
   max-width: 340px;
-  max-height: 260px;
 }
 
 .previewButton:hover {
@@ -101,7 +100,6 @@
   min-width: 240px;
   max-width: 340px;
   height: 260px;
-  max-height: 260px;
 }
 
 /* canvas/image внутри previewButton не выходит за пределы */
