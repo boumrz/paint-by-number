@@ -134,8 +134,8 @@ function SvgCanvasPreview({ svg, width, height, alt }) {
  */
 export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation = 'vertical', onSelect }) {
   // Размеры превью (одинаковые для всех)
-  const width = orientation === 'horizontal' ? 300 : 240;
-  const height = orientation === 'horizontal' ? 240 : 300;
+  const width = orientation === 'horizontal' ? 340 : 240;
+  const height = orientation === 'horizontal' ? 260 : 300;
 
   // Вспомогательная функция для SVG превью
   const renderSvgPreview = (svg, alt, fillColors = false) => {
