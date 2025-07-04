@@ -191,6 +191,15 @@ const HorizontalCanvasFull = ({
     const pxWidth = cellWidth / pxPerCellX;
     const pxHeight = cellHeight / pxPerCellY;
     let axisSvg = '';
+    // Разлиновка по зонам (тонкие линии)
+    for (let i = 0; i <= gridCols; i++) {
+      const x = i * cellWidth;
+      axisSvg += `<line x1="${x}" y1="0" x2="${x}" y2="800" stroke="#222" stroke-width="1.1" />`;
+    }
+    for (let j = 0; j <= gridRows; j++) {
+      const y = j * cellHeight;
+      axisSvg += `<line x1="0" y1="${y}" x2="1000" y2="${y}" stroke="#222" stroke-width="1.1" />`;
+    }
     for (let row = 0; row < gridRows; row++) {
       const y0 = row * cellHeight;
       for (let col = 0; col < gridCols; col++) {
@@ -202,11 +211,16 @@ const HorizontalCanvasFull = ({
           // Сдвиг на одну клетку левее и ниже
           x -= pxWidth;
           y += pxHeight;
+          // Дополнительно сдвигаем на 1/4 клетки вправо
+          x += pxWidth / 4;
           axisSvg += `<text x="${x}" y="${y}" font-size="4" fill="#888" font-weight="500" text-anchor="middle" font-family="Arial" style="user-select:none;pointer-events:none;">${i}</text>`;
         }
         // Вертикальная нумерация (1-16) слева каждой зоны
         for (let j = 1; j <= pxPerCellY; j++) {
-          const x = x0 + ((j + 1) < 10 ? 2 : 1);
+          let x = x0 + ((j + 1) < 10 ? 2 : 1) + pxWidth / 4;
+          if (String(j).startsWith('9')) {
+            x += pxWidth / 5;
+          }
           const y = y0 + j * pxHeight + pxHeight / 2 - ((j + 1) < 10 ? 5 : 5);
           axisSvg += `<text x="${x}" y="${y}" font-size="4" fill="#888" font-weight="500" text-anchor="middle" font-family="Arial" style="user-select:none;pointer-events:none;">${j}</text>`;
         }
