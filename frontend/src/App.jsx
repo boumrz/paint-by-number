@@ -331,6 +331,27 @@ function App() {
             orientation="horizontal"
           />
         )}
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {/* Вертикальный холст (чб) */}
+          {!isTablet && secondSvgDataBW && (
+            <SecondCanvasFull
+              svgData={secondSvgDataBW}
+              idList={secondIdList}
+              currentColor={secondCurrentColor}
+              setColorCount={setSecondColorCount}
+            />
+          )}
+          {/* Горизонтальный холст (чб) */}
+          {!isTablet && horizontalSvgDataBW && (
+            <HorizontalCanvasFull
+              svgData={horizontalSvgDataBW}
+              idList={horizontalIdList}
+              currentColor={horizontalCurrentColor}
+              setColorCount={setHorizontalColorCount}
+            />
+          )}
+        </div>
       </main>
 
       <footer className={styles.footer}>
