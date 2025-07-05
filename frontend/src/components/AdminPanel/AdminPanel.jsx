@@ -83,11 +83,15 @@ const AdminPanel = () => {
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statNumber}>{stats.used_codes}</div>
-                <div className={styles.statLabel}>Использовано</div>
+                <div className={styles.statLabel}>Активировано</div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statNumber}>{stats.unused_codes}</div>
-                <div className={styles.statLabel}>Доступно</div>
+                <div className={styles.statLabel}>Не активировано</div>
+              </div>
+              <div className={styles.statCard}>
+                <div className={styles.statNumber}>{stats.total_usage_count || 0}</div>
+                <div className={styles.statLabel}>Общее количество использований</div>
               </div>
             </div>
           ) : (
@@ -130,7 +134,8 @@ const AdminPanel = () => {
             <p><strong>Формат кодов:</strong> XXXX-XXXX-XXXX (где X - цифра от 0 до 9)</p>
             <p><strong>Хранение:</strong> Коды сохраняются в файле access_codes.json</p>
             <p><strong>Безопасность:</strong> Коды хешируются для безопасного хранения</p>
-            <p><strong>Использование:</strong> Каждый код может быть использован только один раз</p>
+            <p><strong>Использование:</strong> Коды можно использовать многократно</p>
+            <p><strong>Статистика:</strong> Отслеживается первая активация и количество использований</p>
           </div>
         </div>
       </div>
