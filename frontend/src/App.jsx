@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from './App.module.css';
-import SecondCanvasFull from './components/SecondCanvasFull';
+// import SecondCanvasFull from './components/SecondCanvasFull';
 import { ColorPalette } from './components/ColorPalette/ColorPalette';
-import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
+// import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 
 import axios from 'axios';
 import { Select } from 'antd';
@@ -242,9 +242,9 @@ function App() {
           </div>
         </section>
 
-        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
-          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && (
+        {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && (
+          <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
+            <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
               <ImagePreviewGallery
                 original={secondPreviewImage}
                 pixelBW={secondSvgDataBW}
@@ -252,22 +252,23 @@ function App() {
                 orientation="vertical"
                 onSelect={type => setSelectedInstruction({ type, orientation: 'vertical' })}
               />
-            )}
+            </div>
           </div>
-        </div>
-        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
+        )}
+        
+        {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && (
+          <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
           <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && (
-              <ImagePreviewGallery
-                original={horizontalPreviewImage}
-                pixelBW={horizontalSvgDataBW}
-                pixelSepia={horizontalSvgDataSepia}
-                orientation="horizontal"
-                onSelect={type => setSelectedInstruction({ type, orientation: 'horizontal' })}
-              />
-            )}
+            <ImagePreviewGallery
+              original={horizontalPreviewImage}
+              pixelBW={horizontalSvgDataBW}
+              pixelSepia={horizontalSvgDataSepia}
+              orientation="horizontal"
+              onSelect={type => setSelectedInstruction({ type, orientation: 'horizontal' })}
+            />
           </div>
         </div>
+        )}
         
         <Modal
           isOpen={showCrop}
@@ -331,6 +332,27 @@ function App() {
             orientation="horizontal"
           />
         )}
+
+        {/* <div style={{ display: 'flex', flexDirection: 'column' }}>
+          Вертикальный холст (чб)
+          {!isTablet && secondSvgDataBW && (
+            <SecondCanvasFull
+              svgData={secondSvgDataBW}
+              idList={secondIdList}
+              currentColor={secondCurrentColor}
+              setColorCount={setSecondColorCount}
+            />
+          )}
+          Горизонтальный холст (чб)
+          {!isTablet && horizontalSvgDataBW && (
+            <HorizontalCanvasFull
+              svgData={horizontalSvgDataBW}
+              idList={horizontalIdList}
+              currentColor={horizontalCurrentColor}
+              setColorCount={setHorizontalColorCount}
+            />
+          )}
+        </div> */}
       </main>
 
       <footer className={styles.footer}>
