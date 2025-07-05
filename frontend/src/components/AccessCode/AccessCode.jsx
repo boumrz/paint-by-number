@@ -10,7 +10,7 @@ const AccessCode = ({ onCodeVerified }) => {
   const [isError, setIsError] = useState(false);
 
   const handleCodeChange = (e) => {
-    let value = e.target.value.replace(/[^0-9-]/g, '');
+    let value = e.target.value;
     
     // Автоматически добавляем дефисы
     if (value.length >= 4 && !value.includes('-')) {

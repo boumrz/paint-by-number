@@ -45,7 +45,8 @@ const MainApp = React.memo(({
   showDemo,
   handleDemoGeneration,
   handleGetInstructions,
-  isAccessGranted
+  isAccessGranted,
+  userUploadedImages
 }) => (
   <div className={styles.app}>
     <header className={styles.header}>
@@ -84,7 +85,23 @@ const MainApp = React.memo(({
                 pixelSepia={secondSvgDataSepia}
                 orientation="vertical"
                 onSelect={(type) => setSelectedInstruction({ type, orientation: 'vertical' })}
+                disabled={!isAccessGranted || !userUploadedImages}
               />
+              {!isAccessGranted && !userUploadedImages && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  marginTop: '1rem', 
+                  padding: '1rem', 
+                  background: 'rgba(0, 172, 193, 0.1)', 
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(0, 172, 193, 0.3)',
+                  color: '#006064'
+                }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                    💡 <strong>Демо-режим:</strong> Для получения инструкций нажмите "ПОЛУЧИТЬ ИНСТРУКЦИЮ" и введите код доступа
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -98,12 +115,28 @@ const MainApp = React.memo(({
               pixelSepia={horizontalSvgDataSepia}
               orientation="horizontal"
               onSelect={(type) => setSelectedInstruction({ type, orientation: 'horizontal' })}
+              disabled={!isAccessGranted || !userUploadedImages}
             />
+            {!isAccessGranted && !userUploadedImages && (
+              <div style={{ 
+                textAlign: 'center', 
+                marginTop: '1rem', 
+                padding: '1rem', 
+                background: 'rgba(0, 172, 193, 0.3)', 
+                borderRadius: '0.5rem',
+                border: '1px solid rgba(0, 172, 193, 0.3)',
+                color: '#006064'
+              }}>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                  💡 <strong>Демо-режим:</strong> Для получения инструкций нажмите "ПОЛУЧИТЬ ИНСТРУКЦИЮ" и введите код доступа
+                </p>
+              </div>
+            )}
           </div>
         </div>
         )}
 
-        {showDemo && (
+        {showDemo && isAccessGranted && (
           <div className={styles.uploadSection} style={{ marginTop: '2rem' }}>
             <input
               type="file"
@@ -128,7 +161,30 @@ const MainApp = React.memo(({
           </div>
         )}
 
-        {isAccessGranted && selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
+        {showDemo && !isAccessGranted && !userUploadedImages && (
+          <div style={{ 
+            textAlign: 'center', 
+            marginTop: '2rem', 
+            padding: '1.5rem', 
+            background: 'rgba(255, 107, 53, 0.1)', 
+            borderRadius: '0.5rem',
+            border: '1px solid rgba(255, 107, 53, 0.3)',
+            color: '#d84315'
+          }}>
+            <p style={{ margin: 0, fontSize: '1rem' }}>
+              🔒 <strong>Доступ заблокирован:</strong> Для загрузки собственных изображений необходимо ввести код доступа
+            </p>
+            <button 
+              onClick={handleGetInstructions} 
+              className={styles.uploadButton}
+              style={{ marginTop: '1rem' }}
+            >
+              ПОЛУЧИТЬ ИНСТРУКЦИЮ
+            </button>
+          </div>
+        )}
+
+        {isAccessGranted && userUploadedImages && selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
           <GridInstructions
             idList={secondIdList}
             svgData={secondSvgDataBW}
@@ -136,7 +192,7 @@ const MainApp = React.memo(({
             orientation="vertical"
           />
         )}
-        {isAccessGranted && selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
+        {isAccessGranted && userUploadedImages && selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
           <GridInstructions
             idList={secondIdList}
             svgData={secondSvgDataSepia}
@@ -144,7 +200,7 @@ const MainApp = React.memo(({
             orientation="vertical"
           />
         )}
-        {isAccessGranted && selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
+        {isAccessGranted && userUploadedImages && selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
           <GridInstructions
             idList={horizontalIdList}
             svgData={horizontalSvgDataBW}
@@ -152,7 +208,7 @@ const MainApp = React.memo(({
             orientation="horizontal"
           />
         )}
-        {isAccessGranted && selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
+        {isAccessGranted && userUploadedImages && selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
           <GridInstructions
             idList={horizontalIdList}
             svgData={horizontalSvgDataSepia}
@@ -195,38 +251,7 @@ const MainApp = React.memo(({
         </div>
       </Modal>
 
-      {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
-        <GridInstructions
-          idList={secondIdList}
-          svgData={secondSvgDataBW}
-          title="Инструкция (ЧБ)"
-          orientation="vertical"
-        />
-      )}
-      {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
-        <GridInstructions
-          idList={secondIdList}
-          svgData={secondSvgDataSepia}
-          title="Инструкция (Сепия)"
-          orientation="vertical"
-        />
-      )}
-      {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
-        <GridInstructions
-          idList={horizontalIdList}
-          svgData={horizontalSvgDataBW}
-          title="Инструкция (ЧБ, горизонтальный)"
-          orientation="horizontal"
-        />
-      )}
-      {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
-        <GridInstructions
-          idList={horizontalIdList}
-          svgData={horizontalSvgDataSepia}
-          title="Инструкция (Сепия, горизонтальный)"
-          orientation="horizontal"
-        />
-      )}
+
     </main>
 
           <footer className={styles.footer}>
@@ -316,6 +341,7 @@ function App() {
   const [selectedInstruction, setSelectedInstruction] = useState(null); // { type: 'bw'|'sepia', orientation: 'vertical'|'horizontal' }
   const [showDemo, setShowDemo] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [userUploadedImages, setUserUploadedImages] = useState(false);
   const isTablet = useMediaQuery('(max-width: 1010px)');
   const isPhone = useMediaQuery('(max-width: 400px)');
 
@@ -378,6 +404,7 @@ function App() {
       setCroppingFor('Обычное');
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
+      setUserUploadedImages(true);
     }
   }, []);
 
@@ -387,6 +414,7 @@ function App() {
       setCroppingFor('horizontal');
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
+      setUserUploadedImages(true);
     }
   }, []);
 
@@ -481,10 +509,13 @@ function App() {
   const handleCodeVerified = useCallback(() => {
     setIsAccessGranted(true);
     setShowInstructions(false);
+    setUserUploadedImages(false);
   }, []);
 
   const handleDemoGeneration = useCallback(async () => {
     setShowDemo(true);
+    setSelectedInstruction(null);
+    setUserUploadedImages(false);
     // Используем демо-изображение из public
     const demoImageUrl = '/flower.jpg';
     setSecondPreviewImage(demoImageUrl);
@@ -553,6 +584,7 @@ function App() {
               handleDemoGeneration={handleDemoGeneration}
               handleGetInstructions={handleGetInstructions}
               isAccessGranted={isAccessGranted}
+              userUploadedImages={userUploadedImages}
             />
           )
         }
