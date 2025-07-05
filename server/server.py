@@ -9,12 +9,11 @@ import numpy as np
 import cv2
 from PIL import Image
 from sklearn.cluster import KMeans
-import random
-import string
-from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment
-import hashlib
 import datetime
+
+# Импортируем новые модули
+from data.access_codes_manager import AccessCodesManager
+from excel_generator.excel_generator import ExcelGenerator
 
 app = Flask(__name__)
 CORS(app)
@@ -1215,102 +1214,31 @@ def convert_image_pixels_horizontal_sepia():
             except Exception as cleanup_error:
                 print(f"Warning: Could not clean up temporary directory {temp_dir}: {cleanup_error}")
 
-# Файл для хранения кодов доступа
-ACCESS_CODES_FILE = 'access_codes.json'
-
-def load_access_codes():
-    """Загружает коды доступа из файла"""
-    if os.path.exists(ACCESS_CODES_FILE):
-        try:
-            with open(ACCESS_CODES_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except:
-            return {'codes': [], 'generated_at': None}
-    return {'codes': [], 'generated_at': None}
-
-def save_access_codes(codes_data):
-    """Сохраняет коды доступа в файл"""
-    with open(ACCESS_CODES_FILE, 'w', encoding='utf-8') as f:
-        json.dump(codes_data, f, ensure_ascii=False, indent=2)
-
-def generate_access_code():
-    """Генерирует один код доступа в формате XXXX-XXXX-XXXX"""
-    digits = ''.join(random.choices(string.digits, k=12))
-    return f"{digits[:4]}-{digits[4:8]}-{digits[8:12]}"
-
-def hash_code(code):
-    """Хеширует код для безопасного хранения"""
-    return hashlib.sha256(code.encode()).hexdigest()
+# Инициализируем менеджеры
+access_codes_manager = AccessCodesManager()
+excel_generator = ExcelGenerator()
 
 @app.route('/api/admin/generate-codes', methods=['POST'])
 def generate_access_codes():
     """Генерирует 500 кодов доступа и сохраняет их"""
     try:
-        # Загружаем существующие коды
-        codes_data = load_access_codes()
+        # Генерируем новые коды
+        new_codes = access_codes_manager.generate_codes(500)
         
-        # Генерируем 500 новых кодов
-        new_codes = []
-        for _ in range(500):
-            code = generate_access_code()
-            # Проверяем уникальность
-            while any(c['code'] == code for c in codes_data['codes']):
-                code = generate_access_code()
-            new_codes.append({
-                'code': code,
-                'hash': hash_code(code),
-                'used': False,
-                'used_at': None
-            })
-        
-        # Добавляем новые коды к существующим
-        codes_data['codes'].extend(new_codes)
-        codes_data['generated_at'] = json.dumps(datetime.datetime.now().isoformat())
-        
-        # Сохраняем в файл
-        save_access_codes(codes_data)
+        if not new_codes:
+            return jsonify({'error': 'Ошибка при генерации кодов'}), 500
         
         # Создаем Excel файл
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "Коды доступа"
+        excel_filename = excel_generator.generate_access_codes_excel(new_codes)
         
-        # Заголовки
-        headers = ['№', 'Код доступа', 'Статус']
-        for col, header in enumerate(headers, 1):
-            cell = ws.cell(row=1, column=col, value=header)
-            cell.font = Font(bold=True)
-            cell.alignment = Alignment(horizontal='center')
-        
-        # Данные
-        for row, code_data in enumerate(new_codes, 2):
-            ws.cell(row=row, column=1, value=row-1)
-            ws.cell(row=row, column=2, value=code_data['code'])
-            ws.cell(row=row, column=3, value='Не использован')
-        
-        # Автоматическая ширина столбцов
-        for column in ws.columns:
-            max_length = 0
-            column_letter = column[0].column_letter
-            for cell in column:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-            adjusted_width = min(max_length + 2, 50)
-            ws.column_dimensions[column_letter].width = adjusted_width
-        
-        # Сохраняем Excel файл
-        excel_filename = f'access_codes_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-        excel_path = os.path.join(os.getcwd(), excel_filename)
-        wb.save(excel_path)
+        # Получаем обновленную статистику
+        stats = access_codes_manager.get_stats()
         
         return jsonify({
             'success': True,
             'message': f'Сгенерировано {len(new_codes)} кодов доступа',
             'excel_file': excel_filename,
-            'total_codes': len(codes_data['codes'])
+            'total_codes': stats['total_codes']
         })
         
     except Exception as e:
@@ -1321,7 +1249,7 @@ def generate_access_codes():
 def download_codes(filename):
     """Скачивает Excel файл с кодами"""
     try:
-        file_path = os.path.join(os.getcwd(), filename)
+        file_path = excel_generator.get_excel_file_path(filename)
         if os.path.exists(file_path):
             return send_file(file_path, as_attachment=True)
         else:
@@ -1336,25 +1264,8 @@ def verify_access_code():
         data = request.get_json()
         code = data.get('code', '').strip()
         
-        if not code:
-            return jsonify({'valid': False, 'message': 'Код не предоставлен'})
-        
-        # Загружаем коды
-        codes_data = load_access_codes()
-        
-        # Ищем код
-        for code_data in codes_data['codes']:
-            if code_data['code'] == code:
-                if code_data['used']:
-                    return jsonify({'valid': False, 'message': 'Код уже использован'})
-                else:
-                    # Помечаем код как использованный
-                    code_data['used'] = True
-                    code_data['used_at'] = json.dumps(datetime.datetime.now().isoformat())
-                    save_access_codes(codes_data)
-                    return jsonify({'valid': True, 'message': 'Код действителен'})
-        
-        return jsonify({'valid': False, 'message': 'Неверный код'})
+        result = access_codes_manager.verify_code(code)
+        return jsonify(result)
         
     except Exception as e:
         print(f"Error verifying code: {e}")
@@ -1364,21 +1275,43 @@ def verify_access_code():
 def get_access_stats():
     """Получает статистику по кодам доступа"""
     try:
-        codes_data = load_access_codes()
-        total_codes = len(codes_data['codes'])
-        used_codes = sum(1 for code in codes_data['codes'] if code['used'])
-        unused_codes = total_codes - used_codes
-        
-        return jsonify({
-            'total_codes': total_codes,
-            'used_codes': used_codes,
-            'unused_codes': unused_codes,
-            'generated_at': codes_data.get('generated_at')
-        })
+        stats = access_codes_manager.get_stats()
+        return jsonify(stats)
         
     except Exception as e:
         print(f"Error getting stats: {e}")
         return jsonify({'error': 'Ошибка при получении статистики'}), 500
+
+@app.route('/api/admin/generate-stats-excel', methods=['POST'])
+def generate_stats_excel():
+    """Генерирует Excel файл со статистикой"""
+    try:
+        stats = access_codes_manager.get_stats()
+        excel_filename = excel_generator.generate_stats_excel(stats)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Excel файл со статистикой создан',
+            'excel_file': excel_filename
+        })
+        
+    except Exception as e:
+        print(f"Error generating stats excel: {e}")
+        return jsonify({'error': 'Ошибка при создании файла статистики'}), 500
+
+@app.route('/api/admin/list-excel-files', methods=['GET'])
+def list_excel_files():
+    """Возвращает список всех Excel файлов"""
+    try:
+        files = excel_generator.list_excel_files()
+        return jsonify({
+            'files': files,
+            'count': len(files)
+        })
+        
+    except Exception as e:
+        print(f"Error listing excel files: {e}")
+        return jsonify({'error': 'Ошибка при получении списка файлов'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000) 

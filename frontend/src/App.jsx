@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback,  useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import styles from './App.module.css';
 // import SecondCanvasFull from './components/SecondCanvasFull';
@@ -16,6 +16,168 @@ import { GridInstructions  } from './components/GridInstructions';
 import { ImagePreviewGallery } from './components/ImagePreviewGallery';
 import AdminPanel from './components/AdminPanel/AdminPanel';
 import AccessCode from './components/AccessCode/AccessCode';
+
+// Создаем отдельный компонент MainApp
+const MainApp = React.memo(({ 
+  secondPreviewImage, 
+  secondSvgDataBW, 
+  secondSvgDataSepia, 
+  horizontalPreviewImage, 
+  horizontalSvgDataBW, 
+  horizontalSvgDataSepia, 
+  showCrop, 
+  cropImage, 
+  crop, 
+  zoom, 
+  croppingFor, 
+  selectedInstruction, 
+  secondIdList, 
+  horizontalIdList, 
+  isPhone, 
+  handleUploadImageFile, 
+  handleUploadImageFileHorizontal, 
+  handleCropCancel, 
+  handleCropConfirm, 
+  onCropComplete,
+  setSelectedInstruction,
+  setCrop,
+  setZoom
+}) => (
+  <div className={styles.app}>
+    <header className={styles.header}>
+      <div className={styles.headerContent}>
+        <h1>Картина по пикселям</h1>
+        <p>Создай свою картину по номерам из любой фотографии</p>
+      </div>
+    </header>
+    
+    <main className={styles.mainContent}>
+      <section className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <h2>Создавай свои шедевры</h2>
+          <p>Преврати любую фотографию в картину по номерам</p>
+          <div className={styles.uploadSection}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleUploadImageFile}
+              id="image-upload"
+              className={styles.fileInput}
+            />
+            <label htmlFor="image-upload" className={styles.uploadButton}>
+              Загрузить
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleUploadImageFileHorizontal}
+              id="image-upload-horizontal"
+              className={styles.fileInput}
+            />
+            <label htmlFor="image-upload-horizontal" className={styles.uploadButton}>
+              Загрузить (горизонтальный)
+            </label>
+          </div>
+        </div>
+      </section>
+
+      {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && (
+        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+            <ImagePreviewGallery
+              original={secondPreviewImage}
+              pixelBW={secondSvgDataBW}
+              pixelSepia={secondSvgDataSepia}
+              orientation="vertical"
+              onSelect={(type) => setSelectedInstruction({ type, orientation: 'vertical' })}
+            />
+          </div>
+        </div>
+      )}
+      
+      {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && (
+        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
+        <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+          <ImagePreviewGallery
+            original={horizontalPreviewImage}
+            pixelBW={horizontalSvgDataBW}
+            pixelSepia={horizontalSvgDataSepia}
+            orientation="horizontal"
+            onSelect={(type) => setSelectedInstruction({ type, orientation: 'horizontal' })}
+          />
+        </div>
+      </div>
+      )}
+      
+      <Modal
+        isOpen={showCrop}
+        onRequestClose={handleCropCancel}
+        ariaHideApp={false}
+        style={{
+          overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
+          content: { maxWidth: 600, margin: 'auto', height: 600, padding: 0 }
+        }}
+      >
+        <div style={{ position: 'relative', width: '100%', height: '88%', background: '#222' }}>
+          {cropImage && (
+            <Cropper
+              image={cropImage}
+              crop={crop}
+              zoom={zoom}
+              aspect={croppingFor === 'horizontal' ? 1.25 : 0.8}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+              cropShape="rect"
+              showGrid={true}
+            />
+          )}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, margin: 16 }}>
+          <button onClick={handleCropConfirm} style={{ padding: '8px 24px', fontSize: 16 }}>Обрезать</button>
+          <button onClick={handleCropCancel} style={{ padding: '8px 24px', fontSize: 16 }}>Отмена</button>
+        </div>
+      </Modal>
+
+      {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
+        <GridInstructions
+          idList={secondIdList}
+          svgData={secondSvgDataBW}
+          title="Инструкция (ЧБ)"
+          orientation="vertical"
+        />
+      )}
+      {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
+        <GridInstructions
+          idList={secondIdList}
+          svgData={secondSvgDataSepia}
+          title="Инструкция (Сепия)"
+          orientation="vertical"
+        />
+      )}
+      {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
+        <GridInstructions
+          idList={horizontalIdList}
+          svgData={horizontalSvgDataBW}
+          title="Инструкция (ЧБ, горизонтальный)"
+          orientation="horizontal"
+        />
+      )}
+      {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
+        <GridInstructions
+          idList={horizontalIdList}
+          svgData={horizontalSvgDataSepia}
+          title="Инструкция (Сепия, горизонтальный)"
+          orientation="horizontal"
+        />
+      )}
+    </main>
+
+    <footer className={styles.footer}>
+      <p>© 2025 Картина по пикселям. Все права защищены.</p>
+    </footer>
+  </div>
+));
 
 function App() {
   // Состояние для проверки кода доступа
@@ -52,11 +214,11 @@ function App() {
   const isPhone = useMediaQuery('(max-width: 400px)');
 
   // Crop image to square using react-easy-crop
-  const onCropComplete = (croppedArea, croppedAreaPixels) => {
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
-  };
+  }, []);
 
-  const getCroppedImg = (imageSrc, cropPixels, callback) => {
+  const getCroppedImg = useCallback((imageSrc, cropPixels, callback) => {
     console.log('=== getCroppedImg called ===');
     console.log('Image source:', imageSrc);
     console.log('Crop pixels:', cropPixels);
@@ -102,27 +264,27 @@ function App() {
       alert('Не удалось прочитать изображение.');
     };
     img.src = imageSrc;
-  };
+  }, []);
 
-  const handleUploadImageFile = (event) => {
+  const handleUploadImageFile = useCallback((event) => {
     const file = event.target.files[0];
     if (file) {
       setCroppingFor('Обычное');
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
     }
-  };
+  }, []);
 
-  const handleUploadImageFileHorizontal = (event) => {
+  const handleUploadImageFileHorizontal = useCallback((event) => {
     const file = event.target.files[0];
     if (file) {
       setCroppingFor('horizontal');
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
     }
-  };
+  }, []);
 
-  const handleCropConfirm = async () => {
+  const handleCropConfirm = useCallback(async () => {
     if (!cropImage || !croppedAreaPixels) return;
     getCroppedImg(cropImage, croppedAreaPixels, async (croppedBlob, previewUrl) => {
       setShowCrop(false);
@@ -168,18 +330,18 @@ function App() {
       }
       setCroppingFor(null);
     });
-  };
+  }, [cropImage, croppedAreaPixels, croppingFor]);
 
-  const handleCropCancel = () => {
+  const handleCropCancel = useCallback(() => {
     setShowCrop(false);
     setCropImage(null);
     setCroppingFor(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
-  };
+  }, []);
 
   // Добавляю функции для заполнения и очистки SVG
-  function fillSvgColors(svg) {
+  const fillSvgColors = useCallback((svg) => {
     if (!svg) return svg;
     try {
       const parser = new window.DOMParser();
@@ -193,8 +355,9 @@ function App() {
     } catch {
       return svg;
     }
-  }
-  function clearSvgColors(svg) {
+  }, []);
+  
+  const clearSvgColors = useCallback((svg) => {
     if (!svg) return svg;
     try {
       const parser = new window.DOMParser();
@@ -207,183 +370,73 @@ function App() {
     } catch {
       return svg;
     }
-  }
+  }, []);
 
-  const handleCodeVerified = () => {
+  const handleCodeVerified = useCallback(() => {
     setIsAccessGranted(true);
-  };
-
-  const MainApp = () => (
-    <div className={styles.app}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1>Картина по пикселям</h1>
-          <p>Создай свою картину по номерам из любой фотографии</p>
-        </div>
-      </header>
-      
-      <main className={styles.mainContent}>
-        <section className={styles.heroSection}>
-          <div className={styles.heroContent}>
-            <h2>Создавай свои шедевры</h2>
-            <p>Преврати любую фотографию в картину по номерам</p>
-            <div className={styles.uploadSection}>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleUploadImageFile}
-                id="image-upload"
-                className={styles.fileInput}
-              />
-              <label htmlFor="image-upload" className={styles.uploadButton}>
-                Загрузить
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleUploadImageFileHorizontal}
-                id="image-upload-horizontal"
-                className={styles.fileInput}
-              />
-              <label htmlFor="image-upload-horizontal" className={styles.uploadButton}>
-                Загрузить (горизонтальный)
-              </label>
-            </div>
-          </div>
-        </section>
-
-        {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && (
-          <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
-            <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-              <ImagePreviewGallery
-                original={secondPreviewImage}
-                pixelBW={secondSvgDataBW}
-                pixelSepia={secondSvgDataSepia}
-                orientation="vertical"
-                onSelect={type => setSelectedInstruction({ type, orientation: 'vertical' })}
-              />
-            </div>
-          </div>
-        )}
-        
-        {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && (
-          <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
-          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            <ImagePreviewGallery
-              original={horizontalPreviewImage}
-              pixelBW={horizontalSvgDataBW}
-              pixelSepia={horizontalSvgDataSepia}
-              orientation="horizontal"
-              onSelect={type => setSelectedInstruction({ type, orientation: 'horizontal' })}
-            />
-          </div>
-        </div>
-        )}
-        
-        <Modal
-          isOpen={showCrop}
-          onRequestClose={handleCropCancel}
-          ariaHideApp={false}
-          style={{
-            overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
-            content: { maxWidth: 600, margin: 'auto', height: 600, padding: 0 }
-          }}
-        >
-          <div style={{ position: 'relative', width: '100%', height: '88%', background: '#222' }}>
-            {cropImage && (
-              <Cropper
-                image={cropImage}
-                crop={crop}
-                zoom={zoom}
-                aspect={croppingFor === 'horizontal' ? 1.25 : 0.8}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-                cropShape="rect"
-                showGrid={true}
-              />
-            )}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, margin: 16 }}>
-            <button onClick={handleCropConfirm} style={{ padding: '8px 24px', fontSize: 16 }}>Обрезать</button>
-            <button onClick={handleCropCancel} style={{ padding: '8px 24px', fontSize: 16 }}>Отмена</button>
-          </div>
-        </Modal>
-
-        {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
-          <GridInstructions
-            idList={secondIdList}
-            svgData={secondSvgDataBW}
-            title="Инструкция (ЧБ)"
-            orientation="vertical"
-          />
-        )}
-        {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
-          <GridInstructions
-            idList={secondIdList}
-            svgData={secondSvgDataSepia}
-            title="Инструкция (Сепия)"
-            orientation="vertical"
-          />
-        )}
-        {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
-          <GridInstructions
-            idList={horizontalIdList}
-            svgData={horizontalSvgDataBW}
-            title="Инструкция (ЧБ, горизонтальный)"
-            orientation="horizontal"
-          />
-        )}
-        {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
-          <GridInstructions
-            idList={horizontalIdList}
-            svgData={horizontalSvgDataSepia}
-            title="Инструкция (Сепия, горизонтальный)"
-            orientation="horizontal"
-          />
-        )}
-
-        {/* <div style={{ display: 'flex', flexDirection: 'column' }}>
-          Вертикальный холст (чб)
-          {!isTablet && secondSvgDataBW && (
-            <SecondCanvasFull
-              svgData={secondSvgDataBW}
-              idList={secondIdList}
-              currentColor={secondCurrentColor}
-              setColorCount={setSecondColorCount}
-            />
-          )}
-          Горизонтальный холст (чб)
-          {!isTablet && horizontalSvgDataBW && (
-            <HorizontalCanvasFull
-              svgData={horizontalSvgDataBW}
-              idList={horizontalIdList}
-              currentColor={horizontalCurrentColor}
-              setColorCount={setHorizontalColorCount}
-            />
-          )}
-        </div> */}
-      </main>
-
-      <footer className={styles.footer}>
-        <p>© 2025 Картина по пикселям. Все права защищены.</p>
-      </footer>
-    </div>
-  );
+  }, []);
 
   return (
     <Routes>
       <Route path="/admin" element={<AdminPanel />} />
       <Route 
         path="/" 
-        element={
-          isAccessGranted ? (
-          // true ? (
-            <MainApp />
-          ) : (
-            <AccessCode onCodeVerified={handleCodeVerified} />
-          )
-        } 
+        element={(
+        <MainApp 
+              secondPreviewImage={secondPreviewImage}
+              secondSvgDataBW={secondSvgDataBW}
+              secondSvgDataSepia={secondSvgDataSepia}
+              horizontalPreviewImage={horizontalPreviewImage}
+              horizontalSvgDataBW={horizontalSvgDataBW}
+              horizontalSvgDataSepia={horizontalSvgDataSepia}
+              showCrop={showCrop}
+              cropImage={cropImage}
+              crop={crop}
+              zoom={zoom}
+              croppingFor={croppingFor}
+              selectedInstruction={selectedInstruction}
+              secondIdList={secondIdList}
+              horizontalIdList={horizontalIdList}
+              isPhone={isPhone}
+              handleUploadImageFile={handleUploadImageFile}
+              handleUploadImageFileHorizontal={handleUploadImageFileHorizontal}
+              handleCropCancel={handleCropCancel}
+              handleCropConfirm={handleCropConfirm}
+              onCropComplete={onCropComplete}
+              setSelectedInstruction={setSelectedInstruction}
+              setCrop={setCrop}
+              setZoom={setZoom}
+            />
+        )}
+          // isAccessGranted ? (
+          //   <MainApp 
+          //     secondPreviewImage={secondPreviewImage}
+          //     secondSvgDataBW={secondSvgDataBW}
+          //     secondSvgDataSepia={secondSvgDataSepia}
+          //     horizontalPreviewImage={horizontalPreviewImage}
+          //     horizontalSvgDataBW={horizontalSvgDataBW}
+          //     horizontalSvgDataSepia={horizontalSvgDataSepia}
+          //     showCrop={showCrop}
+          //     cropImage={cropImage}
+          //     crop={crop}
+          //     zoom={zoom}
+          //     croppingFor={croppingFor}
+          //     selectedInstruction={selectedInstruction}
+          //     secondIdList={secondIdList}
+          //     horizontalIdList={horizontalIdList}
+          //     isPhone={isPhone}
+          //     handleUploadImageFile={handleUploadImageFile}
+          //     handleUploadImageFileHorizontal={handleUploadImageFileHorizontal}
+          //     handleCropCancel={handleCropCancel}
+          //     handleCropConfirm={handleCropConfirm}
+          //     onCropComplete={onCropComplete}
+          //     setSelectedInstruction={setSelectedInstruction}
+          //     setCrop={setCrop}
+          //     setZoom={setZoom}
+          //   />
+          // ) : (
+          //   <AccessCode onCodeVerified={handleCodeVerified} />
+          // )
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
