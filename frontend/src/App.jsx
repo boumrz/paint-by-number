@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import styles from './App.module.css';
 // import SecondCanvasFull from './components/SecondCanvasFull';
 import { ColorPalette } from './components/ColorPalette/ColorPalette';
@@ -13,8 +14,13 @@ import { config } from './config.js';
 
 import { GridInstructions  } from './components/GridInstructions';
 import { ImagePreviewGallery } from './components/ImagePreviewGallery';
+import AdminPanel from './components/AdminPanel/AdminPanel';
+import AccessCode from './components/AccessCode/AccessCode';
 
 function App() {
+  // Состояние для проверки кода доступа
+  const [isAccessGranted, setIsAccessGranted] = useState(false);
+  
   // Второй холст
   const [secondPreviewImage, setSecondPreviewImage] = useState(null);
   const [secondIdList, setSecondIdList] = useState([]);
@@ -203,7 +209,11 @@ function App() {
     }
   }
 
-  return (
+  const handleCodeVerified = () => {
+    setIsAccessGranted(true);
+  };
+
+  const MainApp = () => (
     <div className={styles.app}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
@@ -359,6 +369,24 @@ function App() {
         <p>© 2025 Картина по пикселям. Все права защищены.</p>
       </footer>
     </div>
+  );
+
+  return (
+    <Routes>
+      <Route path="/admin" element={<AdminPanel />} />
+      <Route 
+        path="/" 
+        element={
+          isAccessGranted ? (
+          // true ? (
+            <MainApp />
+          ) : (
+            <AccessCode onCodeVerified={handleCodeVerified} />
+          )
+        } 
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
