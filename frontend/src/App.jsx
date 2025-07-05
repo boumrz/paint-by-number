@@ -41,7 +41,12 @@ const MainApp = React.memo(({
   onCropComplete,
   setSelectedInstruction,
   setCrop,
-  setZoom
+  setZoom,
+  showDemo,
+  handleDemoGeneration,
+  handleGetInstructions,
+  isAccessGranted,
+  userUploadedImages
 }) => (
   <div className={styles.app}>
     <header className={styles.header}>
@@ -51,12 +56,88 @@ const MainApp = React.memo(({
       </div>
     </header>
     
-    <main className={styles.mainContent}>
-      <section className={styles.heroSection}>
-        <div className={styles.heroContent}>
-          <h2>Создавай свои шедевры</h2>
-          <p>Преврати любую фотографию в картину по номерам</p>
-          <div className={styles.uploadSection}>
+          <main className={styles.mainContent}>
+        <section className={styles.heroSection}>
+          <div className={styles.heroContent}>
+            <h2>Картина по номерам</h2>
+            <p>по фото</p>
+            
+            {!showDemo && (
+              <div className={styles.uploadSection}>
+                <button onClick={handleDemoGeneration} className={styles.uploadButton}>
+                  ДЕМО ГЕНЕРАЦИЯ
+                </button>
+                <button onClick={handleGetInstructions} className={styles.uploadButton}>
+                  ПОЛУЧИТЬ ИНСТРУКЦИЮ
+                </button>
+                <a href="#" className={styles.orderButton}>
+                  ЗАКАЗАТЬ
+                </a>
+              </div>
+            )}
+
+        {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && showDemo && (
+          <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column', marginTop: '2rem' }}>
+            <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+              <ImagePreviewGallery
+                original={secondPreviewImage}
+                pixelBW={secondSvgDataBW}
+                pixelSepia={secondSvgDataSepia}
+                orientation="vertical"
+                onSelect={(type) => setSelectedInstruction({ type, orientation: 'vertical' })}
+                disabled={!isAccessGranted}
+              />
+              {!isAccessGranted && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  marginTop: '1rem', 
+                  padding: '1rem', 
+                  background: 'rgba(0, 172, 193, 0.1)', 
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(0, 172, 193, 0.3)',
+                  color: '#006064'
+                }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                    💡 <strong>Демо-режим:</strong> Карточки заблокированы. Для получения инструкций введите код доступа
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && showDemo && (
+          <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column', marginTop: '2rem' }}>
+          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+            <ImagePreviewGallery
+              original={horizontalPreviewImage}
+              pixelBW={horizontalSvgDataBW}
+              pixelSepia={horizontalSvgDataSepia}
+              orientation="horizontal"
+              onSelect={(type) => setSelectedInstruction({ type, orientation: 'horizontal' })}
+              disabled={!isAccessGranted}
+            />
+            {!isAccessGranted && (
+              <div style={{ 
+                textAlign: 'center', 
+                marginTop: '1rem', 
+                padding: '1rem', 
+                background: 'rgba(0, 172, 193, 0.1)', 
+                borderRadius: '0.5rem',
+                border: '1px solid rgba(0, 172, 193, 0.3)',
+                color: '#006064'
+              }}>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                  💡 <strong>Демо-режим:</strong> Карточки заблокированы. Для получения инструкций введите код доступа
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+        )}
+
+        {showDemo && (
+          <div className={styles.uploadSection} style={{ marginTop: '2rem' }}>
             <input
               type="file"
               accept="image/*"
@@ -65,7 +146,7 @@ const MainApp = React.memo(({
               className={styles.fileInput}
             />
             <label htmlFor="image-upload" className={styles.uploadButton}>
-              Загрузить
+              Загрузить свое фото
             </label>
             <input
               type="file"
@@ -78,36 +159,67 @@ const MainApp = React.memo(({
               Загрузить (горизонтальный)
             </label>
           </div>
-        </div>
-      </section>
+        )}
 
-      {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) && (
-        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
-          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-            <ImagePreviewGallery
-              original={secondPreviewImage}
-              pixelBW={secondSvgDataBW}
-              pixelSepia={secondSvgDataSepia}
-              orientation="vertical"
-              onSelect={(type) => setSelectedInstruction({ type, orientation: 'vertical' })}
-            />
+        {showDemo && !isAccessGranted && (
+          <div style={{ 
+            textAlign: 'center', 
+            marginTop: '1rem', 
+            padding: '1rem', 
+            background: 'rgba(0, 172, 193, 0.1)', 
+            borderRadius: '0.5rem',
+            border: '1px solid rgba(0, 172, 193, 0.3)',
+            color: '#006064'
+          }}>
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>
+              💡 <strong>Демо-режим:</strong> Вы можете загружать свои фотографии и смотреть результат генерации. Для получения инструкций нажмите "ПОЛУЧИТЬ ИНСТРУКЦИЮ" и введите код доступа.
+            </p>
+            <button 
+              onClick={handleGetInstructions} 
+              className={styles.uploadButton}
+              style={{ marginTop: '0.5rem' }}
+            >
+              ПОЛУЧИТЬ ИНСТРУКЦИЮ
+            </button>
           </div>
-        </div>
-      )}
-      
-      {(horizontalPreviewImage || horizontalSvgDataBW || horizontalSvgDataSepia) && (
-        <div style={{ display: 'flex', gap: '2rem', minHeight: 400, flexWrap: 'wrap', flexDirection: 'column' }}>
-        <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-          <ImagePreviewGallery
-            original={horizontalPreviewImage}
-            pixelBW={horizontalSvgDataBW}
-            pixelSepia={horizontalSvgDataSepia}
-            orientation="horizontal"
-            onSelect={(type) => setSelectedInstruction({ type, orientation: 'horizontal' })}
+        )}
+
+        {isAccessGranted && selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
+          <GridInstructions
+            idList={secondIdList}
+            svgData={secondSvgDataBW}
+            title="Инструкция (ЧБ)"
+            orientation="vertical"
           />
-        </div>
-      </div>
-      )}
+        )}
+        {isAccessGranted && selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
+          <GridInstructions
+            idList={secondIdList}
+            svgData={secondSvgDataSepia}
+            title="Инструкция (Сепия)"
+            orientation="vertical"
+          />
+        )}
+        {isAccessGranted && selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
+          <GridInstructions
+            idList={horizontalIdList}
+            svgData={horizontalSvgDataBW}
+            title="Инструкция (ЧБ, горизонтальный)"
+            orientation="horizontal"
+          />
+        )}
+        {isAccessGranted && selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
+          <GridInstructions
+            idList={horizontalIdList}
+            svgData={horizontalSvgDataSepia}
+            title="Инструкция (Сепия, горизонтальный)"
+            orientation="horizontal"
+          />
+        )}
+          </div>
+        </section>
+
+      
       
       <Modal
         isOpen={showCrop}
@@ -139,43 +251,60 @@ const MainApp = React.memo(({
         </div>
       </Modal>
 
-      {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'bw' && secondSvgDataBW && (
-        <GridInstructions
-          idList={secondIdList}
-          svgData={secondSvgDataBW}
-          title="Инструкция (ЧБ)"
-          orientation="vertical"
-        />
-      )}
-      {selectedInstruction && selectedInstruction.orientation === 'vertical' && selectedInstruction.type === 'sepia' && secondSvgDataSepia && (
-        <GridInstructions
-          idList={secondIdList}
-          svgData={secondSvgDataSepia}
-          title="Инструкция (Сепия)"
-          orientation="vertical"
-        />
-      )}
-      {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'bw' && horizontalSvgDataBW && (
-        <GridInstructions
-          idList={horizontalIdList}
-          svgData={horizontalSvgDataBW}
-          title="Инструкция (ЧБ, горизонтальный)"
-          orientation="horizontal"
-        />
-      )}
-      {selectedInstruction && selectedInstruction.orientation === 'horizontal' && selectedInstruction.type === 'sepia' && horizontalSvgDataSepia && (
-        <GridInstructions
-          idList={horizontalIdList}
-          svgData={horizontalSvgDataSepia}
-          title="Инструкция (Сепия, горизонтальный)"
-          orientation="horizontal"
-        />
-      )}
+
     </main>
 
-    <footer className={styles.footer}>
-      <p>© 2025 Картина по пикселям. Все права защищены.</p>
-    </footer>
+          <footer className={styles.footer}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+          <p>© 2025 Картина по пикселям. Все права защищены.</p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => window.location.reload()} 
+              style={{ 
+                background: 'rgba(255,255,255,0.2)', 
+                border: '1px solid rgba(255,255,255,0.3)', 
+                color: 'white', 
+                padding: '0.5rem 1rem', 
+                borderRadius: '0.5rem', 
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              НА ГЛАВНУЮ СТРАНИЦУ
+            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button 
+                onClick={() => window.open('https://t.me/your_telegram', '_blank')}
+                style={{ 
+                  background: 'rgba(255,255,255,0.2)', 
+                  border: '1px solid rgba(255,255,255,0.3)', 
+                  color: 'white', 
+                  padding: '0.5rem 1rem', 
+                  borderRadius: '0.5rem', 
+                  cursor: 'pointer',
+                  fontSize: '0.9rem'
+                }}
+              >
+                НАПИСАТЬ В TELEGRAM
+              </button>
+              <button 
+                onClick={() => window.open('mailto:your@email.com', '_blank')}
+                style={{ 
+                  background: 'rgba(255,255,255,0.2)', 
+                  border: '1px solid rgba(255,255,255,0.3)', 
+                  color: 'white', 
+                  padding: '0.5rem 1rem', 
+                  borderRadius: '0.5rem', 
+                  cursor: 'pointer',
+                  fontSize: '0.9rem'
+                }}
+              >
+                НАПИСАТЬ НА ПОЧТУ
+              </button>
+            </div>
+          </div>
+        </div>
+      </footer>
   </div>
 ));
 
@@ -210,6 +339,9 @@ function App() {
 
   // Делаю одно:
   const [selectedInstruction, setSelectedInstruction] = useState(null); // { type: 'bw'|'sepia', orientation: 'vertical'|'horizontal' }
+  const [showDemo, setShowDemo] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
+  const [userUploadedImages, setUserUploadedImages] = useState(false);
   const isTablet = useMediaQuery('(max-width: 1010px)');
   const isPhone = useMediaQuery('(max-width: 400px)');
 
@@ -272,6 +404,7 @@ function App() {
       setCroppingFor('Обычное');
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
+      setUserUploadedImages(true);
     }
   }, []);
 
@@ -281,6 +414,7 @@ function App() {
       setCroppingFor('horizontal');
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
+      setUserUploadedImages(true);
     }
   }, []);
 
@@ -374,6 +508,41 @@ function App() {
 
   const handleCodeVerified = useCallback(() => {
     setIsAccessGranted(true);
+    setShowInstructions(false);
+  }, []);
+
+  const handleDemoGeneration = useCallback(async () => {
+    setShowDemo(true);
+    setSelectedInstruction(null);
+    // Используем демо-изображение из public
+    const demoImageUrl = '/flower.jpg';
+    setSecondPreviewImage(demoImageUrl);
+    
+    try {
+      // Загружаем демо-изображение как blob
+      const response = await fetch(demoImageUrl);
+      const blob = await response.blob();
+      
+      const formData = new FormData();
+      formData.append('image', blob, 'demo.jpg');
+      
+      // Генерируем все варианты
+      const respBW = await axios.post(`${config.apiUrl}/api/convert-pixels-bw`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setSecondSvgDataBW(respBW.data.svg);
+      
+      const respSepia = await axios.post(`${config.apiUrl}/api/convert-pixels-sepia`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setSecondSvgDataSepia(respSepia.data.svg);
+      
+      const respColor = await axios.post(`${config.apiUrl}/api/convert-pixels`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setSecondSvgData(respColor.data.svg);
+      setSecondIdList(respColor.data.palette);
+    } catch (error) {
+      console.error('Error processing demo image:', error);
+    }
+  }, []);
+
+  const handleGetInstructions = useCallback(() => {
+    setShowInstructions(true);
   }, []);
 
   return (
@@ -381,8 +550,11 @@ function App() {
       <Route path="/admin" element={<AdminPanel />} />
       <Route 
         path="/" 
-        element={(
-        <MainApp 
+        element={
+          showInstructions ? (
+            <AccessCode onCodeVerified={handleCodeVerified} />
+          ) : (
+            <MainApp 
               secondPreviewImage={secondPreviewImage}
               secondSvgDataBW={secondSvgDataBW}
               secondSvgDataSepia={secondSvgDataSepia}
@@ -406,37 +578,14 @@ function App() {
               setSelectedInstruction={setSelectedInstruction}
               setCrop={setCrop}
               setZoom={setZoom}
+              showDemo={showDemo}
+              handleDemoGeneration={handleDemoGeneration}
+              handleGetInstructions={handleGetInstructions}
+              isAccessGranted={isAccessGranted}
+              userUploadedImages={userUploadedImages}
             />
-        )}
-          // isAccessGranted ? (
-          //   <MainApp 
-          //     secondPreviewImage={secondPreviewImage}
-          //     secondSvgDataBW={secondSvgDataBW}
-          //     secondSvgDataSepia={secondSvgDataSepia}
-          //     horizontalPreviewImage={horizontalPreviewImage}
-          //     horizontalSvgDataBW={horizontalSvgDataBW}
-          //     horizontalSvgDataSepia={horizontalSvgDataSepia}
-          //     showCrop={showCrop}
-          //     cropImage={cropImage}
-          //     crop={crop}
-          //     zoom={zoom}
-          //     croppingFor={croppingFor}
-          //     selectedInstruction={selectedInstruction}
-          //     secondIdList={secondIdList}
-          //     horizontalIdList={horizontalIdList}
-          //     isPhone={isPhone}
-          //     handleUploadImageFile={handleUploadImageFile}
-          //     handleUploadImageFileHorizontal={handleUploadImageFileHorizontal}
-          //     handleCropCancel={handleCropCancel}
-          //     handleCropConfirm={handleCropConfirm}
-          //     onCropComplete={onCropComplete}
-          //     setSelectedInstruction={setSelectedInstruction}
-          //     setCrop={setCrop}
-          //     setZoom={setZoom}
-          //   />
-          // ) : (
-          //   <AccessCode onCodeVerified={handleCodeVerified} />
-          // )
+          )
+        }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

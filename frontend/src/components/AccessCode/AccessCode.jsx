@@ -10,7 +10,7 @@ const AccessCode = ({ onCodeVerified }) => {
   const [isError, setIsError] = useState(false);
 
   const handleCodeChange = (e) => {
-    let value = e.target.value.replace(/[^0-9-]/g, '');
+    let value = e.target.value;
     
     // Автоматически добавляем дефисы
     if (value.length >= 4 && !value.includes('-')) {
@@ -68,8 +68,8 @@ const AccessCode = ({ onCodeVerified }) => {
     <div className={styles.accessCodeOverlay}>
       <div className={styles.accessCodeModal}>
         <div className={styles.accessCodeHeader}>
-          <h2>Введите код доступа</h2>
-          <p>Для использования приложения необходим действительный код доступа</p>
+          <h2>Получить инструкцию</h2>
+          <p>Введите код доступа для получения подробной инструкции</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.accessCodeForm}>

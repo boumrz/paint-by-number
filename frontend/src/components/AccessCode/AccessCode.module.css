@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: linear-gradient(135deg, rgba(0, 97, 100, 0.9) 0%, rgba(0, 131, 143, 0.9) 50%, rgba(0, 151, 167, 0.9) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,14 +39,14 @@
 }
 
 .accessCodeHeader h2 {
-  color: #333;
+  color: #006064;
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .accessCodeHeader p {
-  color: #666;
+  color: #0277bd;
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -77,9 +77,9 @@
 
 .codeInput:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #00acc1;
   background: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.1);
 }
 
 .codeInput::placeholder {
@@ -94,7 +94,7 @@
 
 .verifyBtn {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #00acc1 0%, #00bcd4 50%, #26c6da 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -108,7 +108,7 @@
 
 .verifyBtn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 172, 193, 0.3);
 }
 
 .verifyBtn:disabled {

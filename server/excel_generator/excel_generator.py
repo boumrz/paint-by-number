@@ -36,7 +36,7 @@ class ExcelGenerator:
         ws.title = "Коды доступа"
         
         # Заголовки
-        headers = ['№', 'Код доступа', 'Статус', 'Дата использования']
+        headers = ['№', 'Код доступа', 'Статус', 'Дата активации', 'Количество использований']
         for col, header in enumerate(headers, 1):
             cell = ws.cell(row=1, column=col, value=header)
             cell.font = Font(bold=True)
@@ -48,10 +48,10 @@ class ExcelGenerator:
             ws.cell(row=row, column=2, value=code_data['code'])
             
             # Статус
-            status = 'Использован' if code_data['used'] else 'Не использован'
+            status = 'Активирован' if code_data['used'] else 'Не активирован'
             ws.cell(row=row, column=3, value=status)
             
-            # Дата использования
+            # Дата активации
             used_at = code_data.get('used_at')
             if used_at:
                 try:
@@ -65,6 +65,10 @@ class ExcelGenerator:
                     ws.cell(row=row, column=4, value=used_at)
             else:
                 ws.cell(row=row, column=4, value='-')
+            
+            # Количество использований
+            usage_count = code_data.get('usage_count', 0)
+            ws.cell(row=row, column=5, value=usage_count)
         
         # Автоматическая ширина столбцов
         for column in ws.columns:
@@ -110,9 +114,10 @@ class ExcelGenerator:
         # Данные статистики
         stats_rows = [
             ['Всего кодов', stats_data.get('total_codes', 0)],
-            ['Использовано', stats_data.get('used_codes', 0)],
-            ['Доступно', stats_data.get('unused_codes', 0)],
-            ['Процент использования', f"{(stats_data.get('used_codes', 0) / max(stats_data.get('total_codes', 1), 1) * 100):.1f}%"]
+            ['Активировано', stats_data.get('used_codes', 0)],
+            ['Не активировано', stats_data.get('unused_codes', 0)],
+            ['Процент активации', f"{(stats_data.get('used_codes', 0) / max(stats_data.get('total_codes', 1), 1) * 100):.1f}%"],
+            ['Общее количество использований', stats_data.get('total_usage_count', 0)]
         ]
         
         for row, (label, value) in enumerate(stats_rows, 3):

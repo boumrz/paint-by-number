@@ -112,6 +112,7 @@ class AccessCodesManager:
                     'hash': self.hash_code(code),
                     'used': False,
                     'used_at': None,
+                    'usage_count': 0,
                     'generated_at': json.dumps(datetime.datetime.now().isoformat())
                 })
                 existing_codes.add(code)
@@ -146,17 +147,18 @@ class AccessCodesManager:
         # Ищем код
         for code_data in codes_data['codes']:
             if code_data['code'] == code.strip():
-                if code_data['used']:
-                    return {'valid': False, 'message': 'Код уже использован'}
-                else:
-                    # Помечаем код как использованный
+                # Если код еще не был активирован, помечаем его как активированный
+                if not code_data['used']:
                     code_data['used'] = True
                     code_data['used_at'] = json.dumps(datetime.datetime.now().isoformat())
-                    
-                    if self.save_access_codes(codes_data):
-                        return {'valid': True, 'message': 'Код действителен'}
-                    else:
-                        return {'valid': False, 'message': 'Ошибка при сохранении данных'}
+                
+                # Увеличиваем счетчик использований
+                if 'usage_count' not in code_data:
+                    code_data['usage_count'] = 0
+                code_data['usage_count'] += 1
+                
+                self.save_access_codes(codes_data)
+                return {'valid': True, 'message': 'Код действителен'}
         
         return {'valid': False, 'message': 'Неверный код'}
     
@@ -166,17 +168,19 @@ class AccessCodesManager:
         
         Returns:
             dict: Статистика
-                {'total_codes': int, 'used_codes': int, 'unused_codes': int, 'generated_at': str}
+                {'total_codes': int, 'used_codes': int, 'unused_codes': int, 'total_usage_count': int, 'generated_at': str}
         """
         codes_data = self.load_access_codes()
         total_codes = len(codes_data['codes'])
         used_codes = sum(1 for code in codes_data['codes'] if code['used'])
         unused_codes = total_codes - used_codes
+        total_usage_count = sum(code.get('usage_count', 0) for code in codes_data['codes'])
         
         return {
             'total_codes': total_codes,
             'used_codes': used_codes,
             'unused_codes': unused_codes,
+            'total_usage_count': total_usage_count,
             'generated_at': codes_data.get('generated_at')
         }
     

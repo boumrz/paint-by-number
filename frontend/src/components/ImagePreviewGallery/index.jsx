@@ -131,8 +131,9 @@ function SvgCanvasPreview({ svg, width, height, alt }) {
  * @param {string} props.pixelSepia - dataURL/svg сепия генерации
  * @param {'vertical'|'horizontal'} props.orientation - ориентация (для размеров)
  * @param {function} props.onSelect - функция выбора цвета
+ * @param {boolean} props.disabled - заблокировать клики
  */
-export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation = 'vertical', onSelect }) {
+export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation = 'vertical', onSelect, disabled = false }) {
   // Размеры превью (одинаковые для всех)
   const width = orientation === 'horizontal' ? 340 : 240;
   const height = orientation === 'horizontal' ? 260 : 300;
@@ -169,15 +170,27 @@ export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation
       </div>
       <div className={styles.item}>
         <div className={styles.label}>Чёрно-белая</div>
-        <button className={styles.previewButton} type="button" onClick={() => { console.log('bw'); if (onSelect) onSelect('bw'); }}>
-          {renderSvgPreview(pixelBW, 'ЧБ', true)}
-        </button>
+        {disabled ? (
+          <div className={styles.previewButton} style={{ cursor: 'not-allowed', opacity: 0.7 }}>
+            {renderSvgPreview(pixelBW, 'ЧБ', true)}
+          </div>
+        ) : (
+          <button className={styles.previewButton} type="button" onClick={() => { console.log('bw'); if (onSelect) onSelect('bw'); }}>
+            {renderSvgPreview(pixelBW, 'ЧБ', true)}
+          </button>
+        )}
       </div>
       <div className={styles.item}>
         <div className={styles.label}>Сепия</div>
-        <button className={styles.previewButton} type="button" onClick={() => { console.log('sepia'); if (onSelect) onSelect('sepia'); }}>
-          {renderSvgPreview(pixelSepia, 'Сепия', true)}
-        </button>
+        {disabled ? (
+          <div className={styles.previewButton} style={{ cursor: 'not-allowed', opacity: 0.7 }}>
+            {renderSvgPreview(pixelSepia, 'Сепия', true)}
+          </div>
+        ) : (
+          <button className={styles.previewButton} type="button" onClick={() => { console.log('sepia'); if (onSelect) onSelect('sepia'); }}>
+            {renderSvgPreview(pixelSepia, 'Сепия', true)}
+          </button>
+        )}
       </div>
     </div>
   );
