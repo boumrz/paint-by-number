@@ -9,6 +9,11 @@ import numpy as np
 import cv2
 from PIL import Image
 from sklearn.cluster import KMeans
+import datetime
+
+# Импортируем новые модули
+from data.access_codes_manager import AccessCodesManager
+from excel_generator.excel_generator import ExcelGenerator
 
 app = Flask(__name__)
 CORS(app)
@@ -1208,6 +1213,105 @@ def convert_image_pixels_horizontal_sepia():
                 print(f"Cleaned up temporary directory: {temp_dir}")
             except Exception as cleanup_error:
                 print(f"Warning: Could not clean up temporary directory {temp_dir}: {cleanup_error}")
+
+# Инициализируем менеджеры
+access_codes_manager = AccessCodesManager()
+excel_generator = ExcelGenerator()
+
+@app.route('/api/admin/generate-codes', methods=['POST'])
+def generate_access_codes():
+    """Генерирует 500 кодов доступа и сохраняет их"""
+    try:
+        # Генерируем новые коды
+        new_codes = access_codes_manager.generate_codes(500)
+        
+        if not new_codes:
+            return jsonify({'error': 'Ошибка при генерации кодов'}), 500
+        
+        # Создаем Excel файл
+        excel_filename = excel_generator.generate_access_codes_excel(new_codes)
+        
+        # Получаем обновленную статистику
+        stats = access_codes_manager.get_stats()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Сгенерировано {len(new_codes)} кодов доступа',
+            'excel_file': excel_filename,
+            'total_codes': stats['total_codes']
+        })
+        
+    except Exception as e:
+        print(f"Error generating access codes: {e}")
+        return jsonify({'error': 'Ошибка при генерации кодов'}), 500
+
+@app.route('/api/admin/download-codes/<filename>', methods=['GET'])
+def download_codes(filename):
+    """Скачивает Excel файл с кодами"""
+    try:
+        file_path = excel_generator.get_excel_file_path(filename)
+        if os.path.exists(file_path):
+            return send_file(file_path, as_attachment=True)
+        else:
+            return jsonify({'error': 'Файл не найден'}), 404
+    except Exception as e:
+        return jsonify({'error': 'Ошибка при скачивании файла'}), 500
+
+@app.route('/api/verify-code', methods=['POST'])
+def verify_access_code():
+    """Проверяет код доступа"""
+    try:
+        data = request.get_json()
+        code = data.get('code', '').strip()
+        
+        result = access_codes_manager.verify_code(code)
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"Error verifying code: {e}")
+        return jsonify({'error': 'Ошибка при проверке кода'}), 500
+
+@app.route('/api/admin/stats', methods=['GET'])
+def get_access_stats():
+    """Получает статистику по кодам доступа"""
+    try:
+        stats = access_codes_manager.get_stats()
+        return jsonify(stats)
+        
+    except Exception as e:
+        print(f"Error getting stats: {e}")
+        return jsonify({'error': 'Ошибка при получении статистики'}), 500
+
+@app.route('/api/admin/generate-stats-excel', methods=['POST'])
+def generate_stats_excel():
+    """Генерирует Excel файл со статистикой"""
+    try:
+        stats = access_codes_manager.get_stats()
+        excel_filename = excel_generator.generate_stats_excel(stats)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Excel файл со статистикой создан',
+            'excel_file': excel_filename
+        })
+        
+    except Exception as e:
+        print(f"Error generating stats excel: {e}")
+        return jsonify({'error': 'Ошибка при создании файла статистики'}), 500
+
+@app.route('/api/admin/list-excel-files', methods=['GET'])
+def list_excel_files():
+    """Возвращает список всех Excel файлов"""
+    try:
+        files = excel_generator.list_excel_files()
+        return jsonify({
+            'files': files,
+            'count': len(files)
+        })
+        
+    except Exception as e:
+        print(f"Error listing excel files: {e}")
+        return jsonify({'error': 'Ошибка при получении списка файлов'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000) 
