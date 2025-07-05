@@ -165,6 +165,78 @@ const SecondCanvasFull = ({
     pdf.save('canvas-section.pdf');
   };
 
+  // Генерация SVG-нумерации и разлиновки для вертикального холста
+  function generateSvgAxisNumbers() {
+    const gridCols = 8;
+    const gridRows = 16;
+    const cellWidth = 800 / gridCols;
+    const cellHeight = 1000 / gridRows;
+    const pxPerCellX = 16;
+    const pxPerCellY = 10;
+    const pxWidth = cellWidth / pxPerCellX;
+    const pxHeight = cellHeight / pxPerCellY;
+    let axisSvg = '';
+    // Разлиновка по зонам (тонкие линии)
+    for (let i = 0; i <= gridCols; i++) {
+      const x = i * cellWidth;
+      axisSvg += `<line x1="${x}" y1="0" x2="${x}" y2="1000" stroke="#222" stroke-width="1.1" />`;
+    }
+    for (let j = 0; j <= gridRows; j++) {
+      const y = j * cellHeight;
+      axisSvg += `<line x1="0" y1="${y}" x2="800" y2="${y}" stroke="#222" stroke-width="1.1" />`;
+    }
+    // Для каждой крупной зоны (cell) по горизонтали и вертикали
+    for (let row = 0; row < gridRows; row++) {
+      const y0 = row * cellHeight;
+      for (let col = 0; col < gridCols; col++) {
+        const x0 = col * cellWidth;
+        // Горизонтальная нумерация (2-16) сверху каждой зоны
+        for (let i = 2; i <= pxPerCellX; i++) {
+          let x = x0 + i * pxWidth + pxWidth / 2 - ((i + 1) < 10 ? 1 : 2);
+          let y = y0 - 2;
+          // Сдвиг на одну клетку левее и ниже
+          x -= pxWidth;
+          y += pxHeight;
+          // Дополнительно сдвигаем на 1/4 клетки вправо
+          x += pxWidth / 4;
+          axisSvg += `<text x="${x}" y="${y}" font-size="4" fill="#888" font-weight="500" text-anchor="middle" font-family="Arial" style="user-select:none;pointer-events:none;">${i}</text>`;
+        }
+        // Вертикальная нумерация (1-10) слева каждой зоны
+        for (let j = 1; j <= pxPerCellY; j++) {
+          let x = x0 + ((j + 1) < 10 ? 2 : 1) + pxWidth / 4;
+          if (String(j).startsWith('9')) {
+            x += pxWidth / 5;
+          }
+          const y = y0 + j * pxHeight + pxHeight / 2 - ((j + 1) < 10 ? 5 : 5);
+          axisSvg += `<text x="${x}" y="${y}" font-size="4" fill="#888" font-weight="500" text-anchor="middle" font-family="Arial" style="user-select:none;pointer-events:none;">${j}</text>`;
+        }
+      }
+    }
+    return axisSvg;
+  }
+
+  // Новый обработчик для экспорта SVG
+  const handleExportSVG = () => {
+    if (!svgRef.current) return;
+    // Получаем текущее содержимое SVG-контейнера
+    const svgInner = svgRef.current.innerHTML;
+    // Добавляем SVG-нумерацию по осям
+    const axisSvg = generateSvgAxisNumbers();
+    // Оборачиваем в SVG с нужными атрибутами
+    const finalSvg = `<?xml version="1.0" standalone="no"?>\n<svg width="800" height="1000" viewBox="0 0 800 1000" xmlns="http://www.w3.org/2000/svg">${svgInner}${axisSvg}</svg>`;
+    const blob = new Blob([finalSvg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'canvas-section.svg';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 0);
+  };
+
   return (
     <div className={styles.container}>
       <h1>Холст</h1>
@@ -180,6 +252,9 @@ const SecondCanvasFull = ({
         </button>
         <button onClick={handleExportPDF} className={styles.button}>
           Скачать PDF
+        </button>
+        <button onClick={handleExportSVG} className={styles.button}>
+          Скачать SVG
         </button>
         <div className={styles.hint}>
           Alt + левая кнопка мыши для выделения области
