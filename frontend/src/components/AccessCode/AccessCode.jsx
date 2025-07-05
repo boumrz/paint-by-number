@@ -68,8 +68,8 @@ const AccessCode = ({ onCodeVerified }) => {
     <div className={styles.accessCodeOverlay}>
       <div className={styles.accessCodeModal}>
         <div className={styles.accessCodeHeader}>
-          <h2>Введите код доступа</h2>
-          <p>Для использования приложения необходим действительный код доступа</p>
+          <h2>Получить инструкцию</h2>
+          <p>Введите код доступа для получения подробной инструкции</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.accessCodeForm}>
