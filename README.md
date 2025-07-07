@@ -29,6 +29,7 @@ paint-by-number/
 ## Возможности
 
 ### Для пользователей
+
 - Загрузка изображений (JPG, PNG)
 - Автоматическое создание картин по номерам
 - Три режима: цветной, черно-белый, сепия
@@ -36,6 +37,7 @@ paint-by-number/
 - Система кодов доступа для ограничения доступа
 
 ### Для администраторов
+
 - Генерация кодов доступа (500 штук за раз)
 - Создание Excel файлов с кодами
 - Статистика использования кодов
@@ -80,18 +82,21 @@ npm run dev
 ## API Endpoints
 
 ### Административные
+
 - `POST /api/admin/generate-codes` - Генерация кодов
 - `GET /api/admin/stats` - Статистика
 - `GET /api/admin/download-codes/<filename>` - Скачивание Excel
 - `POST /api/admin/generate-stats-excel` - Excel со статистикой
 
 ### Пользовательские
+
 - `POST /api/verify-code` - Проверка кода доступа
 - `POST /api/convert-pixels*` - Конвертация изображений
 
 ## Технологии
 
 ### Фронтенд
+
 - React 18
 - Vite
 - React Router
@@ -99,6 +104,7 @@ npm run dev
 - Axios
 
 ### Бэкенд
+
 - Python 3.8+
 - Flask
 - OpenCV
