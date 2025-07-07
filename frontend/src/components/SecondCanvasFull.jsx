@@ -240,9 +240,8 @@ const SecondCanvasFull = ({
       // вычисляем row/col крупной зоны
       const col = Math.floor(x / cellWidth);
       const row = Math.floor(y / cellHeight);
-      const fill = (row + col) % 2 === 0 ? '#fff' : '#dcdcdc';
+      const fill = (row + col) % 2 === 0 ? '#fff' : 'rgba(220, 220, 220, 0.7)';
       rect.setAttribute('fill', fill);
-      rect.setAttribute('fill-opacity', 0.5);
     });
 
     // Собираем <rect> для номеров поверх клеток (без текста, просто закрашенная клетка)
@@ -256,9 +255,11 @@ const SecondCanvasFull = ({
       const col = Math.floor(x / cellWidth);
       const row = Math.floor(y / cellHeight);
       const isWhite = (row + col) % 2 === 0;
-      const fill = isWhite ? 'rgba(220, 220, 220, 0.7)' : 'rgba(255, 255, 255, 0.7)';
+      const fillWidth = Math.max(0, width - 1);
+      const fillHeight = Math.max(0, height - 1);
+      const fill = isWhite ? '#D3D3D3' : '#fff';
       // Рисуем поверх клетку такого же размера
-      texts += `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${fill}" />`;
+      texts += `<rect x="${x + 0.5}" y="${y + 0.5}" width="${fillWidth}" height="${fillHeight}" fill="${fill}" />`;
       // Удаляем rect-номер из SVG
       rect.parentNode.removeChild(rect);
     });

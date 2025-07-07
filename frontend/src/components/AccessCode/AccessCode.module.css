@@ -155,6 +155,27 @@
   color: #495057;
 }
 
+.backBtn {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #00acc1;
+  border: 2px solid #00acc1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.backBtn:hover {
+  background: #00acc1;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 172, 193, 0.2);
+}
+
 @media (max-width: 480px) {
   .accessCodeModal {
     padding: 2rem 1.5rem;

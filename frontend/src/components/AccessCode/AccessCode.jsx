@@ -3,7 +3,7 @@ import axios from 'axios';
 import { config } from '../../config.js';
 import styles from './AccessCode.module.css';
 
-const AccessCode = ({ onCodeVerified }) => {
+const AccessCode = ({ onCodeVerified, onBackToGeneration }) => {
   const [code, setCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [message, setMessage] = useState('');
@@ -104,6 +104,13 @@ const AccessCode = ({ onCodeVerified }) => {
           <p><strong>Формат кода:</strong> XXXX-XXXX-XXXX</p>
           <p><strong>Пример:</strong> 1234-5678-9012</p>
         </div>
+
+        <button 
+          onClick={onBackToGeneration}
+          className={styles.backBtn}
+        >
+          ← Вернуться к генерации
+        </button>
       </div>
     </div>
   );
