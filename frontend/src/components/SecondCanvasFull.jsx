@@ -233,22 +233,43 @@ const SecondCanvasFull = ({
     const pxPerCellY = 10;
     const pxWidth = cellWidth / pxPerCellX;
     const pxHeight = cellHeight / pxPerCellY;
+    
     rects.forEach(rect => {
       const x = parseFloat(rect.getAttribute('x'));
       const y = parseFloat(rect.getAttribute('y'));
       // вычисляем row/col крупной зоны
       const col = Math.floor(x / cellWidth);
       const row = Math.floor(y / cellHeight);
-      const fill = (row + col) % 2 === 0 ? '#fff' : 'rgba(220, 220, 220, 0.4)';
+      const fill = (row + col) % 2 === 0 ? '#fff' : '#dcdcdc';
       rect.setAttribute('fill', fill);
+      rect.setAttribute('fill-opacity', 0.5);
     });
+
+    // Собираем <rect> для номеров поверх клеток (без текста, просто закрашенная клетка)
+    let texts = '';
+    const digitRects = doc.querySelectorAll('rect[data-digit-label]');
+    digitRects.forEach(rect => {
+      const x = parseFloat(rect.getAttribute('x'));
+      const y = parseFloat(rect.getAttribute('y'));
+      const width = parseFloat(rect.getAttribute('width'));
+      const height = parseFloat(rect.getAttribute('height'));
+      const col = Math.floor(x / cellWidth);
+      const row = Math.floor(y / cellHeight);
+      const isWhite = (row + col) % 2 === 0;
+      const fill = isWhite ? 'rgba(220, 220, 220, 0.7)' : 'rgba(255, 255, 255, 0.7)';
+      // Рисуем поверх клетку такого же размера
+      texts += `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${fill}" />`;
+      // Удаляем rect-номер из SVG
+      rect.parentNode.removeChild(rect);
+    });
+    
     // Сериализуем обратно
     const serializer = new window.XMLSerializer();
     const modifiedSvg = serializer.serializeToString(doc.documentElement);
     // Добавляем SVG-нумерацию по осям
     const axisSvg = generateSvgAxisNumbers();
-    // Оборачиваем в SVG с нужными атрибутами
-    const finalSvg = `<?xml version="1.0" standalone="no"?>\n<svg width="800" height="1000" viewBox="0 0 800 1000" xmlns="http://www.w3.org/2000/svg">${modifiedSvg}${axisSvg}</svg>`;
+    // Оборачиваем в SVG с нужными атрибутами и добавляем закрашенные клетки
+    const finalSvg = `<?xml version="1.0" standalone="no"?>\n<svg width="800" height="1000" viewBox="0 0 800 1000" xmlns="http://www.w3.org/2000/svg">${modifiedSvg}${texts}${axisSvg}</svg>`;
     const blob = new Blob([finalSvg], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
