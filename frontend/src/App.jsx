@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import styles from "./App.module.css";
-// import SecondCanvasFull from './components/SecondCanvasFull';
+import SecondCanvasFull from './components/SecondCanvasFull';
+import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 import { ColorPalette } from "./components/ColorPalette/ColorPalette";
 // import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 
@@ -48,6 +49,12 @@ const MainApp = React.memo(
     handleGetInstructions,
     isAccessGranted,
     userUploadedImages,
+    secondSvgData,
+    secondCurrentColor,
+    setSecondColorCount,
+    horizontalSvgData,
+    horizontalCurrentColor,
+    setHorizontalColorCount,
   }) => (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -290,6 +297,22 @@ const MainApp = React.memo(
                   orientation="horizontal"
                 />
               )}
+            {secondSvgData && (
+              <SecondCanvasFull
+                svgData={secondSvgData}
+                idList={secondIdList}
+                currentColor={secondCurrentColor}
+                setColorCount={setSecondColorCount}
+              />
+            )}
+            {horizontalSvgData && (
+              <HorizontalCanvasFull
+                svgData={horizontalSvgData}
+                idList={horizontalIdList}
+                currentColor={horizontalCurrentColor}
+                setColorCount={setHorizontalColorCount}
+              />
+            )}
           </div>
         </section>
 
@@ -416,7 +439,7 @@ const MainApp = React.memo(
 
 function App() {
   // Состояние для проверки кода доступа
-  const [isAccessGranted, setIsAccessGranted] = useState(false);
+  const [isAccessGranted] = useState(true);
 
   // Второй холст
   const [secondPreviewImage, setSecondPreviewImage] = useState(null);
@@ -540,6 +563,7 @@ function App() {
           croppingFor === "Сепия"
         ) {
           setSecondPreviewImage(previewUrl);
+          setHorizontalSvgData(null);
           try {
             // Обычная генерация
             const formData = new FormData();
@@ -572,9 +596,18 @@ function App() {
           }
         } else if (croppingFor === "horizontal") {
           setHorizontalPreviewImage(previewUrl);
+          setSecondSvgData(null);
           try {
             const formData = new FormData();
             formData.append("image", croppedBlob, "cropped.jpg");
+            // Основной цветной SVG
+            const respColor = await axios.post(
+              `${config.apiUrl}/api/convert-pixels-horizontal`,
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+            );
+            setHorizontalSvgData(respColor.data.svg);
+            setHorizontalIdList(respColor.data.palette);
             // ЧБ генерация
             const respBW = await axios.post(
               `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
@@ -641,7 +674,6 @@ function App() {
   }, []);
 
   const handleCodeVerified = useCallback(() => {
-    setIsAccessGranted(true);
     setShowInstructions(false);
   }, []);
 
@@ -697,40 +729,42 @@ function App() {
       <Route
         path="/"
         element={
-          showInstructions ? (
-            <AccessCode onCodeVerified={handleCodeVerified} />
-          ) : (
-            <MainApp
-              secondPreviewImage={secondPreviewImage}
-              secondSvgDataBW={secondSvgDataBW}
-              secondSvgDataSepia={secondSvgDataSepia}
-              horizontalPreviewImage={horizontalPreviewImage}
-              horizontalSvgDataBW={horizontalSvgDataBW}
-              horizontalSvgDataSepia={horizontalSvgDataSepia}
-              showCrop={showCrop}
-              cropImage={cropImage}
-              crop={crop}
-              zoom={zoom}
-              croppingFor={croppingFor}
-              selectedInstruction={selectedInstruction}
-              secondIdList={secondIdList}
-              horizontalIdList={horizontalIdList}
-              isPhone={isPhone}
-              handleUploadImageFile={handleUploadImageFile}
-              handleUploadImageFileHorizontal={handleUploadImageFileHorizontal}
-              handleCropCancel={handleCropCancel}
-              handleCropConfirm={handleCropConfirm}
-              onCropComplete={onCropComplete}
-              setSelectedInstruction={setSelectedInstruction}
-              setCrop={setCrop}
-              setZoom={setZoom}
-              showDemo={showDemo}
-              handleDemoGeneration={handleDemoGeneration}
-              handleGetInstructions={handleGetInstructions}
-              isAccessGranted={isAccessGranted}
-              userUploadedImages={userUploadedImages}
-            />
-          )
+          <MainApp
+            secondPreviewImage={secondPreviewImage}
+            secondSvgDataBW={secondSvgDataBW}
+            secondSvgDataSepia={secondSvgDataSepia}
+            horizontalPreviewImage={horizontalPreviewImage}
+            horizontalSvgDataBW={horizontalSvgDataBW}
+            horizontalSvgDataSepia={horizontalSvgDataSepia}
+            showCrop={showCrop}
+            cropImage={cropImage}
+            crop={crop}
+            zoom={zoom}
+            croppingFor={croppingFor}
+            selectedInstruction={selectedInstruction}
+            secondIdList={secondIdList}
+            horizontalIdList={horizontalIdList}
+            isPhone={isPhone}
+            handleUploadImageFile={handleUploadImageFile}
+            handleUploadImageFileHorizontal={handleUploadImageFileHorizontal}
+            handleCropCancel={handleCropCancel}
+            handleCropConfirm={handleCropConfirm}
+            onCropComplete={onCropComplete}
+            setSelectedInstruction={setSelectedInstruction}
+            setCrop={setCrop}
+            setZoom={setZoom}
+            showDemo={showDemo}
+            handleDemoGeneration={handleDemoGeneration}
+            handleGetInstructions={handleGetInstructions}
+            isAccessGranted={isAccessGranted}
+            userUploadedImages={userUploadedImages}
+            secondSvgData={secondSvgData}
+            secondCurrentColor={secondCurrentColor}
+            setSecondColorCount={setSecondColorCount}
+            horizontalSvgData={horizontalSvgData}
+            horizontalCurrentColor={horizontalCurrentColor}
+            setHorizontalColorCount={setHorizontalColorCount}
+          />
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
