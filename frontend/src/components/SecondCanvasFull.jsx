@@ -219,11 +219,36 @@ const SecondCanvasFull = ({
   const handleExportSVG = () => {
     if (!svgRef.current) return;
     // Получаем текущее содержимое SVG-контейнера
-    const svgInner = svgRef.current.innerHTML;
+    let svgInner = svgRef.current.innerHTML;
+    // Парсим innerHTML как SVG-документ
+    const parser = new window.DOMParser();
+    const doc = parser.parseFromString(svgInner, 'image/svg+xml');
+    // Меняем fill у всех rect[data-color] в шахматном порядке
+    const rects = doc.querySelectorAll('rect[data-color]');
+    const gridCols = 8;
+    const gridRows = 16;
+    const cellWidth = 800 / gridCols;
+    const cellHeight = 1000 / gridRows;
+    const pxPerCellX = 16;
+    const pxPerCellY = 10;
+    const pxWidth = cellWidth / pxPerCellX;
+    const pxHeight = cellHeight / pxPerCellY;
+    rects.forEach(rect => {
+      const x = parseFloat(rect.getAttribute('x'));
+      const y = parseFloat(rect.getAttribute('y'));
+      // вычисляем row/col крупной зоны
+      const col = Math.floor(x / cellWidth);
+      const row = Math.floor(y / cellHeight);
+      const fill = (row + col) % 2 === 0 ? '#fff' : 'rgba(220, 220, 220, 0.4)';
+      rect.setAttribute('fill', fill);
+    });
+    // Сериализуем обратно
+    const serializer = new window.XMLSerializer();
+    const modifiedSvg = serializer.serializeToString(doc.documentElement);
     // Добавляем SVG-нумерацию по осям
     const axisSvg = generateSvgAxisNumbers();
     // Оборачиваем в SVG с нужными атрибутами
-    const finalSvg = `<?xml version="1.0" standalone="no"?>\n<svg width="800" height="1000" viewBox="0 0 800 1000" xmlns="http://www.w3.org/2000/svg">${svgInner}${axisSvg}</svg>`;
+    const finalSvg = `<?xml version="1.0" standalone="no"?>\n<svg width="800" height="1000" viewBox="0 0 800 1000" xmlns="http://www.w3.org/2000/svg">${modifiedSvg}${axisSvg}</svg>`;
     const blob = new Blob([finalSvg], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
