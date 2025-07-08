@@ -1,0 +1,437 @@
+import { memo, useCallback } from "react";
+// import SecondCanvasFull from './components/SecondCanvasFull';
+// import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
+// import { ColorPalette } from "./components/ColorPalette/ColorPalette";
+// import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
+
+import Cropper from "react-easy-crop";
+import Modal from "react-modal";
+
+import { GridInstructions } from "../GridInstructions";
+import { ImagePreviewGallery } from "../ImagePreviewGallery";
+
+import styles from "./MainApp.module.css";
+
+export const MainApp = memo(
+    ({
+      secondPreviewImage,
+      secondSvgDataBW,
+      secondSvgDataSepia,
+      horizontalPreviewImage,
+      horizontalSvgDataBW,
+      horizontalSvgDataSepia,
+      showCrop,
+      cropImage,
+      crop,
+      zoom,
+      croppingFor,
+      selectedInstruction,
+      secondIdList,
+      horizontalIdList,
+      isPhone,
+      handleUploadImageFile,
+      handleUploadImageFileHorizontal,
+      handleCropCancel,
+      handleCropConfirm,
+      onCropComplete,
+      setSelectedInstruction,
+      setCrop,
+      setZoom,
+      showDemo,
+      handleDemoGeneration,
+      handleGetInstructions,
+      isAccessGranted,
+      // userUploadedImages,
+      // secondSvgData,
+      // secondCurrentColor,
+      // horizontalSvgData,
+      // horizontalCurrentColor,
+    }) => {
+        const handleVerticalSelect = useCallback((type) => {
+            setSelectedInstruction({
+              type,
+              orientation: "vertical",
+            });
+        }, []);
+
+        const handleHorizontalSelect = useCallback((type) => {
+            setSelectedInstruction({
+              type,
+              orientation: "horizontal",
+            })
+        }, []);
+        
+        return (
+            <div className={styles.app}>
+              <header className={styles.header}>
+                <div className={styles.headerContent}>
+                  <h1>Картина по пикселям</h1>
+                  <p>Создай свою картину по номерам из любой фотографии</p>
+                </div>
+              </header>
+        
+              <main className={styles.mainContent}>
+                <section className={styles.heroSection}>
+                  <div className={styles.heroContent}>
+                    <h2>Картина по номерам</h2>
+                    <p>по фото</p>
+        
+                    {!showDemo && (
+                      <div className={styles.uploadSection}>
+                        <button
+                          onClick={handleDemoGeneration}
+                          className={styles.uploadButton}
+                        >
+                          ДЕМО ГЕНЕРАЦИЯ
+                        </button>
+                        <button
+                          onClick={handleGetInstructions}
+                          className={styles.uploadButton}
+                        >
+                          ПОЛУЧИТЬ ИНСТРУКЦИЮ
+                        </button>
+                        <a href="#" className={styles.orderButton}>
+                          ЗАКАЗАТЬ
+                        </a>
+                      </div>
+                    )}
+        
+                    {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) &&
+                      showDemo && (
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "2rem",
+                            minHeight: 400,
+                            flexWrap: "wrap",
+                            flexDirection: "column",
+                            marginTop: "2rem",
+                          }}
+                        >
+                          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+                            <ImagePreviewGallery
+                              original={secondPreviewImage}
+                              pixelBW={secondSvgDataBW}
+                              pixelSepia={secondSvgDataSepia}
+                              orientation="vertical"
+                              onSelect={handleVerticalSelect}
+                              disabled={!isAccessGranted}
+                            />
+                            {!isAccessGranted && (
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  marginTop: "1rem",
+                                  padding: "1rem",
+                                  background: "rgba(0, 172, 193, 0.1)",
+                                  borderRadius: "0.5rem",
+                                  border: "1px solid rgba(0, 172, 193, 0.3)",
+                                  color: "#006064",
+                                }}
+                              >
+                                <p style={{ margin: 0, fontSize: "0.9rem" }}>
+                                  💡 <strong>Демо-режим:</strong> Карточки
+                                  заблокированы. Для получения инструкций введите код
+                                  доступа
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+        
+                    {(horizontalPreviewImage ||
+                      horizontalSvgDataBW ||
+                      horizontalSvgDataSepia) &&
+                      showDemo && (
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "2rem",
+                            minHeight: 400,
+                            flexWrap: "wrap",
+                            flexDirection: "column",
+                            marginTop: "2rem",
+                          }}
+                        >
+                          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+                            <ImagePreviewGallery
+                              original={horizontalPreviewImage}
+                              pixelBW={horizontalSvgDataBW}
+                              pixelSepia={horizontalSvgDataSepia}
+                              orientation="horizontal"
+                              onSelect={handleHorizontalSelect}
+                              disabled={!isAccessGranted}
+                            />
+                            {!isAccessGranted && (
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  marginTop: "1rem",
+                                  padding: "1rem",
+                                  background: "rgba(0, 172, 193, 0.1)",
+                                  borderRadius: "0.5rem",
+                                  border: "1px solid rgba(0, 172, 193, 0.3)",
+                                  color: "#006064",
+                                }}
+                              >
+                                <p style={{ margin: 0, fontSize: "0.9rem" }}>
+                                  💡 <strong>Демо-режим:</strong> Карточки
+                                  заблокированы. Для получения инструкций введите код
+                                  доступа
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+        
+                    {showDemo && (
+                      <div
+                        className={styles.uploadSection}
+                        style={{ marginTop: "2rem" }}
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleUploadImageFile}
+                          id="image-upload"
+                          className={styles.fileInput}
+                        />
+                        <label htmlFor="image-upload" className={styles.uploadButton}>
+                          Загрузить свое фото
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleUploadImageFileHorizontal}
+                          id="image-upload-horizontal"
+                          className={styles.fileInput}
+                        />
+                        <label
+                          htmlFor="image-upload-horizontal"
+                          className={styles.uploadButton}
+                        >
+                          Загрузить (горизонтальный)
+                        </label>
+                      </div>
+                    )}
+        
+                    {showDemo && !isAccessGranted && (
+                      <div
+                        style={{
+                          textAlign: "center",
+                          marginTop: "1rem",
+                          padding: "1rem",
+                          background: "rgba(0, 172, 193, 0.1)",
+                          borderRadius: "0.5rem",
+                          border: "1px solid rgba(0, 172, 193, 0.3)",
+                          color: "#006064",
+                        }}
+                      >
+                        <p style={{ margin: 0, fontSize: "0.9rem" }}>
+                          💡 <strong>Демо-режим:</strong> Вы можете загружать свои
+                          фотографии и смотреть результат генерации. Для получения
+                          инструкций нажмите "ПОЛУЧИТЬ ИНСТРУКЦИЮ" и введите код
+                          доступа.
+                        </p>
+                        <button
+                          onClick={handleGetInstructions}
+                          className={styles.uploadButton}
+                          style={{ marginTop: "0.5rem" }}
+                        >
+                          ПОЛУЧИТЬ ИНСТРУКЦИЮ
+                        </button>
+                      </div>
+                    )}
+        
+                    {isAccessGranted &&
+                      selectedInstruction &&
+                      selectedInstruction.orientation === "vertical" &&
+                      selectedInstruction.type === "bw" &&
+                      secondSvgDataBW && (
+                        <GridInstructions
+                          idList={secondIdList}
+                          svgData={secondSvgDataBW}
+                          title="Инструкция (ЧБ)"
+                          orientation="vertical"
+                        />
+                      )}
+                    {isAccessGranted &&
+                      selectedInstruction &&
+                      selectedInstruction.orientation === "vertical" &&
+                      selectedInstruction.type === "sepia" &&
+                      secondSvgDataSepia && (
+                        <GridInstructions
+                          idList={secondIdList}
+                          svgData={secondSvgDataSepia}
+                          title="Инструкция (Сепия)"
+                          orientation="vertical"
+                        />
+                      )}
+                    {isAccessGranted &&
+                      selectedInstruction &&
+                      selectedInstruction.orientation === "horizontal" &&
+                      selectedInstruction.type === "bw" &&
+                      horizontalSvgDataBW && (
+                        <GridInstructions
+                          idList={horizontalIdList}
+                          svgData={horizontalSvgDataBW}
+                          title="Инструкция (ЧБ, горизонтальный)"
+                          orientation="horizontal"
+                        />
+                      )}
+                    {isAccessGranted &&
+                      selectedInstruction &&
+                      selectedInstruction.orientation === "horizontal" &&
+                      selectedInstruction.type === "sepia" &&
+                      horizontalSvgDataSepia && (
+                        <GridInstructions
+                          idList={horizontalIdList}
+                          svgData={horizontalSvgDataSepia}
+                          title="Инструкция (Сепия, горизонтальный)"
+                          orientation="horizontal"
+                        />
+                      )}
+                    {/* {secondSvgData && (
+                      <SecondCanvasFull
+                        svgData={secondSvgData}
+                        idList={secondIdList}
+                        currentColor={secondCurrentColor}
+                        setColorCount={setSecondColorCount}
+                      />
+                    )}
+                    {horizontalSvgData && (
+                      <HorizontalCanvasFull
+                        svgData={horizontalSvgData}
+                        idList={horizontalIdList}
+                        currentColor={horizontalCurrentColor}
+                        setColorCount={setHorizontalColorCount}
+                      />
+                    )} */}
+                  </div>
+                </section>
+        
+                <Modal
+                  isOpen={showCrop}
+                  onRequestClose={handleCropCancel}
+                  ariaHideApp={false}
+                  style={{
+                    overlay: { zIndex: 1000, background: "rgba(0,0,0,0.7)" },
+                    content: { maxWidth: 600, margin: "auto", height: 600, padding: 0 },
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      height: "88%",
+                      background: "#222",
+                    }}
+                  >
+                    {cropImage && (
+                      <Cropper
+                        image={cropImage}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={croppingFor === "horizontal" ? 1.25 : 0.8}
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                        cropShape="rect"
+                        showGrid={true}
+                      />
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 16,
+                      margin: 16,
+                    }}
+                  >
+                    <button
+                      onClick={handleCropConfirm}
+                      style={{ padding: "8px 24px", fontSize: 16 }}
+                    >
+                      Обрезать
+                    </button>
+                    <button
+                      onClick={handleCropCancel}
+                      style={{ padding: "8px 24px", fontSize: 16 }}
+                    >
+                      Отмена
+                    </button>
+                  </div>
+                </Modal>
+              </main>
+        
+              <footer className={styles.footer}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    maxWidth: "1200px",
+                    margin: "0 auto",
+                    padding: "0 1rem",
+                  }}
+                >
+                  <p>© 2025 Картина по пикселям. Все права защищены.</p>
+                  <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                    <button
+                      onClick={() => window.location.reload()}
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        border: "1px solid rgba(255,255,255,0.3)",
+                        color: "white",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "0.5rem",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                      }}
+                    >
+                      НА ГЛАВНУЮ СТРАНИЦУ
+                    </button>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <button
+                        onClick={() =>
+                          window.open("https://t.me/your_telegram", "_blank")
+                        }
+                        style={{
+                          background: "rgba(255,255,255,0.2)",
+                          border: "1px solid rgba(255,255,255,0.3)",
+                          color: "white",
+                          padding: "0.5rem 1rem",
+                          borderRadius: "0.5rem",
+                          cursor: "pointer",
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        НАПИСАТЬ В TELEGRAM
+                      </button>
+                      <button
+                        onClick={() => window.open("mailto:your@email.com", "_blank")}
+                        style={{
+                          background: "rgba(255,255,255,0.2)",
+                          border: "1px solid rgba(255,255,255,0.3)",
+                          color: "white",
+                          padding: "0.5rem 1rem",
+                          borderRadius: "0.5rem",
+                          cursor: "pointer",
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        НАПИСАТЬ НА ПОЧТУ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </footer>
+            </div>
+          );
+    }
+  );
+  
+  MainApp.displayName = 'MainApp';
