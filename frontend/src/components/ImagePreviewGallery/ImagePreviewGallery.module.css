@@ -99,7 +99,6 @@
   width: 340px;
   min-width: 240px;
   max-width: 340px;
-  height: 260px;
 }
 
 /* canvas/image внутри previewButton не выходит за пределы */

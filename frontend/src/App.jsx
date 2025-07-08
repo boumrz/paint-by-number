@@ -34,6 +34,7 @@ function App() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [croppingFor, setCroppingFor] = useState(null);
+  const [orientation, setOrientation] = useState("vertical"); // vertical/horizontal
 
   // Делаю одно:
   const [selectedInstruction, setSelectedInstruction] = useState(null); // { type: 'bw'|'sepia', orientation: 'vertical'|'horizontal' }
@@ -41,6 +42,8 @@ function App() {
   const [showInstructions, setShowInstructions] = useState(false);
   const [userUploadedImages, setUserUploadedImages] = useState(false);
   const isPhone = useMediaQuery("(max-width: 400px)");
+
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Crop image to square using react-easy-crop
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
@@ -69,9 +72,6 @@ function App() {
 
       canvas.toBlob((blob) => {
         if (blob) {
-          console.log("Blob created successfully");
-          console.log("Blob size:", blob.size);
-          console.log("Blob type:", blob.type);
           callback(blob, canvas.toDataURL("image/jpeg"));
         } else {
           console.error("Failed to create blob");
@@ -89,21 +89,16 @@ function App() {
   const handleUploadImageFile = useCallback((event) => {
     const file = event.target.files[0];
     if (file) {
-      setCroppingFor("Обычное");
+      setCroppingFor("user"); // универсальный режим
+      setOrientation("vertical"); // по умолчанию вертикально
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
       setUserUploadedImages(true);
     }
   }, []);
 
-  const handleUploadImageFileHorizontal = useCallback((event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setCroppingFor("horizontal");
-      setCropImage(URL.createObjectURL(file));
-      setShowCrop(true);
-      setUserUploadedImages(true);
-    }
+  const handleOrientationChange = useCallback((value) => {
+    setOrientation(value);
   }, []);
 
   const handleCropConfirm = useCallback(async () => {
@@ -116,16 +111,11 @@ function App() {
         setCropImage(null);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
-        setShowDemo(true); // Показываем демо после загрузки изображения
-        if (
-          croppingFor === "Обычное" ||
-          croppingFor === "Чернобелое" ||
-          croppingFor === "Сепия"
-        ) {
-          setSecondPreviewImage(previewUrl);
+        setShowDemo(true);
+        setPreviewImage(previewUrl);
+        if (orientation === "vertical") {
           setHorizontalSvgData(null);
           try {
-            // Обычная генерация
             const formData = new FormData();
             formData.append("image", croppedBlob, "cropped.jpg");
             const respColor = await axios.post(
@@ -135,14 +125,12 @@ function App() {
             );
             setSecondSvgData(respColor.data.svg);
             setSecondIdList(respColor.data.palette);
-            // ЧБ генерация
             const respBW = await axios.post(
               `${config.apiUrl}/api/convert-pixels-bw`,
               formData,
               { headers: { "Content-Type": "multipart/form-data" } }
             );
             setSecondSvgDataBW(respBW.data.svg);
-            // Сепия генерация
             const respSepia = await axios.post(
               `${config.apiUrl}/api/convert-pixels-sepia`,
               formData,
@@ -154,13 +142,11 @@ function App() {
             console.error("Error response:", error.response?.data);
             console.error("Error status:", error.response?.status);
           }
-        } else if (croppingFor === "horizontal") {
-          setHorizontalPreviewImage(previewUrl);
+        } else if (orientation === "horizontal") {
           setSecondSvgData(null);
           try {
             const formData = new FormData();
             formData.append("image", croppedBlob, "cropped.jpg");
-            // Основной цветной SVG
             const respColor = await axios.post(
               `${config.apiUrl}/api/convert-pixels-horizontal`,
               formData,
@@ -168,14 +154,12 @@ function App() {
             );
             setHorizontalSvgData(respColor.data.svg);
             setHorizontalIdList(respColor.data.palette);
-            // ЧБ генерация
             const respBW = await axios.post(
               `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
               formData,
               { headers: { "Content-Type": "multipart/form-data" } }
             );
             setHorizontalSvgDataBW(respBW.data.svg);
-            // Сепия генерация
             const respSepia = await axios.post(
               `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
               formData,
@@ -191,7 +175,7 @@ function App() {
         setCroppingFor(null);
       }
     );
-  }, [cropImage, croppedAreaPixels, croppingFor]);
+  }, [cropImage, croppedAreaPixels, orientation]);
 
   const handleCropCancel = useCallback(() => {
     setShowCrop(false);
@@ -215,7 +199,7 @@ function App() {
     setSelectedInstruction(null);
     // Используем демо-изображение из public
     const demoImageUrl = "/flower.jpg";
-    setSecondPreviewImage(demoImageUrl);
+    setPreviewImage(demoImageUrl);
 
     try {
       // Загружаем демо-изображение как blob
@@ -268,10 +252,9 @@ function App() {
             <AccessCode onCodeVerified={handleCodeVerified} onBackToGeneration={handleBackToGeneration} />
           ) : (
             <MainApp
-              secondPreviewImage={secondPreviewImage}
+              previewImage={previewImage}
               secondSvgDataBW={secondSvgDataBW}
               secondSvgDataSepia={secondSvgDataSepia}
-              horizontalPreviewImage={horizontalPreviewImage}
               horizontalSvgDataBW={horizontalSvgDataBW}
               horizontalSvgDataSepia={horizontalSvgDataSepia}
               showCrop={showCrop}
@@ -284,7 +267,7 @@ function App() {
               horizontalIdList={horizontalIdList}
               isPhone={isPhone}
               handleUploadImageFile={handleUploadImageFile}
-              handleUploadImageFileHorizontal={handleUploadImageFileHorizontal}
+              handleOrientationChange={handleOrientationChange}
               handleCropCancel={handleCropCancel}
               handleCropConfirm={handleCropConfirm}
               onCropComplete={onCropComplete}
@@ -300,6 +283,7 @@ function App() {
               secondCurrentColor={secondCurrentColor}
               horizontalSvgData={horizontalSvgData}
               horizontalCurrentColor={horizontalCurrentColor}
+              orientation={orientation}
             />
           )
         }
