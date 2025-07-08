@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import styles from "./App.module.css";
-// import SecondCanvasFull from './components/SecondCanvasFull';
+import SecondCanvasFull from './components/SecondCanvasFull';
+import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 import { ColorPalette } from "./components/ColorPalette/ColorPalette";
 // import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 
@@ -48,6 +49,12 @@ const MainApp = React.memo(
     handleGetInstructions,
     isAccessGranted,
     userUploadedImages,
+    secondSvgData,
+    secondCurrentColor,
+    setSecondColorCount,
+    horizontalSvgData,
+    horizontalCurrentColor,
+    setHorizontalColorCount,
   }) => (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -290,6 +297,22 @@ const MainApp = React.memo(
                   orientation="horizontal"
                 />
               )}
+            {/* {secondSvgData && (
+              <SecondCanvasFull
+                svgData={secondSvgData}
+                idList={secondIdList}
+                currentColor={secondCurrentColor}
+                setColorCount={setSecondColorCount}
+              />
+            )}
+            {horizontalSvgData && (
+              <HorizontalCanvasFull
+                svgData={horizontalSvgData}
+                idList={horizontalIdList}
+                currentColor={horizontalCurrentColor}
+                setColorCount={setHorizontalColorCount}
+              />
+            )} */}
           </div>
         </section>
 
@@ -534,12 +557,14 @@ function App() {
         setCropImage(null);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
+        setShowDemo(true); // Показываем демо после загрузки изображения
         if (
           croppingFor === "Обычное" ||
           croppingFor === "Чернобелое" ||
           croppingFor === "Сепия"
         ) {
           setSecondPreviewImage(previewUrl);
+          setHorizontalSvgData(null);
           try {
             // Обычная генерация
             const formData = new FormData();
@@ -572,9 +597,18 @@ function App() {
           }
         } else if (croppingFor === "horizontal") {
           setHorizontalPreviewImage(previewUrl);
+          setSecondSvgData(null);
           try {
             const formData = new FormData();
             formData.append("image", croppedBlob, "cropped.jpg");
+            // Основной цветной SVG
+            const respColor = await axios.post(
+              `${config.apiUrl}/api/convert-pixels-horizontal`,
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+            );
+            setHorizontalSvgData(respColor.data.svg);
+            setHorizontalIdList(respColor.data.palette);
             // ЧБ генерация
             const respBW = await axios.post(
               `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
@@ -645,6 +679,10 @@ function App() {
     setShowInstructions(false);
   }, []);
 
+  const handleBackToGeneration = useCallback(() => {
+    setShowInstructions(false);
+  }, []);
+
   const handleDemoGeneration = useCallback(async () => {
     setShowDemo(true);
     setSelectedInstruction(null);
@@ -688,8 +726,10 @@ function App() {
   }, []);
 
   const handleGetInstructions = useCallback(() => {
-    setShowInstructions(true);
-  }, []);
+    if (!isAccessGranted) {
+      setShowInstructions(true);
+    }
+  }, [isAccessGranted]);
 
   return (
     <Routes>
@@ -698,7 +738,7 @@ function App() {
         path="/"
         element={
           showInstructions ? (
-            <AccessCode onCodeVerified={handleCodeVerified} />
+            <AccessCode onCodeVerified={handleCodeVerified} onBackToGeneration={handleBackToGeneration} />
           ) : (
             <MainApp
               secondPreviewImage={secondPreviewImage}
@@ -729,6 +769,12 @@ function App() {
               handleGetInstructions={handleGetInstructions}
               isAccessGranted={isAccessGranted}
               userUploadedImages={userUploadedImages}
+              secondSvgData={secondSvgData}
+              secondCurrentColor={secondCurrentColor}
+              setSecondColorCount={setSecondColorCount}
+              horizontalSvgData={horizontalSvgData}
+              horizontalCurrentColor={horizontalCurrentColor}
+              setHorizontalColorCount={setHorizontalColorCount}
             />
           )
         }
