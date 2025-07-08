@@ -6,6 +6,8 @@ import { memo, useCallback } from "react";
 
 import Cropper from "react-easy-crop";
 import Modal from "react-modal";
+import { Switch } from "antd";
+import "antd/dist/reset.css";
 
 import { GridInstructions } from "../GridInstructions";
 import { ImagePreviewGallery } from "../ImagePreviewGallery";
@@ -14,10 +16,9 @@ import styles from "./MainApp.module.css";
 
 export const MainApp = memo(
     ({
-      secondPreviewImage,
+      previewImage,
       secondSvgDataBW,
       secondSvgDataSepia,
-      horizontalPreviewImage,
       horizontalSvgDataBW,
       horizontalSvgDataSepia,
       showCrop,
@@ -41,6 +42,8 @@ export const MainApp = memo(
       handleDemoGeneration,
       handleGetInstructions,
       isAccessGranted,
+      orientation,
+      handleOrientationChange,
       // userUploadedImages,
       // secondSvgData,
       // secondCurrentColor,
@@ -82,13 +85,7 @@ export const MainApp = memo(
                           onClick={handleDemoGeneration}
                           className={styles.uploadButton}
                         >
-                          ДЕМО ГЕНЕРАЦИЯ
-                        </button>
-                        <button
-                          onClick={handleGetInstructions}
-                          className={styles.uploadButton}
-                        >
-                          ПОЛУЧИТЬ ИНСТРУКЦИЮ
+                          ГЕНЕРАЦИЯ
                         </button>
                         <a href="#" className={styles.orderButton}>
                           ЗАКАЗАТЬ
@@ -96,101 +93,8 @@ export const MainApp = memo(
                       </div>
                     )}
         
-                    {(secondPreviewImage || secondSvgDataBW || secondSvgDataSepia) &&
-                      showDemo && (
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "2rem",
-                            minHeight: 400,
-                            flexWrap: "wrap",
-                            flexDirection: "column",
-                            marginTop: "2rem",
-                          }}
-                        >
-                          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-                            <ImagePreviewGallery
-                              original={secondPreviewImage}
-                              pixelBW={secondSvgDataBW}
-                              pixelSepia={secondSvgDataSepia}
-                              orientation="vertical"
-                              onSelect={handleVerticalSelect}
-                              disabled={!isAccessGranted}
-                            />
-                            {!isAccessGranted && (
-                              <div
-                                style={{
-                                  textAlign: "center",
-                                  marginTop: "1rem",
-                                  padding: "1rem",
-                                  background: "rgba(0, 172, 193, 0.1)",
-                                  borderRadius: "0.5rem",
-                                  border: "1px solid rgba(0, 172, 193, 0.3)",
-                                  color: "#006064",
-                                }}
-                              >
-                                <p style={{ margin: 0, fontSize: "0.9rem" }}>
-                                  💡 <strong>Демо-режим:</strong> Карточки
-                                  заблокированы. Для получения инструкций введите код
-                                  доступа
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-        
-                    {(horizontalPreviewImage ||
-                      horizontalSvgDataBW ||
-                      horizontalSvgDataSepia) &&
-                      showDemo && (
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "2rem",
-                            minHeight: 400,
-                            flexWrap: "wrap",
-                            flexDirection: "column",
-                            marginTop: "2rem",
-                          }}
-                        >
-                          <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
-                            <ImagePreviewGallery
-                              original={horizontalPreviewImage}
-                              pixelBW={horizontalSvgDataBW}
-                              pixelSepia={horizontalSvgDataSepia}
-                              orientation="horizontal"
-                              onSelect={handleHorizontalSelect}
-                              disabled={!isAccessGranted}
-                            />
-                            {!isAccessGranted && (
-                              <div
-                                style={{
-                                  textAlign: "center",
-                                  marginTop: "1rem",
-                                  padding: "1rem",
-                                  background: "rgba(0, 172, 193, 0.1)",
-                                  borderRadius: "0.5rem",
-                                  border: "1px solid rgba(0, 172, 193, 0.3)",
-                                  color: "#006064",
-                                }}
-                              >
-                                <p style={{ margin: 0, fontSize: "0.9rem" }}>
-                                  💡 <strong>Демо-режим:</strong> Карточки
-                                  заблокированы. Для получения инструкций введите код
-                                  доступа
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-        
                     {showDemo && (
-                      <div
-                        className={styles.uploadSection}
-                        style={{ marginTop: "2rem" }}
-                      >
+                      <div className={styles.uploadSection} style={{ marginTop: "2rem" }}>
                         <input
                           type="file"
                           accept="image/*"
@@ -201,19 +105,47 @@ export const MainApp = memo(
                         <label htmlFor="image-upload" className={styles.uploadButton}>
                           Загрузить свое фото
                         </label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleUploadImageFileHorizontal}
-                          id="image-upload-horizontal"
-                          className={styles.fileInput}
-                        />
-                        <label
-                          htmlFor="image-upload-horizontal"
-                          className={styles.uploadButton}
-                        >
-                          Загрузить (горизонтальный)
-                        </label>
+                      </div>
+                    )}
+        
+                    {showDemo && (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "2rem",
+                          minHeight: 400,
+                          flexWrap: "wrap",
+                          flexDirection: "column",
+                          marginTop: "2rem",
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
+                          <ImagePreviewGallery
+                            original={previewImage}
+                            pixelBW={orientation === "vertical" ? secondSvgDataBW : horizontalSvgDataBW}
+                            pixelSepia={orientation === "vertical" ? secondSvgDataSepia : horizontalSvgDataSepia}
+                            orientation={orientation}
+                            onSelect={orientation === "vertical" ? handleVerticalSelect : handleHorizontalSelect}
+                            disabled={!isAccessGranted}
+                          />
+                          {isAccessGranted && (
+                            <div
+                              style={{
+                                textAlign: "center",
+                                marginTop: "1rem",
+                                padding: "1rem",
+                                background: "rgba(0, 100, 0, 0.2)",
+                                borderRadius: "0.5rem",
+                                border: "1px solid rgba(0, 100, 0, 0.4)",
+                                color: "#006400",
+                              }}
+                            >
+                              <p style={{ margin: 0, fontSize: "0.9rem", color: "#006400", }}>
+                                &#10003; Нажмите на карточку, чтобы получить инструкцию
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
         
@@ -321,11 +253,22 @@ export const MainApp = memo(
                     content: { maxWidth: 600, margin: "auto", height: 600, padding: 0 },
                   }}
                 >
+                  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", margin: "12px 0" }}>
+                    <span style={{ marginRight: 12, color: "#fff" }}>Вертикально</span>
+                    <Switch
+                      checked={orientation === "horizontal"}
+                      onChange={checked => handleOrientationChange(checked ? "horizontal" : "vertical")}
+                      checkedChildren="Горизонтально"
+                      unCheckedChildren="Вертикально"
+                      style={{ background: orientation === "horizontal" ? "#1890ff" : undefined }}
+                    />
+                    <span style={{ marginLeft: 12, color: "#fff" }}>Горизонтально</span>
+                  </div>
                   <div
                     style={{
                       position: "relative",
                       width: "100%",
-                      height: "88%",
+                      height: "75%",
                       background: "#222",
                     }}
                   >
@@ -334,7 +277,7 @@ export const MainApp = memo(
                         image={cropImage}
                         crop={crop}
                         zoom={zoom}
-                        aspect={croppingFor === "horizontal" ? 1.25 : 0.8}
+                        aspect={orientation === "horizontal" ? 1.25 : 0.8}
                         onCropChange={setCrop}
                         onZoomChange={setZoom}
                         onCropComplete={onCropComplete}

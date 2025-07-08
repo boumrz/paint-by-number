@@ -106,9 +106,9 @@ export const ImagePreviewGallery = memo(({ original, pixelBW, pixelSepia, orient
   return (
     <div className={styles.gallery + (orientation === 'horizontal' ? ' ' + styles.horizontal : '')}>
       <div className={styles.item}>
-        <div className={styles.label}>Оригинал</div>
+        <div className={styles.label}>Исходное фото</div>
         {original ? (
-          <img src={original} alt="Оригинал" width={width} height={height} className={styles.img} />
+          <img src={original} alt="Исходное фото" width={width} height={height} className={styles.img} />
         ) : (
           <div className={styles.empty}>Нет изображения</div>
         )}
