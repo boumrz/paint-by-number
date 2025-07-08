@@ -11,7 +11,7 @@ const getApiUrl = () => {
     }
 
     // Если мы на IP-адресе (с телефона), используем тот же IP для API
-    return `https://${hostname}:5000`;
+    return `https://${hostname}`;
   }
 
   // Fallback для серверного рендеринга
