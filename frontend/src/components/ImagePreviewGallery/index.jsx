@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { memo, useRef, useEffect } from 'react';
 import styles from './ImagePreviewGallery.module.css';
 
 /**
@@ -49,61 +49,6 @@ function normalizeSvgForPreview(svg, w, h) {
   }
 }
 
-/**
- * Оптимизация: объединяет подряд идущие rect с одинаковым цветом по строкам (только для предпросмотра)
- */
-function optimizeRectsForPreview(svg) {
-  if (!svg) return svg;
-  try {
-    const parser = new window.DOMParser();
-    const doc = parser.parseFromString(svg, 'image/svg+xml');
-    const rects = Array.from(doc.querySelectorAll('rect[data-color]'));
-    if (rects.length === 0) return svg;
-    // Группируем rect по y, height, и цвету
-    const grouped = {};
-    rects.forEach(rect => {
-      const y = rect.getAttribute('y');
-      const height = rect.getAttribute('height');
-      const color = rect.getAttribute('data-color');
-      const fill = rect.getAttribute('fill');
-      const key = `${y}_${height}_${color || fill}`;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(rect);
-    });
-    // Для каждой строки объединяем подряд идущие rect с одинаковым цветом
-    const newRects = [];
-    Object.values(grouped).forEach(rectsInRow => {
-      // Сортируем по x
-      rectsInRow.sort((a, b) => parseFloat(a.getAttribute('x')) - parseFloat(b.getAttribute('x')));
-      let prev = null;
-      rectsInRow.forEach(rect => {
-        const x = parseFloat(rect.getAttribute('x'));
-        const width = parseFloat(rect.getAttribute('width'));
-        const color = rect.getAttribute('data-color') || rect.getAttribute('fill');
-        if (
-          prev &&
-          parseFloat(prev.getAttribute('x')) + parseFloat(prev.getAttribute('width')) === x &&
-          (prev.getAttribute('data-color') || prev.getAttribute('fill')) === color
-        ) {
-          // Объединяем rect
-          prev.setAttribute('width', parseFloat(prev.getAttribute('width')) + width);
-        } else {
-          prev = rect.cloneNode(true);
-          newRects.push(prev);
-        }
-      });
-    });
-    // Удаляем все старые rect
-    rects.forEach(rect => rect.parentNode.removeChild(rect));
-    // Добавляем новые
-    const svgEl = doc.documentElement;
-    newRects.forEach(rect => svgEl.appendChild(rect));
-    return svgEl.outerHTML;
-  } catch {
-    return svg;
-  }
-}
-
 // Компонент предпросмотра SVG через canvas
 function SvgCanvasPreview({ svg, width, height, alt }) {
   const canvasRef = useRef();
@@ -133,7 +78,7 @@ function SvgCanvasPreview({ svg, width, height, alt }) {
  * @param {function} props.onSelect - функция выбора цвета
  * @param {boolean} props.disabled - заблокировать клики
  */
-export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation = 'vertical', onSelect, disabled = false }) {
+export const ImagePreviewGallery = memo(({ original, pixelBW, pixelSepia, orientation = 'vertical', onSelect, disabled = false }) => {
   // Размеры превью (одинаковые для всех)
   const width = orientation === 'horizontal' ? 340 : 240;
   const height = orientation === 'horizontal' ? 260 : 300;
@@ -175,7 +120,7 @@ export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation
             {renderSvgPreview(pixelBW, 'ЧБ', true)}
           </div>
         ) : (
-          <button className={styles.previewButton} type="button" onClick={() => { console.log('bw'); if (onSelect) onSelect('bw'); }}>
+          <button className={styles.previewButton} type="button" onClick={() => onSelect('bw')}>
             {renderSvgPreview(pixelBW, 'ЧБ', true)}
           </button>
         )}
@@ -187,11 +132,13 @@ export function ImagePreviewGallery({ original, pixelBW, pixelSepia, orientation
             {renderSvgPreview(pixelSepia, 'Сепия', true)}
           </div>
         ) : (
-          <button className={styles.previewButton} type="button" onClick={() => { console.log('sepia'); if (onSelect) onSelect('sepia'); }}>
+          <button className={styles.previewButton} type="button" onClick={() => onSelect('sepia')}>
             {renderSvgPreview(pixelSepia, 'Сепия', true)}
           </button>
         )}
       </div>
     </div>
   );
-} 
+});
+
+ImagePreviewGallery.displayName = ImagePreviewGallery;
