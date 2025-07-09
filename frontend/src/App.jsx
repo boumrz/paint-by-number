@@ -146,6 +146,7 @@ function App() {
               { headers: { "Content-Type": "multipart/form-data" } }
             );
             setHorizontalSvgDataBW(respBW.data.svg);
+            setHorizontalIdList(respBW.data.palette);
             const respSepia = await axios.post(
               `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
               formData,

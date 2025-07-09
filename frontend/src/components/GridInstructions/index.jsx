@@ -406,7 +406,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
                     style={{
                       transformOrigin: 'top left',
                       width: '100%',
-                      height: '100%',
+                      height: '-webkit-fill-available',
                       overflow: 'auto',
                     }}
                   />
