@@ -44,6 +44,9 @@ const HorizontalCanvasFull = ({
       });
     }
     setIsFilled(true);
+    // Скрыть сетку (grid)
+    const gridLayer = document.querySelector('.svg-container + div');
+    if (gridLayer) gridLayer.style.display = 'none';
   };
 
   const handleClearAll = () => {
@@ -59,6 +62,9 @@ const HorizontalCanvasFull = ({
       });
     }
     setIsFilled(false);
+    // Показать сетку (grid)
+    const gridLayer = document.querySelector('.svg-container + div');
+    if (gridLayer) gridLayer.style.display = '';
   };
 
   // Генерация сетки 16x8 (160x128 px каждый) с шахматной заливкой
@@ -253,7 +259,7 @@ const HorizontalCanvasFull = ({
       // вычисляем row/col крупной зоны
       const col = Math.floor(x / cellWidth);
       const row = Math.floor(y / cellHeight);
-      const fill = (row + col) % 2 === 0 ? '#fff' : 'rgba(220, 220, 220, 0.7)';
+      const fill = (row + col) % 2 === 0 ? '#fff' : '#DCDCDC';
       rect.setAttribute('fill', fill);
     });
     // Собираем <rect> для номеров поверх клеток (без текста, просто закрашенная клетка)

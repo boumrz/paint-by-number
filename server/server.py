@@ -201,12 +201,12 @@ def convert_image():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    # Проверка размера файла (до 5 МБ)
+    # Проверка размера файла (до 30 МБ)
     file.seek(0, os.SEEK_END)
     file_length = file.tell()
     file.seek(0)
-    if file_length > 5 * 1024 * 1024:
-        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+    if file_length > 30 * 1024 * 1024:
+        return jsonify({'error': 'Размер файла превышает 30 МБ'}), 400
 
     temp_dir = None
     try:
@@ -315,14 +315,14 @@ def convert_image_pixels():
         print("ERROR: Empty filename")
         return jsonify({'error': 'No selected file'}), 400
 
-    # Проверка размера файла (до 5 МБ)
+    # Проверка размера файла (до 30 МБ)
     file.seek(0, os.SEEK_END)
     file_length = file.tell()
     file.seek(0)
     print(f"File size: {file_length} bytes")
-    if file_length > 5 * 1024 * 1024:
+    if file_length > 30 * 1024 * 1024:
         print("ERROR: File too large")
-        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+        return jsonify({'error': 'Размер файла превышает 30 МБ'}), 400
 
     temp_dir = None
     try:
@@ -466,12 +466,12 @@ def convert_image_pixels_bw():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    # Проверка размера файла (до 5 МБ)
+    # Проверка размера файла (до 30 МБ)
     file.seek(0, os.SEEK_END)
     file_length = file.tell()
     file.seek(0)
-    if file_length > 5 * 1024 * 1024:
-        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+    if file_length > 30 * 1024 * 1024:
+        return jsonify({'error': 'Размер файла превышает 30 МБ'}), 400
 
     temp_dir = None
     try:
@@ -528,17 +528,17 @@ def convert_image_pixels_bw():
         # Конвертируем в оттенки серого
         gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         
-        # Квантование в 18 уровней серого
+        # Квантование в 17 уровней серого
         quantized_gray = np.zeros_like(gray_img)
-        for i in range(18):
-            lower = i * 15  # 255 / 17 ≈ 15 (17 интервалов между 18 цветами)
+        for i in range(17):
+            lower = i * 15  # 255 / 17 ≈ 15 (17 интервалов между 17 цветами)
             upper = (i + 1) * 15
-            if i == 17:  # Последний уровень
+            if i == 16:  # Последний уровень
                 upper = 256
             mask = (gray_img >= lower) & (gray_img < upper)
             quantized_gray[mask] = i
         
-        print("Quantized to 18 gray levels")
+        print("Quantized to 17 gray levels")
 
         # Рассчитываем размер каждого пикселя на холсте
         pixel_width = canvas_width / num_pixels_x
@@ -616,12 +616,12 @@ def convert_image_pixels_sepia():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    # Проверка размера файла (до 5 МБ)
+    # Проверка размера файла (до 30 МБ)
     file.seek(0, os.SEEK_END)
     file_length = file.tell()
     file.seek(0)
-    if file_length > 5 * 1024 * 1024:
-        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+    if file_length > 30 * 1024 * 1024:
+        return jsonify({'error': 'Размер файла превышает 30 МБ'}), 400
 
     temp_dir = None
     try:
@@ -770,14 +770,14 @@ def convert_image_pixels_horizontal():
         print("ERROR: Empty filename")
         return jsonify({'error': 'No selected file'}), 400
 
-    # Проверка размера файла (до 5 МБ)
+    # Проверка размера файла (до 30 МБ)
     file.seek(0, os.SEEK_END)
     file_length = file.tell()
     file.seek(0)
     print(f"File size: {file_length} bytes")
-    if file_length > 5 * 1024 * 1024:
+    if file_length > 30 * 1024 * 1024:
         print("ERROR: File too large")
-        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+        return jsonify({'error': 'Размер файла превышает 30 МБ'}), 400
 
     temp_dir = None
     try:
@@ -929,14 +929,14 @@ def convert_image_pixels_horizontal_bw():
         print("ERROR: Empty filename")
         return jsonify({'error': 'No selected file'}), 400
 
-    # Проверка размера файла (до 5 МБ)
+    # Проверка размера файла (до 30 МБ)
     file.seek(0, os.SEEK_END)
     file_length = file.tell()
     file.seek(0)
     print(f"File size: {file_length} bytes")
-    if file_length > 5 * 1024 * 1024:
+    if file_length > 30 * 1024 * 1024:
         print("ERROR: File too large")
-        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+        return jsonify({'error': 'Размер файла превышает 30 МБ'}), 400
 
     temp_dir = None
     try:
@@ -951,7 +951,12 @@ def convert_image_pixels_horizontal_bw():
         with Image.open(input_path) as img:
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
-            
+            # Поворот до обрезки и ресайза
+            if height > width:
+                print("Rotating vertical image 90 degrees counterclockwise")
+                img = img.rotate(90, expand=True)
+                width, height = height, width
+                print(f"After rotation: {width}x{height}")
             # Приводим к соотношению 1000x800 (1.25)
             target_ratio = 1000 / 800
             img_ratio = width / height
@@ -980,22 +985,30 @@ def convert_image_pixels_horizontal_bw():
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         h, w, _ = img.shape
         print(f"Original image size: {w}x{h}")
+        
+        # Проверяем, нужно ли повернуть изображение (если высота больше ширины)
+        if h > w:
+            print("Rotating vertical image 90 degrees counterclockwise")
+            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            h, w = w, h  # Меняем местами размеры
+            print(f"After rotation: {w}x{h}")
+        
         img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
         h, w, _ = img.shape
         print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
 
         # Конвертируем в оттенки серого
         gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        # Квантование в 18 уровней серого
+        # Квантование в 17 уровней серого
         quantized_gray = np.zeros_like(gray_img)
-        for i in range(18):
+        for i in range(17):
             lower = i * 15
             upper = (i + 1) * 15
-            if i == 17:
+            if i == 16:
                 upper = 256
             mask = (gray_img >= lower) & (gray_img < upper)
             quantized_gray[mask] = i
-        print("Quantized to 18 gray levels")
+        print("Quantized to 17 gray levels")
 
         pixel_width = canvas_width / num_pixels_x
         pixel_height = canvas_height / num_pixels_y
@@ -1078,14 +1091,14 @@ def convert_image_pixels_horizontal_sepia():
         print("ERROR: Empty filename")
         return jsonify({'error': 'No selected file'}), 400
 
-    # Проверка размера файла (до 5 МБ)
+    # Проверка размера файла (до 30 МБ)
     file.seek(0, os.SEEK_END)
     file_length = file.tell()
     file.seek(0)
     print(f"File size: {file_length} bytes")
-    if file_length > 5 * 1024 * 1024:
+    if file_length > 30 * 1024 * 1024:
         print("ERROR: File too large")
-        return jsonify({'error': 'Размер файла превышает 5 МБ'}), 400
+        return jsonify({'error': 'Размер файла превышает 30 МБ'}), 400
 
     temp_dir = None
     try:
@@ -1129,6 +1142,14 @@ def convert_image_pixels_horizontal_sepia():
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         h, w, _ = img.shape
         print(f"Original image size: {w}x{h}")
+        
+        # Проверяем, нужно ли повернуть изображение (если высота больше ширины)
+        if h > w:
+            print("Rotating vertical image 90 degrees counterclockwise")
+            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            h, w = w, h  # Меняем местами размеры
+            print(f"After rotation: {w}x{h}")
+        
         img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
         h, w, _ = img.shape
         print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")

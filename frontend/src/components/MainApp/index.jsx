@@ -1,8 +1,7 @@
 import { memo, useCallback } from "react";
 // import SecondCanvasFull from './components/SecondCanvasFull';
-// import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
+import HorizontalCanvasFull from '../HorizontalCanvas/HorizontalCanvasFull';
 // import { ColorPalette } from "./components/ColorPalette/ColorPalette";
-// import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 
 import Cropper from "react-easy-crop";
 import Modal from "react-modal";
@@ -17,17 +16,16 @@ import styles from "./MainApp.module.css";
 export const MainApp = memo(
     ({
       previewImage,
-      secondSvgDataBW,
-      secondSvgDataSepia,
       horizontalSvgDataBW,
       horizontalSvgDataSepia,
+      previewBW,
+      previewSepia,
       showCrop,
       cropImage,
       crop,
       zoom,
       croppingFor,
       selectedInstruction,
-      secondIdList,
       horizontalIdList,
       isPhone,
       handleUploadImageFile,
@@ -45,15 +43,15 @@ export const MainApp = memo(
       orientation,
       handleOrientationChange,
       // userUploadedImages,
-      // secondSvgData,
-      // secondCurrentColor,
-      // horizontalSvgData,
-      // horizontalCurrentColor,
+      horizontalSvgData,
+      horizontalCurrentColor,
+      setHorizontalColorCount,
+      horizontalColorCount,
     }) => {
         const handleVerticalSelect = useCallback((type) => {
             setSelectedInstruction({
               type,
-              orientation: "vertical",
+              orientation: "horizontal", // Всегда горизонтальная ориентация
             });
         }, []);
 
@@ -122,10 +120,10 @@ export const MainApp = memo(
                         <div style={{ flex: 1, minWidth: !isPhone ? 400 : 0 }}>
                           <ImagePreviewGallery
                             original={previewImage}
-                            pixelBW={orientation === "vertical" ? secondSvgDataBW : horizontalSvgDataBW}
-                            pixelSepia={orientation === "vertical" ? secondSvgDataSepia : horizontalSvgDataSepia}
+                            pixelBW={previewBW}
+                            pixelSepia={previewSepia}
                             orientation={orientation}
-                            onSelect={orientation === "vertical" ? handleVerticalSelect : handleHorizontalSelect}
+                            onSelect={handleHorizontalSelect}
                             disabled={!isAccessGranted}
                           />
                           {isAccessGranted && (
@@ -179,30 +177,6 @@ export const MainApp = memo(
         
                     {isAccessGranted &&
                       selectedInstruction &&
-                      selectedInstruction.orientation === "vertical" &&
-                      selectedInstruction.type === "bw" &&
-                      secondSvgDataBW && (
-                        <GridInstructions
-                          idList={secondIdList}
-                          svgData={secondSvgDataBW}
-                          title="Инструкция (ЧБ)"
-                          orientation="vertical"
-                        />
-                      )}
-                    {isAccessGranted &&
-                      selectedInstruction &&
-                      selectedInstruction.orientation === "vertical" &&
-                      selectedInstruction.type === "sepia" &&
-                      secondSvgDataSepia && (
-                        <GridInstructions
-                          idList={secondIdList}
-                          svgData={secondSvgDataSepia}
-                          title="Инструкция (Сепия)"
-                          orientation="vertical"
-                        />
-                      )}
-                    {isAccessGranted &&
-                      selectedInstruction &&
                       selectedInstruction.orientation === "horizontal" &&
                       selectedInstruction.type === "bw" &&
                       horizontalSvgDataBW && (
@@ -225,22 +199,14 @@ export const MainApp = memo(
                           orientation="horizontal"
                         />
                       )}
-                    {/* {secondSvgData && (
-                      <SecondCanvasFull
-                        svgData={secondSvgData}
-                        idList={secondIdList}
-                        currentColor={secondCurrentColor}
-                        setColorCount={setSecondColorCount}
-                      />
-                    )}
-                    {horizontalSvgData && (
+                    {horizontalSvgDataBW && (
                       <HorizontalCanvasFull
-                        svgData={horizontalSvgData}
+                        svgData={horizontalSvgDataBW}
                         idList={horizontalIdList}
                         currentColor={horizontalCurrentColor}
                         setColorCount={setHorizontalColorCount}
                       />
-                    )} */}
+                    )}
                   </div>
                 </section>
         

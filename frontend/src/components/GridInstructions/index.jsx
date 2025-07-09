@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useMediaQuery } from 'usehooks-ts';
 import { FixedSizeList as List } from 'react-window';
 
+import { SquareDivGrid } from './SquareDivGrid';
+import { GenerateInstructionGrid } from './GenerateInstructionGrid';
+
 // Компонент инструкции для квадратов 10x10
 export const GridInstructions = ({ idList, svgData, title, orientation = 'vertical' }) => {
-    console.log('idList', idList);
     const [selectedSquare, setSelectedSquare] = useState(null);
     const [showColorModal, setShowColorModal] = useState(false);
 
@@ -21,56 +23,6 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
     const canvasHeight = orientation === 'horizontal' ? 800 : 1000;
     const cellWidth = canvasWidth / gridCols;
     const cellHeight = canvasHeight / gridRows;
-  
-    const generateInstructionGrid = () => {
-      return (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
-            gridTemplateRows: `repeat(${gridRows}, 1fr)`,
-            width: '100%',
-            height: '100%',
-            gap: 0,
-            position: 'relative',
-          }}
-        >
-          {Array.from({ length: total }).map((_, idx) => (
-            <div
-              key={idx + 1}
-              style={{
-                border: '2px solid #000',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                color: '#000',
-                backgroundColor: '#f0f0f0',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-                width: '100%',
-                height: '100%',
-                boxSizing: 'border-box',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.backgroundColor = '#e0e0e0';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.backgroundColor = '#f0f0f0';
-              }}
-              onClick={() => {
-                setSelectedSquare(idx + 1);
-                setShowColorModal(true);
-              }}
-              title={`Сектор ${idx + 1} - кликните для просмотра цветов`}
-            >
-              <div>{idx + 1}</div>
-            </div>
-          ))}
-        </div>
-      );
-    };
   
     // Извлечение цветов для конкретного квадрата
     const getSquareColors = (squareNumber) => {
@@ -292,7 +244,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
       setShowColorModal(false);
       setSelectedSquare(null);
     };
-  
+
     if (isTablet) {
       // Мобильный/адаптивный режим: выводим все квадраты и их цвета в столбик через виртуальный список
       const Row = ({ index, style }) => {
@@ -352,7 +304,13 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
           margin: '0 auto',
           backgroundColor: '#fff'
         }}>
-          {generateInstructionGrid()}
+          <GenerateInstructionGrid
+            gridCols={gridCols}
+            gridRows={gridRows}
+            total={total}
+            setSelectedSquare={setSelectedSquare} 
+            setShowColorModal={setShowColorModal}
+          />
         </div>
         {showColorModal && selectedSquare && (
           <Modal
@@ -383,7 +341,6 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  maxHeight: '70vh',
                   overflow: 'auto',
                   width: '100%',
                 }}>
@@ -393,23 +350,10 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
                   maxWidth: 700,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  overflowY: 'auto',
-                  overflowX: 'hidden',
                   background: '#fff',
-                  border: '1px solid #eee',
                   margin: '0 auto'
                 }}>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: getSquareSvg(selectedSquare) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>'
-                    }}
-                    style={{
-                      transformOrigin: 'top left',
-                      width: '100%',
-                      height: '100%',
-                      overflow: 'auto',
-                    }}
-                  />
+                  <SquareDivGrid squareNumber={selectedSquare} svgData={svgData} orientation={orientation} />
                 </div>
                 <div
                   style={{
