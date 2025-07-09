@@ -44,6 +44,9 @@ const HorizontalCanvasFull = ({
       });
     }
     setIsFilled(true);
+    // Скрыть сетку (grid)
+    const gridLayer = document.querySelector('.svg-container + div');
+    if (gridLayer) gridLayer.style.display = 'none';
   };
 
   const handleClearAll = () => {
@@ -59,6 +62,9 @@ const HorizontalCanvasFull = ({
       });
     }
     setIsFilled(false);
+    // Показать сетку (grid)
+    const gridLayer = document.querySelector('.svg-container + div');
+    if (gridLayer) gridLayer.style.display = '';
   };
 
   // Генерация сетки 16x8 (160x128 px каждый) с шахматной заливкой

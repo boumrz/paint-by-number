@@ -118,13 +118,6 @@ function App() {
           try {
             const formData = new FormData();
             formData.append("image", croppedBlob, "cropped.jpg");
-            const respColor = await axios.post(
-              `${config.apiUrl}/api/convert-pixels`,
-              formData,
-              { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            setSecondSvgData(respColor.data.svg);
-            setSecondIdList(respColor.data.palette);
             const respBW = await axios.post(
               `${config.apiUrl}/api/convert-pixels-bw`,
               formData,
@@ -147,13 +140,6 @@ function App() {
           try {
             const formData = new FormData();
             formData.append("image", croppedBlob, "cropped.jpg");
-            const respColor = await axios.post(
-              `${config.apiUrl}/api/convert-pixels-horizontal`,
-              formData,
-              { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            setHorizontalSvgData(respColor.data.svg);
-            setHorizontalIdList(respColor.data.palette);
             const respBW = await axios.post(
               `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
               formData,
@@ -209,7 +195,7 @@ function App() {
       const formData = new FormData();
       formData.append("image", blob, "demo.jpg");
 
-      // Генерируем все варианты
+      // Генерируем только чб и сепия
       const respBW = await axios.post(
         `${config.apiUrl}/api/convert-pixels-bw`,
         formData,
@@ -223,14 +209,6 @@ function App() {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       setSecondSvgDataSepia(respSepia.data.svg);
-
-      const respColor = await axios.post(
-        `${config.apiUrl}/api/convert-pixels`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      setSecondSvgData(respColor.data.svg);
-      setSecondIdList(respColor.data.palette);
     } catch (error) {
       console.error("Error processing demo image:", error);
     }

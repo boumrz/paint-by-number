@@ -225,17 +225,9 @@ export const MainApp = memo(
                           orientation="horizontal"
                         />
                       )}
-                    {/* {secondSvgData && (
-                      <SecondCanvasFull
-                        svgData={secondSvgData}
-                        idList={secondIdList}
-                        currentColor={secondCurrentColor}
-                        setColorCount={setSecondColorCount}
-                      />
-                    )} */}
-                    {horizontalSvgData && (
+                    {horizontalSvgDataBW && (
                       <HorizontalCanvasFull
-                        svgData={horizontalSvgData}
+                        svgData={horizontalSvgDataBW}
                         idList={horizontalIdList}
                         currentColor={horizontalCurrentColor}
                         setColorCount={setHorizontalColorCount}
