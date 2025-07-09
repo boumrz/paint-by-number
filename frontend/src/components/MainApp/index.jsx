@@ -1,8 +1,7 @@
 import { memo, useCallback } from "react";
 // import SecondCanvasFull from './components/SecondCanvasFull';
-// import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
+import HorizontalCanvasFull from '../HorizontalCanvas/HorizontalCanvasFull';
 // import { ColorPalette } from "./components/ColorPalette/ColorPalette";
-// import HorizontalCanvasFull from './components/HorizontalCanvas/HorizontalCanvasFull';
 
 import Cropper from "react-easy-crop";
 import Modal from "react-modal";
@@ -45,10 +44,11 @@ export const MainApp = memo(
       orientation,
       handleOrientationChange,
       // userUploadedImages,
-      // secondSvgData,
+      secondSvgData,
       // secondCurrentColor,
-      // horizontalSvgData,
-      // horizontalCurrentColor,
+      horizontalSvgData,
+      horizontalCurrentColor,
+      setHorizontalColorCount,
     }) => {
         const handleVerticalSelect = useCallback((type) => {
             setSelectedInstruction({
@@ -232,7 +232,7 @@ export const MainApp = memo(
                         currentColor={secondCurrentColor}
                         setColorCount={setSecondColorCount}
                       />
-                    )}
+                    )} */}
                     {horizontalSvgData && (
                       <HorizontalCanvasFull
                         svgData={horizontalSvgData}
@@ -240,7 +240,7 @@ export const MainApp = memo(
                         currentColor={horizontalCurrentColor}
                         setColorCount={setHorizontalColorCount}
                       />
-                    )} */}
+                    )}
                   </div>
                 </section>
         

@@ -253,7 +253,7 @@ const HorizontalCanvasFull = ({
       // вычисляем row/col крупной зоны
       const col = Math.floor(x / cellWidth);
       const row = Math.floor(y / cellHeight);
-      const fill = (row + col) % 2 === 0 ? '#fff' : 'rgba(220, 220, 220, 0.7)';
+      const fill = (row + col) % 2 === 0 ? '#fff' : '#DCDCDC';
       rect.setAttribute('fill', fill);
     });
     // Собираем <rect> для номеров поверх клеток (без текста, просто закрашенная клетка)
