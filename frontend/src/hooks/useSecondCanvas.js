@@ -1,5 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
 
+// Хук для управления состоянием данных
+export const useSecondCanvas = () => {
+  const [horizontalSvgDataBW, setHorizontalSvgDataBW] = useState(null);
+  const [horizontalSvgDataSepia, setHorizontalSvgDataSepia] = useState(null);
+  const [horizontalIdList, setHorizontalIdList] = useState([]);
+  const [horizontalCurrentColor, setHorizontalCurrentColor] = useState(null);
+  const [horizontalColorCount, setHorizontalColorCount] = useState(0);
+
+  return {
+    horizontalSvgDataBW,
+    setHorizontalSvgDataBW,
+    horizontalSvgDataSepia,
+    setHorizontalSvgDataSepia,
+    horizontalIdList,
+    setHorizontalIdList,
+    horizontalCurrentColor,
+    setHorizontalCurrentColor,
+    horizontalColorCount,
+    setHorizontalColorCount,
+  };
+};
+
 const useSecondCanvas = (svgData, currentColor, idList, setColorCount) => {
   const svgRef = useRef(null);
   const [scale, setScale] = useState(1);

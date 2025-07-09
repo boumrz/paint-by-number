@@ -951,7 +951,12 @@ def convert_image_pixels_horizontal_bw():
         with Image.open(input_path) as img:
             width, height = img.size
             print(f"Image dimensions: {width}x{height}")
-            
+            # Поворот до обрезки и ресайза
+            if height > width:
+                print("Rotating vertical image 90 degrees counterclockwise")
+                img = img.rotate(90, expand=True)
+                width, height = height, width
+                print(f"After rotation: {width}x{height}")
             # Приводим к соотношению 1000x800 (1.25)
             target_ratio = 1000 / 800
             img_ratio = width / height
@@ -980,6 +985,14 @@ def convert_image_pixels_horizontal_bw():
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         h, w, _ = img.shape
         print(f"Original image size: {w}x{h}")
+        
+        # Проверяем, нужно ли повернуть изображение (если высота больше ширины)
+        if h > w:
+            print("Rotating vertical image 90 degrees counterclockwise")
+            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            h, w = w, h  # Меняем местами размеры
+            print(f"After rotation: {w}x{h}")
+        
         img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
         h, w, _ = img.shape
         print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
@@ -1129,6 +1142,14 @@ def convert_image_pixels_horizontal_sepia():
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         h, w, _ = img.shape
         print(f"Original image size: {w}x{h}")
+        
+        # Проверяем, нужно ли повернуть изображение (если высота больше ширины)
+        if h > w:
+            print("Rotating vertical image 90 degrees counterclockwise")
+            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            h, w = w, h  # Меняем местами размеры
+            print(f"After rotation: {w}x{h}")
+        
         img = cv2.resize(img, (num_pixels_x, num_pixels_y), interpolation=cv2.INTER_AREA)
         h, w, _ = img.shape
         print(f"Resized to {num_pixels_x}x{num_pixels_y} pixels")
