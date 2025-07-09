@@ -129,25 +129,41 @@ function App() {
       const formData = new FormData();
       formData.append("image", originalBlob, "preview.jpg");
       
-      // Генерируем превью ЧБ в оригинальной ориентации
-      const respBW = await axios.post(
-        `${config.apiUrl}/api/convert-pixels-bw`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      setPreviewBW(respBW.data.svg);
-      
-      // Генерируем превью сепии в оригинальной ориентации
-      const respSepia = await axios.post(
-        `${config.apiUrl}/api/convert-pixels-sepia`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      setPreviewSepia(respSepia.data.svg);
+      if (orientation === "vertical") {
+        // Для вертикальных изображений генерируем вертикальные превью
+        const respBW = await axios.post(
+          `${config.apiUrl}/api/convert-pixels-bw`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        setPreviewBW(respBW.data.svg);
+        
+        const respSepia = await axios.post(
+          `${config.apiUrl}/api/convert-pixels-sepia`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        setPreviewSepia(respSepia.data.svg);
+      } else {
+        // Для горизонтальных изображений генерируем горизонтальные превью
+        const respBW = await axios.post(
+          `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        setPreviewBW(respBW.data.svg);
+        
+        const respSepia = await axios.post(
+          `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        setPreviewSepia(respSepia.data.svg);
+      }
     } catch (error) {
       console.error("Error creating preview images:", error);
     }
-  }, []);
+  }, [orientation]);
 
   const handleUploadImageFile = useCallback((event) => {
     const file = event.target.files[0];
