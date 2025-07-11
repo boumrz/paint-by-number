@@ -286,39 +286,6 @@ export const InstructionSlide = memo(({ orientation, svgData, idList, squareNumb
             style={{ width: '100%', height: '100%', minHeight: 0, minWidth: 0, display: 'block' }}
           />
         </div>
-        {colors.length > 0 && (
-          <div style={{ 
-            marginTop: '1rem',
-            padding: '0.5rem',
-            background: '#fff',
-            borderRadius: '4px',
-            border: '1px solid #e0e0e0'
-          }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Цвета в секторе:</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {colors.map((color, idx) => (
-                <div key={idx} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                  padding: '0.25rem 0.5rem',
-                  background: '#f0f0f0',
-                  borderRadius: '4px',
-                  fontSize: '0.875rem'
-                }}>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    backgroundColor: `rgb(${color.color[0]}, ${color.color[1]}, ${color.color[2]})`,
-                    borderRadius: '2px',
-                    border: '1px solid #ccc'
-                  }} />
-                  <span>{color.count} шт.</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     );
   } catch (error) {
