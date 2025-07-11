@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 
 // Извлечение SVG фрагмента для конкретного квадрата
 const getSquareSvg = (squareNumber, orientation, idList, svgData ) => {
@@ -229,113 +229,125 @@ const getSquareColors = (squareNumber, svgData, idList, orientation) => {
 };
 
 export const InstructionSlide = memo(({ orientation, svgData, idList, squareNumber, isPhone }) => {
-  console.log('InstructionSlide');
+  console.log('InstructionSlide render:', squareNumber);
+  
+  // Кэшируем тяжелые вычисления
+  const slideData = useMemo(() => {
     try {
       const colors = getSquareColors(squareNumber, svgData, idList, orientation);
       const svgContent = getSquareSvg(squareNumber, orientation, idList, svgData);
-      
-      return (
-        <div key={squareNumber} style={{
-          padding: '1rem',
-          background: '#f8f9fa',
-          borderRadius: '8px',
-          color: 'black',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-          border: '1px solid #e0e0e0',
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          height: '100%',
-          minHeight: isPhone ? '300px' : '400px'
-        }}>
-          <div style={{ 
-            fontWeight: 'bold', 
-            marginBottom: 8, 
-            fontSize: '1.2rem',
-            textAlign: 'center'
-          }}>
-            Сектор {squareNumber}
-          </div>
-          <div style={{ 
-            flex: 1, 
-            width: '100%', 
-            height: '100%', 
-            minHeight: 0, 
-            minWidth: 0, 
-            marginBottom: 0, 
-            background: '#fff', 
-            borderRadius: 8, 
-            display: 'flex', 
-            alignItems: 'stretch', 
-            justifyContent: 'stretch',
-            border: '1px solid #ddd'
-          }}>
-            <div
-              dangerouslySetInnerHTML={{ __html: svgContent || '<div style="text-align: center; color: #666; display: flex; align-items: center; justify-content: center; height: 100%;">Сектор пуст</div>' }}
-              style={{ width: '100%', height: '100%', minHeight: 0, minWidth: 0, display: 'block' }}
-            />
-          </div>
-          {colors.length > 0 && (
-            <div style={{ 
-              marginTop: '1rem',
-              padding: '0.5rem',
-              background: '#fff',
-              borderRadius: '4px',
-              border: '1px solid #e0e0e0'
-            }}>
-              <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Цвета в секторе:</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {colors.map((color, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                    padding: '0.25rem 0.5rem',
-                    background: '#f0f0f0',
-                    borderRadius: '4px',
-                    fontSize: '0.875rem'
-                  }}>
-                    <div style={{
-                      width: '16px',
-                      height: '16px',
-                      backgroundColor: `rgb(${color.color[0]}, ${color.color[1]}, ${color.color[2]})`,
-                      borderRadius: '2px',
-                      border: '1px solid #ccc'
-                    }} />
-                    <span>{color.count} шт.</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      );
+      return { colors, svgContent };
     } catch (error) {
-      console.error(`Ошибка в слайде ${squareNumber}:`, error);
-      return (
-        <div style={{
-          padding: '1rem',
-          background: '#f8f9fa',
-          borderRadius: '8px',
-          color: 'black',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-          border: '1px solid #e0e0e0',
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100%',
-          minHeight: isPhone ? '300px' : '400px'
-        }}>
-          <div style={{ fontWeight: 'bold', marginBottom: 8, fontSize: '1.2rem', textAlign: 'center' }}>
-            Сектор {squareNumber}
-          </div>
-          <div style={{ color: '#666', textAlign: 'center' }}>
-            Ошибка загрузки сектора
-          </div>
-        </div>
-      );
+      console.error(`Ошибка при вычислении данных слайда ${squareNumber}:`, error);
+      return { colors: [], svgContent: null };
     }
+  }, [squareNumber, svgData, idList, orientation]);
+
+  try {
+    const { colors, svgContent } = slideData;
+    
+    return (
+      <div key={squareNumber} style={{
+        padding: '1rem',
+        background: '#f8f9fa',
+        borderRadius: '8px',
+        color: 'black',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+        border: '1px solid #e0e0e0',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        height: '100%',
+        minHeight: isPhone ? '300px' : '400px'
+      }}>
+        <div style={{ 
+          fontWeight: 'bold', 
+          marginBottom: 8, 
+          fontSize: '1.2rem',
+          textAlign: 'center'
+        }}>
+          Сектор {squareNumber}
+        </div>
+        <div style={{ 
+          flex: 1, 
+          width: '100%', 
+          height: '100%', 
+          minHeight: 0, 
+          minWidth: 0, 
+          marginBottom: 0, 
+          background: '#fff', 
+          borderRadius: 8, 
+          display: 'flex', 
+          alignItems: 'stretch', 
+          justifyContent: 'stretch',
+          border: '1px solid #ddd'
+        }}>
+          <div
+            dangerouslySetInnerHTML={{ __html: svgContent || '<div style="text-align: center; color: #666; display: flex; align-items: center; justify-content: center; height: 100%;">Сектор пуст</div>' }}
+            style={{ width: '100%', height: '100%', minHeight: 0, minWidth: 0, display: 'block' }}
+          />
+        </div>
+        {colors.length > 0 && (
+          <div style={{ 
+            marginTop: '1rem',
+            padding: '0.5rem',
+            background: '#fff',
+            borderRadius: '4px',
+            border: '1px solid #e0e0e0'
+          }}>
+            <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Цвета в секторе:</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {colors.map((color, idx) => (
+                <div key={idx} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  padding: '0.25rem 0.5rem',
+                  background: '#f0f0f0',
+                  borderRadius: '4px',
+                  fontSize: '0.875rem'
+                }}>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    backgroundColor: `rgb(${color.color[0]}, ${color.color[1]}, ${color.color[2]})`,
+                    borderRadius: '2px',
+                    border: '1px solid #ccc'
+                  }} />
+                  <span>{color.count} шт.</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  } catch (error) {
+    console.error(`Ошибка в слайде ${squareNumber}:`, error);
+    return (
+      <div style={{
+        padding: '1rem',
+        background: '#f8f9fa',
+        borderRadius: '8px',
+        color: 'black',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+        border: '1px solid #e0e0e0',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        minHeight: isPhone ? '300px' : '400px'
+      }}>
+        <div style={{ fontWeight: 'bold', marginBottom: 8, fontSize: '1.2rem', textAlign: 'center' }}>
+          Сектор {squareNumber}
+        </div>
+        <div style={{ color: '#666', textAlign: 'center' }}>
+          Ошибка загрузки сектора
+        </div>
+      </div>
+    );
+  }
 });
