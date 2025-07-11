@@ -228,9 +228,7 @@ const getSquareColors = (squareNumber, svgData, idList, orientation) => {
   }
 };
 
-export const InstructionSlide = memo(({ orientation, svgData, idList, squareNumber, isPhone }) => {
-  console.log('InstructionSlide render:', squareNumber);
-  
+export const InstructionSlide = memo(({ orientation, svgData, idList, squareNumber, isPhone }) => {  
   // Кэшируем тяжелые вычисления
   const slideData = useMemo(() => {
     try {

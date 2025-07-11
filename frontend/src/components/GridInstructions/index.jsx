@@ -68,11 +68,10 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
             orientation={orientation} 
             svgData={svgData} 
             squareNumber={squareNumber} 
-            isPhone={isPhone} 
+            isPhone={isPhone}
           />
         );
       } catch (error) {
-        console.error(`Ошибка при создании слайда ${squareNumber}:`, error);
         return (
           <div key={squareNumber} style={{
             padding: '1rem',
@@ -102,7 +101,6 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
 
     // Создаем массив слайдов с ленивой загрузкой
     const carouselSlides = useMemo(() => {
-      console.log('Создание слайдов карусели');
       return Array.from({ length: total }, (_, index) => createSlide(index));
     }, [total, loadedSlides, idList, svgData, orientation, isPhone]);
 
