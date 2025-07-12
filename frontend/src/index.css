@@ -14,3 +14,72 @@
   -webkit-text-size-adjust: 100%;
 }
 
+/* Глобальные стили для стрелок карусели Ant Design */
+.ant-carousel .slick-prev,
+.ant-carousel .slick-next {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  color: #666 !important;
+  font-size: 16px !important;
+  line-height: 32px !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-carousel .slick-prev:hover,
+.ant-carousel .slick-next:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  color: #1890ff !important;
+  border-color: #1890ff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ant-carousel .slick-prev {
+  left: -16px !important;
+}
+
+.ant-carousel .slick-next {
+  right: -16px !important;
+}
+
+.ant-carousel .slick-prev:before,
+.ant-carousel .slick-next:before {
+  content: '' !important;
+  display: inline-block !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+}
+
+.ant-carousel .slick-prev:before {
+  border-width: 6px 8px 6px 0 !important;
+  border-color: transparent #666 transparent transparent !important;
+  margin-left: -3px !important;
+}
+
+.ant-carousel .slick-next:before {
+  border-width: 6px 0 6px 8px !important;
+  border-color: transparent transparent transparent #666 !important;
+  margin-left: 3px !important;
+}
+
+.ant-carousel .slick-prev:hover:before {
+  border-color: transparent #1890ff transparent transparent !important;
+}
+
+.ant-carousel .slick-next:hover:before {
+  border-color: transparent transparent transparent #1890ff !important;
+}
+
+.ant-carousel .slick-disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+

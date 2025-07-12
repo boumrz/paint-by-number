@@ -3,6 +3,7 @@ import { Carousel, Progress } from 'antd';
 import { useMediaQuery } from 'usehooks-ts';
 import "antd/dist/reset.css";
 import { InstructionSlide } from './InstructionSlide';
+import './GridInstructions.module.css';
 
 // Компонент инструкции для квадратов с каруселью
 export const GridInstructions = ({ idList, svgData, title, orientation = 'vertical' }) => {
@@ -271,8 +272,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
             Сектор {currentSlide + 1} из {total}
           </span>
         </div>
-        
-        {/* Основная карусель с инструкциями */}
+
         <div style={{ 
           width: '100%',
           maxWidth: isPhone ? '100%' : '400px',
@@ -287,13 +287,16 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
             slidesToScroll={1}
             autoplay={false}
             arrows={true}
+            // prevArrow={<button className="slick-prev" aria-label="Previous">‹</button>}
+            // nextArrow={<button className="slick-next" aria-label="Next">›</button>}
             afterChange={handleSlideChange}
             responsive={[
               {
                 breakpoint: 768,
                 settings: {
                   slidesToShow: 1,
-                  slidesToScroll: 1
+                  slidesToScroll: 1,
+                  arrows: true
                 }
               }
             ]}
@@ -301,7 +304,8 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
               background: '#fff',
               borderRadius: '8px',
               padding: '1rem',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              position: 'relative'
             }}
           >
             {carouselSlides}

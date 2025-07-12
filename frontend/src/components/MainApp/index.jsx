@@ -1,7 +1,6 @@
 import { memo, useCallback } from "react";
-// import SecondCanvasFull from './components/SecondCanvasFull';
 import HorizontalCanvasFull from '../HorizontalCanvas/HorizontalCanvasFull';
-// import { ColorPalette } from "./components/ColorPalette/ColorPalette";
+import { useMediaQuery } from "usehooks-ts";
 
 import Cropper from "react-easy-crop";
 import Modal from "react-modal";
@@ -24,12 +23,9 @@ export const MainApp = memo(
       cropImage,
       crop,
       zoom,
-      croppingFor,
       selectedInstruction,
       horizontalIdList,
-      isPhone,
       handleUploadImageFile,
-      handleUploadImageFileHorizontal,
       handleCropCancel,
       handleCropConfirm,
       onCropComplete,
@@ -42,18 +38,10 @@ export const MainApp = memo(
       isAccessGranted,
       orientation,
       handleOrientationChange,
-      // userUploadedImages,
-      horizontalSvgData,
       horizontalCurrentColor,
       setHorizontalColorCount,
-      horizontalColorCount,
     }) => {
-        const handleVerticalSelect = useCallback((type) => {
-            setSelectedInstruction({
-              type,
-              orientation: "horizontal", // Всегда горизонтальная ориентация
-            });
-        }, []);
+        const isPhone = useMediaQuery("(max-width: 600px)");
 
         const handleHorizontalSelect = useCallback((type) => {
             setSelectedInstruction({
@@ -183,7 +171,7 @@ export const MainApp = memo(
                         <GridInstructions
                           idList={horizontalIdList}
                           svgData={horizontalSvgDataBW}
-                          title="Инструкция (ЧБ, горизонтальный)"
+                          title="Инструкция ЧБ"
                           orientation="horizontal"
                         />
                       )}
@@ -195,11 +183,11 @@ export const MainApp = memo(
                         <GridInstructions
                           idList={horizontalIdList}
                           svgData={horizontalSvgDataSepia}
-                          title="Инструкция (Сепия, горизонтальный)"
+                          title="Инструкция Сепия"
                           orientation="horizontal"
                         />
                       )}
-                    {horizontalSvgDataBW && (
+                    {horizontalSvgDataBW && !isPhone && (
                       <HorizontalCanvasFull
                         svgData={horizontalSvgDataBW}
                         idList={horizontalIdList}

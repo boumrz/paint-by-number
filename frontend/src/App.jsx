@@ -38,7 +38,6 @@ function App() {
   const [showDemo, setShowDemo] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [userUploadedImages, setUserUploadedImages] = useState(false);
-  const isPhone = useMediaQuery("(max-width: 400px)");
 
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -357,7 +356,6 @@ function App() {
               croppingFor={croppingFor}
               selectedInstruction={selectedInstruction}
               horizontalIdList={horizontalIdList}
-              isPhone={isPhone}
               handleUploadImageFile={handleUploadImageFile}
               handleOrientationChange={handleOrientationChange}
               handleCropCancel={handleCropCancel}
