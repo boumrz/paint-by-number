@@ -1,0 +1,94 @@
+/* Стили для стрелок карусели Ant Design */
+:global(.ant-carousel .slick-prev),
+:global(.ant-carousel .slick-next) {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  color: #666 !important;
+  font-size: 16px !important;
+  line-height: 32px !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+}
+
+:global(.ant-carousel .slick-prev:hover),
+:global(.ant-carousel .slick-next:hover) {
+  background: rgba(255, 255, 255, 1) !important;
+  color: #1890ff !important;
+  border-color: #1890ff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+:global(.ant-carousel .slick-prev) {
+  left: -16px !important;
+}
+
+:global(.ant-carousel .slick-next) {
+  right: -16px !important;
+}
+
+:global(.ant-carousel .slick-prev:before),
+:global(.ant-carousel .slick-next:before) {
+  content: '' !important;
+  display: inline-block !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+}
+
+:global(.ant-carousel .slick-prev:after),
+:global(.ant-carousel .slick-next:after) {
+  content: '' !important;
+  display: none;
+}
+
+:global(.ant-carousel .slick-prev:before) {
+  border-width: 6px 8px 6px 0 !important;
+  border-color: transparent #666 transparent transparent !important;
+  margin-left: 5px !important;
+}
+
+:global(.ant-carousel .slick-next:before) {
+  border-width: 6px 0 6px 8px !important;
+  border-color: transparent transparent transparent #666 !important;
+  margin-left: 3px !important;
+}
+
+:global(.ant-carousel .slick-prev:hover:before) {
+  border-color: transparent #1890ff transparent transparent !important;
+}
+
+:global(.ant-carousel .slick-next:hover:before) {
+  border-color: transparent transparent transparent #1890ff !important;
+}
+
+/* Скрываем стрелки на первом и последнем слайдах */
+:global(.ant-carousel .slick-disabled) {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  :global(.ant-carousel .slick-prev),
+  :global(.ant-carousel .slick-next) {
+    width: 28px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+    font-size: 14px !important;
+  }
+  
+  :global(.ant-carousel .slick-prev) {
+    left: -14px !important;
+  }
+  
+  :global(.ant-carousel .slick-next) {
+    right: -14px !important;
+  }
+}

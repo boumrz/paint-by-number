@@ -1,261 +1,101 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Modal from 'react-modal';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { Carousel, Progress } from 'antd';
 import { useMediaQuery } from 'usehooks-ts';
-import { FixedSizeList as List } from 'react-window';
+import "antd/dist/reset.css";
+import { InstructionSlide } from './InstructionSlide';
+import './GridInstructions.module.css';
 
-import { SquareDivGrid } from './SquareDivGrid';
-import { GenerateInstructionGrid } from './GenerateInstructionGrid';
-
-// Компонент инструкции для квадратов 10x10
+// Компонент инструкции для квадратов с каруселью
 export const GridInstructions = ({ idList, svgData, title, orientation = 'vertical' }) => {
-    const [selectedSquare, setSelectedSquare] = useState(null);
-    const [showColorModal, setShowColorModal] = useState(false);
-
-    const isTablet = useMediaQuery('(max-width: 1010px)');
-    const isTabletMini = useMediaQuery('(max-width: 780px)');
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [loadedSlides, setLoadedSlides] = useState(new Set([0, 1, 2]));
+    const [forceUpdate, setForceUpdate] = useState(0);
+    const mainCarouselRef = useRef(null);
+    const navigationRef = useRef(null);
     const isPhone = useMediaQuery('(max-width: 400px)');
   
     // Параметры сетки в зависимости от ориентации
     const gridCols = orientation === 'horizontal' ? 16 : 8;
     const gridRows = orientation === 'horizontal' ? 8 : 16;
     const total = gridCols * gridRows;
-    const canvasWidth = orientation === 'horizontal' ? 1000 : 800;
-    const canvasHeight = orientation === 'horizontal' ? 800 : 1000;
-    const cellWidth = canvasWidth / gridCols;
-    const cellHeight = canvasHeight / gridRows;
-  
-    // Извлечение цветов для конкретного квадрата
-    const getSquareColors = (squareNumber) => {
-      if (!svgData || !idList) {
-        return [];
+    
+    // Отслеживаем инициализацию карусели
+    useEffect(() => {
+      if (mainCarouselRef.current) {
+        console.log('Карусель инициализирована:', mainCarouselRef.current);
+        console.log('Доступные методы:', Object.getOwnPropertyNames(mainCarouselRef.current));
       }
-  
-      try {
-        // Проверяем доступность DOMParser
-        if (typeof DOMParser === 'undefined') {
-          console.warn('DOMParser не доступен');
-          return [];
-        }
-        
-        // Создаем временный DOM элемент для парсинга SVG
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
-        
-        // Проверяем на ошибки парсинга
-        const parserError = svgDoc.querySelector('parsererror');
-        if (parserError) {
-          console.warn('Ошибка парсинга SVG:', parserError.textContent);
-          return [];
-        }
-        
-        const svgElement = svgDoc.documentElement;
-        if (!svgElement) {
-          console.warn('SVG элемент не найден');
-          return [];
-        }
-        
-        // Рассчитываем границы квадрата
-        const row = Math.floor((squareNumber - 1) / gridCols);
-        const col = (squareNumber - 1) % gridCols;
-        const squareX = col * cellWidth;
-        const squareY = row * cellHeight;
-              
-        // Проверяем тип холста по структуре данных
-        const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
-        
-        const colors = new Map();
-        
-        if (isPixelCanvas) {
-          // Для pixel-based холста (второй холст)
-          const rects = svgElement.querySelectorAll('rect[data-color]');
-          
-          rects.forEach((rect, index) => {
-            const x = parseFloat(rect.getAttribute('x'));
-            const y = parseFloat(rect.getAttribute('y'));
-            const width = parseFloat(rect.getAttribute('width'));
-            const height = parseFloat(rect.getAttribute('height'));
-            
-            // Проверяем, находится ли элемент в пределах квадрата
-            if (x >= squareX && y >= squareY && 
-                x + width <= squareX + cellWidth && 
-                y + height <= squareY + cellHeight) {
-              
-              const dataColor = rect.getAttribute('data-color');
-              if (dataColor) {
-                // Извлекаем RGB значения из строки "rgb(r,g,b)"
-                const rgbMatch = dataColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-                if (rgbMatch) {
-                  const r = parseInt(rgbMatch[1]);
-                  const g = parseInt(rgbMatch[2]);
-                  const b = parseInt(rgbMatch[3]);
-                  const colorKey = `${r},${g},${b}`;
-                  
-                  if (!colors.has(colorKey)) {
-                    colors.set(colorKey, {
-                      color: [r, g, b],
-                      count: 0,
-                      elements: []
-                    });
-                  }
-                  colors.get(colorKey).count++;
-                  colors.get(colorKey).elements.push(`rect-${index}`);
-                }
-              }
-            }
-          });
-        } else {
-          // Для shape-based холста (первый холст)
-          const elements = svgElement.querySelectorAll('g[id], rect[id], path[id], circle[id], ellipse[id], polygon[id]');
-          
-          elements.forEach((element, index) => {
-            const id = element.getAttribute('id');
-            if (id) {
-              const colorItem = idList.find(item => {
-                return item.shapes && item.shapes.includes(id);
-              });
-              
-              if (colorItem && colorItem.color) {              
-                const colorKey = colorItem.color.join(',');
-                if (!colors.has(colorKey)) {
-                  colors.set(colorKey, {
-                    color: colorItem.color,
-                    count: 0,
-                    elements: []
-                  });
-                }
-                colors.get(colorKey).count++;
-                colors.get(colorKey).elements.push(id);
-              }
-            }
+    }, [mainCarouselRef.current]);
+
+    // Автоматическая прокрутка к текущему элементу
+    useEffect(() => {
+      if (navigationRef.current) {
+        const currentElement = navigationRef.current.querySelector(`[data-slide="${currentSlide}"]`);
+        if (currentElement) {
+          currentElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center'
           });
         }
-        
-        const result = Array.from(colors.values());
-  
-        return result;
-        
-      } catch (error) {
-        console.error('Ошибка при извлечении цветов квадрата:', error);
-        return [];
       }
-    };
-  
-    // Извлечение SVG фрагмента для конкретного квадрата
-    const getSquareSvg = (squareNumber) => {
-      if (!svgData) return null;
-  
-      try {
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
-        const svgElement = svgDoc.documentElement;
-        
-        if (!svgElement) return null;
-        
-        // Рассчитываем границы квадрата
-        const row = Math.floor((squareNumber - 1) / gridCols);
-        const col = (squareNumber - 1) % gridCols;
-        const squareX = col * cellWidth;
-        const squareY = row * cellHeight;
-              
-        // Проверяем тип холста
-        const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
-        
-        if (isPixelCanvas) {
-          // Для pixel-based холста
-          const rects = svgElement.querySelectorAll('rect[data-color]');
-          const squareElements = [];
-          const textElements = [];
-          rects.forEach((rect, index) => {
-            const x = parseFloat(rect.getAttribute('x'));
-            const y = parseFloat(rect.getAttribute('y'));
-            const width = parseFloat(rect.getAttribute('width'));
-            const height = parseFloat(rect.getAttribute('height'));
-            const dataColor = rect.getAttribute('data-color');
-            const dataNumber = rect.getAttribute('data-number');
-            // Более точная проверка границ
-            const elementRight = x + width;
-            const elementBottom = y + height;
-            const squareRight = squareX + cellWidth;
-            const squareBottom = squareY + cellHeight;
-            // Проверяем, пересекается ли элемент с квадратом
-            const inSquare = x < squareRight && elementRight > squareX && 
-                            y < squareBottom && elementBottom > squareY;
-            if (inSquare) {            
-              // Создаем копию элемента с относительными координатами
-              const newRect = rect.cloneNode(true);
-              newRect.setAttribute('x', x - squareX);
-              newRect.setAttribute('y', y - squareY);
-              // Устанавливаем правильный fill из data-color
-              if (dataColor) {
-                newRect.setAttribute('fill', dataColor);
-              }
-              squareElements.push(newRect.outerHTML);
-              // Добавляем текст с номером цвета по центру прямоугольника
-              if (dataNumber) {
-                const textX = x - squareX + width / 2;
-                const textY = y - squareY + height / 2 + 2; // +2 для вертикального центрирования
-                textElements.push(`<text x="${textX}" y="${textY}" font-size="3.5" font-family="Arial, sans-serif" fill="#222" stroke="#fff" stroke-width="0.1" text-anchor="middle" dominant-baseline="middle">${dataNumber}</text>`);
-              }
-            }
-          });
-          // Создаем SVG для квадрата
-          const result = `<svg width="${cellWidth}px" height="${cellHeight}px" viewBox="0 0 ${cellWidth} ${cellHeight}" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
-            ${squareElements.join('')}
-            ${textElements.join('')}
-          </svg>`;
-          return result;
-          
-        } else {
-          // Для shape-based холста
-          const elements = svgElement.querySelectorAll('g[id], rect[id], path[id], circle[id], ellipse[id], polygon[id]');
-          const squareElements = [];
-          
-          elements.forEach((element, index) => {
-            const id = element.getAttribute('id');
-            if (id) {
-              // Находим цвет для этого элемента
-              const colorItem = idList.find(item => item.shapes && item.shapes.includes(id));
-              if (colorItem && colorItem.color) {              
-                // Создаем копию элемента с правильным цветом
-                const newElement = element.cloneNode(true);
-                const fillColor = `rgb(${colorItem.color[0]}, ${colorItem.color[1]}, ${colorItem.color[2]})`;
-                newElement.setAttribute('fill', fillColor);
-                
-                squareElements.push(newElement.outerHTML);
-              }
-            }
-          });
-                  
-          // Создаем SVG для квадрата
-          const result = `<svg width="${cellWidth}px" height="${cellHeight}px" viewBox="0 0 ${cellWidth} ${cellHeight}" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
-            ${squareElements.join('')}
-          </svg>`;
-          
-          return result;
-        }
-        
-      } catch (error) {
-        console.error('Ошибка при создании SVG квадрата:', error);
-        return null;
+    }, [currentSlide]);
+    
+    // Обработчик изменения слайда
+    const handleSlideChange = (current) => {
+      setCurrentSlide(current);
+      
+      // Загружаем соседние слайды
+      const newLoadedSlides = new Set(loadedSlides);
+      for (let i = Math.max(0, current - 2); i <= Math.min(total - 1, current + 2); i++) {
+        newLoadedSlides.add(i);
       }
-    };
-  
-    const handleCloseModal = () => {
-      setShowColorModal(false);
-      setSelectedSquare(null);
+      setLoadedSlides(newLoadedSlides);
     };
 
-    if (isTablet) {
-      // Мобильный/адаптивный режим: выводим все квадраты и их цвета в столбик через виртуальный список
-      const Row = ({ index, style }) => {
-        const number = index + 1;
-        const colors = getSquareColors(number);
+    // Обработчик клика по номеру слайда
+    const handleNumberClick = (slideIndex) => {
+      console.log('Клик по номеру:', slideIndex + 1);
+      
+      // Сначала обновляем состояние
+      setCurrentSlide(slideIndex);
+      
+      // Затем пытаемся переключить карусель с небольшой задержкой
+      setTimeout(() => {
+        if (mainCarouselRef.current) {
+          console.log('Переключение на слайд:', slideIndex);
+          try {
+            // Пробуем разные способы управления каруселью
+            if (mainCarouselRef.current.goTo) {
+              mainCarouselRef.current.goTo(slideIndex);
+            } else if (mainCarouselRef.current.slickGoTo) {
+              mainCarouselRef.current.slickGoTo(slideIndex);
+            } else {
+              console.log('Метод goTo не найден, используем внутренний API');
+              // Попробуем получить доступ к внутренним методам
+              const carouselElement = mainCarouselRef.current;
+              if (carouselElement && carouselElement.slick) {
+                carouselElement.slick.slickGoTo(slideIndex);
+              }
+            }
+          } catch (error) {
+            console.error('Ошибка при переключении слайда:', error);
+            // Если не удалось программно переключить, принудительно обновляем
+            setForceUpdate(prev => prev + 1);
+          }
+        } else {
+          console.log('Ref карусели не найден');
+        }
+      }, 100);
+    };
+
+    // Создаем слайд только если он загружен
+    const createSlide = (index) => {
+      if (!loadedSlides.has(index)) {
         return (
-          <div key={number} style={{
-            ...style,
-            marginBottom: '1.5rem',
+          <div key={index} style={{
             padding: '1rem',
-            background: '#f8f9fa',
+            background: '#f5f5f5',
             borderRadius: '8px',
             color: 'black',
             boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
@@ -263,122 +103,253 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            minHeight: isPhone ? '300px' : '400px'
           }}>
-            <div style={{ fontWeight: 'bold', marginBottom: 8 }}>Квадрат {number}</div>
-            <div style={{ flex: 1, width: '100%', height: '100%', minHeight: 0, minWidth: 0, marginBottom: 0, background: '#fff', borderRadius: 8, display: 'flex', alignItems: 'stretch', justifyContent: 'stretch' }}>
-              <div
-                dangerouslySetInnerHTML={{ __html: getSquareSvg(number) || '<div style="text-align: center; color: #666;">Квадрат пуст</div>' }}
-                style={{ width: '100%', height: '100%', minHeight: 0, minWidth: 0, display: 'block' }}
-              />
+            <div style={{ color: '#666', textAlign: 'center', marginBottom: '1rem' }}>
+              Загрузка сектора {index + 1}...
             </div>
           </div>
         );
-      };
-      return (
-        <div>
-          <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>{title}</h3>
-          <List
-            height={window.innerHeight - 120}
-            itemCount={128}
-            itemSize={isPhone ? 300 : 600}
-            overscanCount={10}
-            width={'100%'}
-            style={{ maxWidth: 600, margin: '0 auto' }}
-          >
-            {Row}
-          </List>
-        </div>
-      );
-    }
-    // Десктоп: прежняя логика
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
-        <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>{title}</h3>
-        <div style={{ 
-          position: 'relative',
-          width: '600px',
-          height: '960px',
-          maxWidth: '100%',
-          maxHeight: '90vh',
-          margin: '0 auto',
-          backgroundColor: '#fff'
-        }}>
-          <GenerateInstructionGrid
-            gridCols={gridCols}
-            gridRows={gridRows}
-            total={total}
-            setSelectedSquare={setSelectedSquare} 
-            setShowColorModal={setShowColorModal}
+      }
+
+      const squareNumber = index + 1;
+      try {
+        return (
+          <InstructionSlide 
+            key={squareNumber}
+            idList={idList} 
+            orientation={orientation} 
+            svgData={svgData} 
+            squareNumber={squareNumber} 
+            isPhone={isPhone} 
           />
-        </div>
-        {showColorModal && selectedSquare && (
-          <Modal
-            isOpen={showColorModal}
-            onRequestClose={handleCloseModal}
-            ariaHideApp={false}
+        );
+      } catch (error) {
+        return (
+          <div key={squareNumber} style={{
+            padding: '1rem',
+            background: '#fff2f0',
+            borderRadius: '8px',
+            color: 'black',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+            border: '1px solid #ffccc7',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            minHeight: isPhone ? '300px' : '400px'
+          }}>
+            <div style={{ fontWeight: 'bold', marginBottom: 8, fontSize: '1.2rem', textAlign: 'center' }}>
+              Сектор {squareNumber}
+            </div>
+            <div style={{ color: '#666', textAlign: 'center' }}>
+              Ошибка загрузки
+            </div>
+          </div>
+        );
+      }
+    };
+
+    // Создаем горизонтальную навигацию с номерами
+    const navigationNumbers = useMemo(() => {
+      return Array.from({ length: total }, (_, index) => {
+        const slideIndex = index;
+        const isCurrent = slideIndex === currentSlide;
+        const isLoaded = loadedSlides.has(slideIndex);
+        
+        return (
+          <div
+            key={slideIndex}
+            data-slide={slideIndex}
+            onClick={() => handleNumberClick(slideIndex)}
             style={{
-              overlay: { zIndex: 1000, background: 'rgba(0,0,0,0.7)' },
-              content: {
-                maxWidth: 750,
-                width: '95%',
-                margin: 'auto',
-                maxHeight: '90vh',
-                height: 'auto',
-                padding: '20px',
-                borderRadius: '8px',
-                overflow: 'auto',
+              padding: '0.25rem 0.5rem',
+              background: isCurrent ? '#1890ff' : (isLoaded ? '#f0f0f0' : '#e0e0e0'),
+              color: isCurrent ? 'white' : '#333',
+              borderRadius: '2px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              fontSize: '0.625rem',
+              fontWeight: isCurrent ? 'bold' : 'normal',
+              border: isCurrent ? '1px solid #1890ff' : '1px solid #d9d9d9',
+              transition: 'all 0.2s ease',
+              minHeight: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              userSelect: 'none',
+              position: 'relative',
+              flexShrink: 0,
+              marginRight: '0.125rem'
+            }}
+            onMouseEnter={(e) => {
+              if (!isCurrent) {
+                e.target.style.background = isLoaded ? '#d9d9d9' : '#ccc';
+                e.target.style.transform = 'scale(1.1)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isCurrent) {
+                e.target.style.background = isLoaded ? '#f0f0f0' : '#e0e0e0';
+                e.target.style.transform = 'scale(1)';
               }
             }}
           >
-            <div>
-              <h3 style={{ marginBottom: '1rem', color: '#333', textAlign: 'center' }}>
-                Сектор {selectedSquare}
-              </h3>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  overflow: 'auto',
-                  width: '100%',
-                }}>
-                <div style={{
-                  display: 'flex',
-                  width: '100%',
-                  maxWidth: 700,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#fff',
-                  margin: '0 auto'
-                }}>
-                  <SquareDivGrid squareNumber={selectedSquare} svgData={svgData} orientation={orientation} />
-                </div>
-                <div
-                  style={{
-                    textAlign: 'center',
-                    marginTop: '1rem',
-                  }}
-                >
-                  <button
-                    onClick={handleCloseModal}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#007bff',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Закрыть
-                  </button>
-                </div>
-              </div>
+            {slideIndex + 1}
+            {isCurrent && (
+              <div style={{
+                position: 'absolute',
+                top: '-1px',
+                right: '-1px',
+                width: '4px',
+                height: '4px',
+                background: '#52c41a',
+                borderRadius: '50%',
+                border: '1px solid white'
+              }} />
+            )}
+          </div>
+        );
+      });
+    }, [total, currentSlide, loadedSlides]);
+
+    // Создаем массив слайдов с ленивой загрузкой
+    const carouselSlides = useMemo(() => {
+      return Array.from({ length: total }, (_, index) => createSlide(index));
+    }, [total, loadedSlides, idList, svgData, orientation, isPhone]);
+
+    // Вычисляем прогресс загрузки
+    const loadingProgress = Math.round((loadedSlides.size / total) * 100);
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
+        <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>{title}</h3>
+        
+        {/* Индикатор прогресса загрузки */}
+        {loadingProgress < 100 && (
+          <div style={{ 
+            width: '100%', 
+            maxWidth: isPhone ? '100%' : '400px', 
+            margin: '0 auto 1rem auto',
+            padding: '0.5rem',
+            background: '#f0f8ff',
+            borderRadius: '4px',
+            border: '1px solid #d6e4ff'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.875rem', color: '#666' }}>Загрузка инструкций...</span>
+              <span style={{ fontSize: '0.875rem', color: '#1890ff' }}>{loadingProgress}%</span>
             </div>
-          </Modal>
+            <Progress 
+              percent={loadingProgress} 
+              size="small" 
+              strokeColor="#1890ff"
+              showInfo={false}
+            />
+          </div>
         )}
+        
+        {/* Счетчик текущего слайда */}
+        <div style={{ 
+          width: '100%',
+          maxWidth: isPhone ? '100%' : '400px',
+          margin: '0 auto 0.5rem auto',
+          textAlign: 'center'
+        }}>
+          <span style={{ 
+            fontSize: '0.875rem', 
+            color: '#666',
+            background: '#f0f0f0',
+            padding: '0.25rem 0.75rem',
+            borderRadius: '12px',
+            border: '1px solid #d9d9d9'
+          }}>
+            Сектор {currentSlide + 1} из {total}
+          </span>
+        </div>
+
+        <div style={{ 
+          width: '100%',
+          maxWidth: isPhone ? '100%' : '400px',
+          margin: '0 auto 1rem auto'
+        }}>
+          <Carousel
+            key={`main-carousel-${forceUpdate}`}
+            ref={mainCarouselRef}
+            dots={{ position: 'bottom' }}
+            infinite={false}
+            slidesToShow={1}
+            slidesToScroll={1}
+            autoplay={false}
+            arrows={true}
+            // prevArrow={<button className="slick-prev" aria-label="Previous">‹</button>}
+            // nextArrow={<button className="slick-next" aria-label="Next">›</button>}
+            afterChange={handleSlideChange}
+            responsive={[
+              {
+                breakpoint: 768,
+                settings: {
+                  slidesToShow: 1,
+                  slidesToScroll: 1,
+                  arrows: true
+                }
+              }
+            ]}
+            style={{
+              background: '#fff',
+              borderRadius: '8px',
+              padding: '1rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              position: 'relative'
+            }}
+          >
+            {carouselSlides}
+          </Carousel>
+        </div>
+
+        {/* Горизонтальная навигация с номерами */}
+        <div style={{ 
+          width: '100%',
+          maxWidth: isPhone ? '100%' : '800px',
+          margin: '0 auto'
+        }}>
+          <div style={{ 
+            marginBottom: '0.5rem', 
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            color: '#666'
+          }}>
+            Быстрая навигация по секторам
+          </div>
+          <div 
+            ref={navigationRef}
+            style={{
+              background: '#fff',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              whiteSpace: 'nowrap',
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#d9d9d9 #f0f0f0'
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              minWidth: 'max-content',
+              padding: '0.25rem'
+            }}>
+              {navigationNumbers}
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
