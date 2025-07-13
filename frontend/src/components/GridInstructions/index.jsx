@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Carousel, Progress } from 'antd';
+import { Carousel, Progress, Button } from 'antd';
 import { useMediaQuery } from 'usehooks-ts';
 import "antd/dist/reset.css";
-import { InstructionSlide } from './InstructionSlide';
+import { InstructionSlide, exportAllSectorsToPdf } from './InstructionSlide';
 import './GridInstructions.module.css';
 
 // Компонент инструкции для квадратов с каруселью
@@ -10,6 +10,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
     const [currentSlide, setCurrentSlide] = useState(0);
     const [loadedSlides, setLoadedSlides] = useState(new Set([0, 1, 2]));
     const [forceUpdate, setForceUpdate] = useState(0);
+    const [isExporting, setIsExporting] = useState(false);
     const mainCarouselRef = useRef(null);
     const navigationRef = useRef(null);
     const isPhone = useMediaQuery('(max-width: 400px)');
@@ -226,9 +227,58 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
     // Вычисляем прогресс загрузки
     const loadingProgress = Math.round((loadedSlides.size / total) * 100);
 
+    // Обработчик экспорта всех секторов
+    const handleExportAllSectors = async () => {
+      if (isExporting) return; // Предотвращаем повторные клики
+      
+      setIsExporting(true);
+      try {
+        console.log('Начинаем экспорт всех секторов...');
+        await exportAllSectorsToPdf(svgData, idList, orientation);
+      } catch (error) {
+        console.error('Ошибка при экспорте всех секторов:', error);
+      } finally {
+        setIsExporting(false);
+      }
+    };
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
         <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>{title}</h3>
+        
+        {/* Кнопка экспорта всех секторов */}
+        <div style={{ 
+          width: '100%',
+          maxWidth: isPhone ? '100%' : '400px',
+          margin: '0 auto 1rem auto',
+          textAlign: 'center'
+        }}>
+          <Button 
+            type="primary" 
+            size="large"
+            onClick={handleExportAllSectors}
+            disabled={isExporting}
+            style={{
+              background: isExporting ? '#d9d9d9' : '#52c41a',
+              borderColor: isExporting ? '#d9d9d9' : '#52c41a',
+              fontWeight: 'bold',
+              padding: '0 2rem',
+              height: 'auto',
+              fontSize: '1rem'
+            }}
+            loading={isExporting}
+          >
+            {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт всех секторов в PDF'}
+          </Button>
+          <div style={{ 
+            fontSize: '0.75rem', 
+            color: '#666', 
+            marginTop: '0.5rem',
+            fontStyle: 'italic'
+          }}>
+            Каждый сектор будет на отдельной странице
+          </div>
+        </div>
         
         {/* Индикатор прогресса загрузки */}
         {loadingProgress < 100 && (
