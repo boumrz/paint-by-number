@@ -10,6 +10,8 @@ import cv2
 from PIL import Image
 from sklearn.cluster import KMeans
 import datetime
+import re
+
 
 # Импортируем новые модули
 from data.access_codes_manager import AccessCodesManager
@@ -1333,6 +1335,8 @@ def list_excel_files():
     except Exception as e:
         print(f"Error listing excel files: {e}")
         return jsonify({'error': 'Ошибка при получении списка файлов'}), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000) 

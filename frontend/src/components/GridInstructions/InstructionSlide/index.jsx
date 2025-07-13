@@ -1,232 +1,152 @@
 import { memo, useMemo } from 'react';
+import { getSquareSvg } from '../utils/getSquareSvg';
+import { getSquareColors } from '../utils/getSquareColors';
+import { jsPDF } from "jspdf";
+import { svg2pdf } from "svg2pdf.js";
+import s from './InstructionSlide.module.css';
 
-// Извлечение SVG фрагмента для конкретного квадрата
-const getSquareSvg = (squareNumber, orientation, idList, svgData ) => {
-  if (!svgData) return null;
-
+// Функция для экспорта всех секторов в PDF
+export async function exportAllSectorsToPdf(svgData, idList, orientation, progressCallback = null) {
   try {
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
-    const svgElement = svgDoc.documentElement;
-    const canvasWidth = orientation === 'horizontal' ? 1000 : 800;
-    const canvasHeight = orientation === 'horizontal' ? 800 : 1000;
+    // Параметры сетки в зависимости от ориентации
     const gridCols = orientation === 'horizontal' ? 16 : 8;
     const gridRows = orientation === 'horizontal' ? 8 : 16;
-    const cellWidth = canvasWidth / gridCols;
-    const cellHeight = canvasHeight / gridRows;    
-    
-    if (!svgElement) return null;
-    
-    // Рассчитываем границы квадрата
-    const row = Math.floor((squareNumber - 1) / gridCols);
-    const col = (squareNumber - 1) % gridCols;
-    const squareX = col * cellWidth;
-    const squareY = row * cellHeight;
-          
-    // Проверяем тип холста
-    const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
-    
-    if (isPixelCanvas) {
-      // Для pixel-based холста
-      const rects = svgElement.querySelectorAll('rect[data-color]');
-      const squareElements = [];
-      const textElements = [];
-      rects.forEach((rect, index) => {
-        const x = parseFloat(rect.getAttribute('x'));
-        const y = parseFloat(rect.getAttribute('y'));
-        const width = parseFloat(rect.getAttribute('width'));
-        const height = parseFloat(rect.getAttribute('height'));
-        const dataColor = rect.getAttribute('data-color');
-        const dataNumber = rect.getAttribute('data-number');
-        // Более точная проверка границ
-        const elementRight = x + width;
-        const elementBottom = y + height;
-        const squareRight = squareX + cellWidth;
-        const squareBottom = squareY + cellHeight;
-        // Проверяем, пересекается ли элемент с квадратом
-        const inSquare = x < squareRight && elementRight > squareX && 
-                        y < squareBottom && elementBottom > squareY;
-        if (inSquare) {            
-          // Создаем копию элемента с относительными координатами
-          const newRect = rect.cloneNode(true);
-          newRect.setAttribute('x', x - squareX);
-          newRect.setAttribute('y', y - squareY);
-          // Устанавливаем правильный fill из data-color
-          if (dataColor) {
-            newRect.setAttribute('fill', dataColor);
-          }
-          squareElements.push(newRect.outerHTML);
-          // Добавляем текст с номером цвета по центру прямоугольника
-          if (dataNumber) {
-            const textX = x - squareX + width / 2;
-            const textY = y - squareY + height / 2 + 2; // +2 для вертикального центрирования
-            textElements.push(`<text x="${textX}" y="${textY}" font-size="3.5" font-family="Arial, sans-serif" fill="#222" stroke="#fff" stroke-width="0.1" text-anchor="middle" dominant-baseline="middle">${dataNumber}</text>`);
-          }
+    const total = gridCols * gridRows;
+
+    // Создаем PDF-документ
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    if (progressCallback) {
+      progressCallback(0, 'Подготовка к экспорту...');
+    }
+
+    // Экспортируем секторы по два на страницу
+    for (let sectorNumber = 1; sectorNumber <= total; sectorNumber += 2) {
+      const progress = Math.round((sectorNumber / total) * 100);
+      
+      if (progressCallback) {
+        progressCallback(progress, `Обработка секторов`);
+      }
+      
+      // Добавляем новую страницу (кроме первой)
+      if (sectorNumber > 1) {
+        pdf.addPage();
+      }
+
+      // Добавляем заголовок страницы
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      const pageTitle = sectorNumber + 1 <= total 
+        ? `Sectors ${sectorNumber} and ${sectorNumber + 1}`
+        : `Sector ${sectorNumber}`;
+      pdf.text(pageTitle, pageWidth / 2, 30, { align: 'center' });
+
+      // Добавляем инструкцию по использованию
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+
+      // Добавляем разделительную линию между секторами
+      if (sectorNumber + 1 <= total) {
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(1);
+        pdf.line(pageWidth / 2, 60, pageWidth / 2, pageHeight - 40);
+      }
+
+      // Обрабатываем первый сектор на странице
+      const svgContent1 = getSquareSvg(sectorNumber, orientation, idList, svgData);
+      if (svgContent1) {
+        const tempDiv1 = document.createElement("div");
+        tempDiv1.innerHTML = svgContent1;
+        document.body.appendChild(tempDiv1);
+        const svgElement1 = tempDiv1.querySelector("svg");
+
+        if (svgElement1) {
+           pdf.setFontSize(12);
+           pdf.setFont('helvetica', 'bold');
+           const sector1Info = `Sector ${sectorNumber}`;
+           pdf.text(sector1Info, 30 + (pageWidth - 80) / 4, pageHeight - 60, { align: 'center' });
+
+           // Конвертируем первый SVG в PDF (левая половина страницы)
+           await svg2pdf(svgElement1, pdf, {
+             x: 30,
+             y: 70, // Немного ниже из-за дополнительного текста
+             width: (pageWidth - 80) / 2, // Половина ширины с отступами
+             height: pageHeight - 160, // Оставляем место для номера сектора
+           });
+         }
+         document.body.removeChild(tempDiv1);
+       }
+
+      // Обрабатываем второй сектор на странице (если он существует)
+      if (sectorNumber + 1 <= total) {
+        const svgContent2 = getSquareSvg(sectorNumber + 1, orientation, idList, svgData);
+        if (svgContent2) {
+          const tempDiv2 = document.createElement("div");
+          tempDiv2.innerHTML = svgContent2;
+          document.body.appendChild(tempDiv2);
+          const svgElement2 = tempDiv2.querySelector("svg");
+
+          if (svgElement2) {
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'bold');
+            const sector2Info = `Sector ${sectorNumber + 1}`;
+            pdf.text(sector2Info, pageWidth / 2 + 10 + (pageWidth - 80) / 4, pageHeight - 60, { align: 'center' });
+
+             // Конвертируем второй SVG в PDF (правая половина страницы)
+             await svg2pdf(svgElement2, pdf, {
+               x: pageWidth / 2 + 10, // Правая половина с небольшим отступом
+               y: 70, // Немного ниже из-за дополнительного текста
+               width: (pageWidth - 80) / 2,
+               height: pageHeight - 160, // Оставляем место для номера сектора
+             });
+           }
+           document.body.removeChild(tempDiv2);
         }
-      });
-      // Создаем SVG для квадрата
-      const result = `<svg width="${cellWidth}px" height="${cellHeight}px" viewBox="0 0 ${cellWidth} ${cellHeight}" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
-        ${squareElements.join('')}
-        ${textElements.join('')}
-      </svg>`;
-      return result;
-      
-    } else {
-      // Для shape-based холста
-      const elements = svgElement.querySelectorAll('g[id], rect[id], path[id], circle[id], ellipse[id], polygon[id]');
-      const squareElements = [];
-      
-      elements.forEach((element, index) => {
-        const id = element.getAttribute('id');
-        if (id) {
-          // Находим цвет для этого элемента
-          const colorItem = idList.find(item => item.shapes && item.shapes.includes(id));
-          if (colorItem && colorItem.color) {              
-            // Создаем копию элемента с правильным цветом
-            const newElement = element.cloneNode(true);
-            const fillColor = `rgb(${colorItem.color[0]}, ${colorItem.color[1]}, ${colorItem.color[2]})`;
-            newElement.setAttribute('fill', fillColor);
-            
-            squareElements.push(newElement.outerHTML);
-          }
-        }
-      });
-              
-      // Создаем SVG для квадрата
-      const result = `<svg width="${cellWidth}px" height="${cellHeight}px" viewBox="0 0 ${cellWidth} ${cellHeight}" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: 100%;">
-        ${squareElements.join('')}
-      </svg>`;
-      
-      return result;
+      }
+
+      // Небольшая задержка для предотвращения зависания браузера
+      if (sectorNumber + 2 <= total) {
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+    }
+
+    // Добавляем информационную страницу в конце
+    pdf.addPage();
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Usage Instructions', pageWidth / 2, 50, { align: 'center' });
+    
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+    const instructions = [
+      '1. Each sector contains detailed coloring instructions',
+      '2. Numbers in sectors correspond to color numbers in palette',
+      '3. Color sectors in order or selectively',
+      '4. Use specified colors for best results',
+      '5. Use magnifying glass for small details if needed'
+    ];
+    
+    instructions.forEach((instruction, index) => {
+      pdf.text(instruction, 50, 100 + index * 25);
+    });
+
+    // Сохраняем PDF
+    const totalPages = Math.ceil(total / 2) + 1; // +1 для информационной страницы
+    const filename = `paint-by-number-sectors-${orientation}-${total}-${totalPages}pages.pdf`;
+    
+    if (progressCallback) {
+      progressCallback(100, 'Сохранение PDF файла...');
     }
     
+    pdf.save(filename);
+    console.log(`Экспорт всех ${total} секторов завершен! Файл сохранен как: ${filename} (${totalPages} страниц)`);
   } catch (error) {
-    console.error('Ошибка при создании SVG квадрата:', error);
-    return null;
+    console.error('Ошибка при экспорте всех секторов:', error);
+    alert('Ошибка при создании PDF файла со всеми секторами');
   }
-};
-
-const getSquareColors = (squareNumber, svgData, idList, orientation) => {
-  const gridCols = orientation === 'horizontal' ? 16 : 8;
-  const gridRows = orientation === 'horizontal' ? 8 : 16;
-  const canvasWidth = orientation === 'horizontal' ? 1000 : 800;
-  const canvasHeight = orientation === 'horizontal' ? 800 : 1000;
-  const cellWidth = canvasWidth / gridCols;
-  const cellHeight = canvasHeight / gridRows;    
-
-  if (!svgData || !idList) {
-    return [];
-  }
-
-  try {
-    // Проверяем доступность DOMParser
-    if (typeof DOMParser === 'undefined') {
-      console.warn('DOMParser не доступен');
-      return [];
-    }
-    
-    // Создаем временный DOM элемент для парсинга SVG
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
-    
-    // Проверяем на ошибки парсинга
-    const parserError = svgDoc.querySelector('parsererror');
-    if (parserError) {
-      console.warn('Ошибка парсинга SVG:', parserError.textContent);
-      return [];
-    }
-    
-    const svgElement = svgDoc.documentElement;
-    if (!svgElement) {
-      console.warn('SVG элемент не найден');
-      return [];
-    }
-    
-    // Рассчитываем границы квадрата
-    const row = Math.floor((squareNumber - 1) / gridCols);
-    const col = (squareNumber - 1) % gridCols;
-    const squareX = col * cellWidth;
-    const squareY = row * cellHeight;
-          
-    // Проверяем тип холста по структуре данных
-    const isPixelCanvas = svgData.includes('data-color') && svgData.includes('data-number');
-    
-    const colors = new Map();
-    
-    if (isPixelCanvas) {
-      // Для pixel-based холста (второй холст)
-      const rects = svgElement.querySelectorAll('rect[data-color]');
-      
-      rects.forEach((rect, index) => {
-        const x = parseFloat(rect.getAttribute('x'));
-        const y = parseFloat(rect.getAttribute('y'));
-        const width = parseFloat(rect.getAttribute('width'));
-        const height = parseFloat(rect.getAttribute('height'));
-        
-        // Проверяем, находится ли элемент в пределах квадрата
-        if (x >= squareX && y >= squareY && 
-            x + width <= squareX + cellWidth && 
-            y + height <= squareY + cellHeight) {
-          
-          const dataColor = rect.getAttribute('data-color');
-          if (dataColor) {
-            // Извлекаем RGB значения из строки "rgb(r,g,b)"
-            const rgbMatch = dataColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-            if (rgbMatch) {
-              const r = parseInt(rgbMatch[1]);
-              const g = parseInt(rgbMatch[2]);
-              const b = parseInt(rgbMatch[3]);
-              const colorKey = `${r},${g},${b}`;
-              
-              if (!colors.has(colorKey)) {
-                colors.set(colorKey, {
-                  color: [r, g, b],
-                  count: 0,
-                  elements: []
-                });
-              }
-              colors.get(colorKey).count++;
-              colors.get(colorKey).elements.push(`rect-${index}`);
-            }
-          }
-        }
-      });
-    } else {
-      // Для shape-based холста (первый холст)
-      const elements = svgElement.querySelectorAll('g[id], rect[id], path[id], circle[id], ellipse[id], polygon[id]');
-      
-      elements.forEach((element, index) => {
-        const id = element.getAttribute('id');
-        if (id) {
-          const colorItem = idList.find(item => {
-            return item.shapes && item.shapes.includes(id);
-          });
-          
-          if (colorItem && colorItem.color) {              
-            const colorKey = colorItem.color.join(',');
-            if (!colors.has(colorKey)) {
-              colors.set(colorKey, {
-                color: colorItem.color,
-                count: 0,
-                elements: []
-              });
-            }
-            colors.get(colorKey).count++;
-            colors.get(colorKey).elements.push(id);
-          }
-        }
-      });
-    }
-    
-    const result = Array.from(colors.values());
-
-    return result;
-    
-  } catch (error) {
-    console.error('Ошибка при извлечении цветов квадрата:', error);
-    return [];
-  }
-};
+}
 
 export const InstructionSlide = memo(({ orientation, svgData, idList, squareNumber, isPhone }) => {  
   const slideData = useMemo(() => {
@@ -244,42 +164,17 @@ export const InstructionSlide = memo(({ orientation, svgData, idList, squareNumb
     const { colors, svgContent } = slideData;
     
     return (
-      <div key={squareNumber} style={{
-        padding: '1rem',
-        background: '#f8f9fa',
-        borderRadius: '8px',
-        color: 'black',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-        border: '1px solid #e0e0e0',
-        boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        height: '100%',
-        minHeight: isPhone ? '300px' : '400px'
-      }}>
-        <div style={{ 
-          fontWeight: 'bold', 
-          marginBottom: 8, 
-          fontSize: '1.2rem',
-          textAlign: 'center'
-        }}>
+      <div
+        key={squareNumber}
+        className={s.wrapper}
+        style={{
+          minHeight: isPhone ? '300px' : '400px'
+        }}
+      >
+        <div className={s.sector}>
           Сектор {squareNumber}
         </div>
-        <div style={{ 
-          flex: 1, 
-          width: '100%', 
-          height: '100%', 
-          minHeight: 0, 
-          minWidth: 0, 
-          marginBottom: 0, 
-          background: '#fff', 
-          borderRadius: 8, 
-          display: 'flex', 
-          alignItems: 'stretch', 
-          justifyContent: 'stretch',
-          border: '1px solid #ddd'
-        }}>
+        <div className={s.slide}>
           <div
             dangerouslySetInnerHTML={{ __html: svgContent || '<div style="text-align: center; color: #666; display: flex; align-items: center; justify-content: center; height: 100%;">Сектор пуст</div>' }}
             style={{ width: '100%', height: '100%', minHeight: 0, minWidth: 0, display: 'block' }}
