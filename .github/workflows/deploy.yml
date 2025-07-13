@@ -11,8 +11,8 @@ jobs:
       - name: SSH and deploy
         uses: appleboy/ssh-action@master
         with:
-          host: 194.87.187.153
-          username: root
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/paints-by-numbers/paint-by-number
