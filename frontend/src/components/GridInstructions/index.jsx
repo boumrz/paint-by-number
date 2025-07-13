@@ -3,7 +3,6 @@ import { Carousel, Progress } from 'antd';
 import { useMediaQuery } from 'usehooks-ts';
 import "antd/dist/reset.css";
 import { InstructionSlide } from './InstructionSlide';
-import { SVGExporter } from './SVGExporter';
 import './GridInstructions.module.css';
 
 // Компонент инструкции для квадратов с каруселью
@@ -351,15 +350,6 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
             </div>
           </div>
         </div>
-        
-        {/* Компонент экспорта SVG */}
-        <SVGExporter 
-          idList={idList}
-          svgData={svgData}
-          title={title}
-          orientation={orientation}
-          currentSlide={currentSlide}
-        />
       </div>
     );
   };
