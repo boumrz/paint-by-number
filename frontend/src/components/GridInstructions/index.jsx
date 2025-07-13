@@ -11,6 +11,8 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
     const [loadedSlides, setLoadedSlides] = useState(new Set([0, 1, 2]));
     const [forceUpdate, setForceUpdate] = useState(0);
     const [isExporting, setIsExporting] = useState(false);
+    const [exportProgress, setExportProgress] = useState(0);
+    const [exportStatus, setExportStatus] = useState('');
     const mainCarouselRef = useRef(null);
     const navigationRef = useRef(null);
     const isPhone = useMediaQuery('(max-width: 400px)');
@@ -232,13 +234,27 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
       if (isExporting) return; // Предотвращаем повторные клики
       
       setIsExporting(true);
+      setExportProgress(0);
+      setExportStatus('Подготовка к экспорту...');
+      
       try {
         console.log('Начинаем экспорт всех секторов...');
-        await exportAllSectorsToPdf(svgData, idList, orientation);
+        await exportAllSectorsToPdf(
+          svgData, 
+          idList, 
+          orientation,
+          (progress, status) => {
+            setExportProgress(progress);
+            setExportStatus(status);
+          }
+        );
       } catch (error) {
         console.error('Ошибка при экспорте всех секторов:', error);
+        setExportStatus('Ошибка при создании PDF');
       } finally {
         setIsExporting(false);
+        setExportProgress(0);
+        setExportStatus('');
       }
     };
 
@@ -271,6 +287,39 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
           >
             {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт PDF'}
           </Button>
+          
+          {/* Прогресс-бар экспорта */}
+          {isExporting && (
+            <div style={{
+              width: '100%',
+              margin: '1rem auto 0 auto',
+              padding: '1rem',
+              background: '#f8f9fa',
+              borderRadius: '8px',
+              border: '1px solid #e9ecef'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontSize: '0.875rem', color: '#495057' }}>
+                  {exportStatus}
+                </span>
+                <span style={{ fontSize: '0.875rem', color: '#1890ff', fontWeight: 'bold' }}>
+                  {exportProgress}%
+                </span>
+              </div>
+              <Progress 
+                percent={exportProgress} 
+                size="small" 
+                strokeColor="#1890ff"
+                showInfo={false}
+                status={exportProgress === 100 ? 'success' : 'active'}
+              />
+            </div>
+          )}
         </div>
         
         {/* Индикатор прогресса загрузки */}

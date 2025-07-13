@@ -6,7 +6,7 @@ import { svg2pdf } from "svg2pdf.js";
 import s from './InstructionSlide.module.css';
 
 // Функция для экспорта всех секторов в PDF
-export async function exportAllSectorsToPdf(svgData, idList, orientation) {
+export async function exportAllSectorsToPdf(svgData, idList, orientation, progressCallback = null) {
   try {
     // Параметры сетки в зависимости от ориентации
     const gridCols = orientation === 'horizontal' ? 16 : 8;
@@ -18,10 +18,17 @@ export async function exportAllSectorsToPdf(svgData, idList, orientation) {
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
+    if (progressCallback) {
+      progressCallback(0, 'Подготовка к экспорту...');
+    }
+
     // Экспортируем секторы по два на страницу
     for (let sectorNumber = 1; sectorNumber <= total; sectorNumber += 2) {
       const progress = Math.round((sectorNumber / total) * 100);
-      console.log(`Sectors processing ${sectorNumber}-${Math.min(sectorNumber + 1, total)}/${total} (${progress}%)`);
+      
+      if (progressCallback) {
+        progressCallback(progress, `Обработка секторов`);
+      }
       
       // Добавляем новую страницу (кроме первой)
       if (sectorNumber > 1) {
@@ -128,6 +135,11 @@ export async function exportAllSectorsToPdf(svgData, idList, orientation) {
     // Сохраняем PDF
     const totalPages = Math.ceil(total / 2) + 1; // +1 для информационной страницы
     const filename = `paint-by-number-sectors-${orientation}-${total}-${totalPages}pages.pdf`;
+    
+    if (progressCallback) {
+      progressCallback(100, 'Сохранение PDF файла...');
+    }
+    
     pdf.save(filename);
     console.log(`Экспорт всех ${total} секторов завершен! Файл сохранен как: ${filename} (${totalPages} страниц)`);
   } catch (error) {
