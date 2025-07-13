@@ -5,6 +5,15 @@ import { jsPDF } from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import s from './InstructionSlide.module.css';
 
+// Функция для получения описания позиции сектора
+function getSectorPosition(sectorNumber, gridCols, gridRows) {
+  const row = Math.floor((sectorNumber - 1) / gridCols);
+  const col = (sectorNumber - 1) % gridCols;
+  
+  // Используем простые числовые обозначения для совместимости
+  return `row ${row + 1}, col ${col + 1}`;
+}
+
 // Функция для экспорта всех секторов в PDF
 export async function exportAllSectorsToPdf(svgData, idList, orientation) {
   try {
@@ -18,116 +27,136 @@ export async function exportAllSectorsToPdf(svgData, idList, orientation) {
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    console.log(`Начинаем экспорт ${total} секторов...`);
+    // Используем встроенные шрифты с поддержкой кириллицы
+    // jsPDF имеет встроенную поддержку для некоторых шрифтов
 
-    // Экспортируем каждый сектор на отдельную страницу
-    for (let sectorNumber = 1; sectorNumber <= total; sectorNumber++) {
+    console.log(`Начинаем экспорт ${total} секторов (по 2 на страницу)...`);
+
+    // Экспортируем секторы по два на страницу
+    for (let sectorNumber = 1; sectorNumber <= total; sectorNumber += 2) {
       const progress = Math.round((sectorNumber / total) * 100);
-      console.log(`Обрабатываем сектор ${sectorNumber}/${total} (${progress}%)`);
+      console.log(`Обрабатываем секторы ${sectorNumber}-${Math.min(sectorNumber + 1, total)}/${total} (${progress}%)`);
       
-      // Обновляем заголовок страницы с прогрессом
-      if (sectorNumber === 1) {
-        console.log('Создаем первую страницу...');
-      } else {
-        console.log(`Добавляем страницу ${sectorNumber}...`);
-      }
-      
-      // Получаем SVG контент для сектора
-      const svgContent = getSquareSvg(sectorNumber, orientation, idList, svgData);
-      
-      if (!svgContent) {
-        console.warn(`SVG контент не найден для сектора ${sectorNumber}`);
-        continue;
-      }
-
       // Добавляем новую страницу (кроме первой)
       if (sectorNumber > 1) {
         pdf.addPage();
       }
 
-      // Создаем временный SVG в DOM
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = svgContent;
-      document.body.appendChild(tempDiv);
-      const svgElement = tempDiv.querySelector("svg");
-
-      if (!svgElement) {
-        console.warn(`SVG элемент не найден для сектора ${sectorNumber}`);
-        document.body.removeChild(tempDiv);
-        continue;
-      }
-
       // Добавляем заголовок страницы
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(`Сектор ${sectorNumber}`, pageWidth / 2, 30, { align: 'center' });
+      const pageTitle = sectorNumber + 1 <= total 
+        ? `Sectors ${sectorNumber} and ${sectorNumber + 1}`
+        : `Sector ${sectorNumber}`;
+      pdf.text(pageTitle, pageWidth / 2, 30, { align: 'center' });
 
       // Добавляем подзаголовок с информацией о сетке
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
-      const gridInfo = `${gridCols}×${gridRows} сетка, ${orientation === 'horizontal' ? 'горизонтальная' : 'вертикальная'} ориентация`;
+      const gridInfo = `${gridCols}×${gridRows} grid, ${orientation === 'horizontal' ? 'horizontal' : 'vertical'} orientation`;
       pdf.text(gridInfo, pageWidth / 2, 45, { align: 'center' });
 
-      // Конвертируем SVG в PDF
-      await svg2pdf(svgElement, pdf, {
-        x: 50,
-        y: 60, // Немного ниже из-за заголовков
-        width: pageWidth - 100,
-        height: pageHeight - 120, // Учитываем место для заголовков
-      });
+      // Добавляем инструкцию по использованию
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      const instruction = 'Each sector contains detailed coloring instructions';
+      pdf.text(instruction, pageWidth / 2, 55, { align: 'center' });
 
-      // Удаляем временный элемент
-      document.body.removeChild(tempDiv);
-      
+      // Добавляем разделительную линию между секторами
+      if (sectorNumber + 1 <= total) {
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(1);
+        pdf.line(pageWidth / 2, 60, pageWidth / 2, pageHeight - 40);
+      }
+
+      // Обрабатываем первый сектор на странице
+      const svgContent1 = getSquareSvg(sectorNumber, orientation, idList, svgData);
+      if (svgContent1) {
+        const tempDiv1 = document.createElement("div");
+        tempDiv1.innerHTML = svgContent1;
+        document.body.appendChild(tempDiv1);
+        const svgElement1 = tempDiv1.querySelector("svg");
+
+                 if (svgElement1) {
+           // Конвертируем первый SVG в PDF (левая половина страницы)
+           await svg2pdf(svgElement1, pdf, {
+             x: 30,
+             y: 70, // Немного ниже из-за дополнительного текста
+             width: (pageWidth - 80) / 2, // Половина ширины с отступами
+             height: pageHeight - 160, // Оставляем место для номера сектора
+           });
+           
+           // Добавляем номер сектора под изображением
+           pdf.setFontSize(12);
+           pdf.setFont('helvetica', 'bold');
+           const sector1Info = `Sector ${sectorNumber} (${getSectorPosition(sectorNumber, gridCols, gridRows)})`;
+           pdf.text(sector1Info, 30 + (pageWidth - 80) / 4, pageHeight - 60, { align: 'center' });
+         }
+         document.body.removeChild(tempDiv1);
+       }
+
+      // Обрабатываем второй сектор на странице (если он существует)
+      if (sectorNumber + 1 <= total) {
+        const svgContent2 = getSquareSvg(sectorNumber + 1, orientation, idList, svgData);
+        if (svgContent2) {
+          const tempDiv2 = document.createElement("div");
+          tempDiv2.innerHTML = svgContent2;
+          document.body.appendChild(tempDiv2);
+          const svgElement2 = tempDiv2.querySelector("svg");
+
+                     if (svgElement2) {
+             // Конвертируем второй SVG в PDF (правая половина страницы)
+             await svg2pdf(svgElement2, pdf, {
+               x: pageWidth / 2 + 10, // Правая половина с небольшим отступом
+               y: 70, // Немного ниже из-за дополнительного текста
+               width: (pageWidth - 80) / 2,
+               height: pageHeight - 160, // Оставляем место для номера сектора
+             });
+             
+             // Добавляем номер сектора под изображением
+             pdf.setFontSize(12);
+             pdf.setFont('helvetica', 'bold');
+             const sector2Info = `Sector ${sectorNumber + 1} (${getSectorPosition(sectorNumber + 1, gridCols, gridRows)})`;
+             pdf.text(sector2Info, pageWidth / 2 + 10 + (pageWidth - 80) / 4, pageHeight - 60, { align: 'center' });
+           }
+           document.body.removeChild(tempDiv2);
+        }
+      }
+
       // Небольшая задержка для предотвращения зависания браузера
-      if (sectorNumber < total) {
+      if (sectorNumber + 2 <= total) {
         await new Promise(resolve => setTimeout(resolve, 10));
       }
     }
 
+    // Добавляем информационную страницу в конце
+    pdf.addPage();
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Usage Instructions', pageWidth / 2, 50, { align: 'center' });
+    
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+    const instructions = [
+      '1. Each sector contains detailed coloring instructions',
+      '2. Numbers in sectors correspond to color numbers in palette',
+      '3. Color sectors in order or selectively',
+      '4. Use specified colors for best results',
+      '5. Use magnifying glass for small details if needed'
+    ];
+    
+    instructions.forEach((instruction, index) => {
+      pdf.text(instruction, 50, 100 + index * 25);
+    });
+
     // Сохраняем PDF
-    const filename = `paint-by-number-sectors-${orientation}-${total}.pdf`;
+    const totalPages = Math.ceil(total / 2) + 1; // +1 для информационной страницы
+    const filename = `paint-by-number-sectors-${orientation}-${total}-${totalPages}pages.pdf`;
     pdf.save(filename);
-    console.log(`Экспорт всех ${total} секторов завершен! Файл сохранен как: ${filename}`);
+    console.log(`Экспорт всех ${total} секторов завершен! Файл сохранен как: ${filename} (${totalPages} страниц)`);
   } catch (error) {
     console.error('Ошибка при экспорте всех секторов:', error);
     alert('Ошибка при создании PDF файла со всеми секторами');
-  }
-}
-
-async function exportSvgToPdf(svgContent) {
-  try {
-    // 1. Создаем PDF-документ с помощью jsPDF
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // 2. Создаем временный SVG в DOM
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = svgContent;
-    document.body.appendChild(tempDiv);
-    const svgElement = tempDiv.querySelector("svg");
-
-    if (!svgElement) {
-      throw new Error('SVG элемент не найден');
-    }
-
-    // 3. Конвертируем SVG в PDF
-    await svg2pdf(svgElement, pdf, {
-      x: 50,
-      y: 50,
-      width: pageWidth - 100, // Оставляем отступы по 50pt с каждой стороны
-      height: pageHeight - 100,
-    });
-
-    // 4. Удаляем временный элемент
-    document.body.removeChild(tempDiv);
-
-    // 5. Сохраняем PDF
-    pdf.save("output.pdf");
-  } catch (error) {
-    console.error('Ошибка при экспорте PDF:', error);
-    alert('Ошибка при создании PDF файла');
   }
 }
 
@@ -155,7 +184,6 @@ export const InstructionSlide = memo(({ orientation, svgData, idList, squareNumb
         }}
       >
         <div className={s.sector}>
-          <button onClick={() => exportSvgToPdf(svgContent)}>Экспорт</button>
           Сектор {squareNumber}
         </div>
         <div className={s.slide}>

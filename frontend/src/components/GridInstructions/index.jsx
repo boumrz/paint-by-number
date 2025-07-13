@@ -264,20 +264,13 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
               fontWeight: 'bold',
               padding: '0 2rem',
               height: 'auto',
+              width: '100%',
               fontSize: '1rem'
             }}
             loading={isExporting}
           >
-            {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт всех секторов в PDF'}
+            {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт PDF'}
           </Button>
-          <div style={{ 
-            fontSize: '0.75rem', 
-            color: '#666', 
-            marginTop: '0.5rem',
-            fontStyle: 'italic'
-          }}>
-            Каждый сектор будет на отдельной странице
-          </div>
         </div>
         
         {/* Индикатор прогресса загрузки */}
@@ -292,7 +285,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
             border: '1px solid #d6e4ff'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.875rem', color: '#666' }}>Загрузка инструкций...</span>
+              <span style={{ fontSize: '0.875rem', color: '#666' }}>Прогресс</span>
               <span style={{ fontSize: '0.875rem', color: '#1890ff' }}>{loadingProgress}%</span>
             </div>
             <Progress 
