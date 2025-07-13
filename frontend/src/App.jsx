@@ -40,6 +40,7 @@ function App() {
   const [userUploadedImages, setUserUploadedImages] = useState(false);
 
   const [previewImage, setPreviewImage] = useState(null);
+  const [isCropping, setIsCropping] = useState(false);
 
   // Crop image to square using react-easy-crop
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
@@ -133,14 +134,14 @@ function App() {
         const respBW = await axios.post(
           `${config.apiUrl}/api/convert-pixels-bw`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
         );
         setPreviewBW(respBW.data.svg);
         
         const respSepia = await axios.post(
           `${config.apiUrl}/api/convert-pixels-sepia`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
         );
         setPreviewSepia(respSepia.data.svg);
       } else {
@@ -148,18 +149,21 @@ function App() {
         const respBW = await axios.post(
           `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
         );
         setPreviewBW(respBW.data.svg);
         
         const respSepia = await axios.post(
           `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
         );
         setPreviewSepia(respSepia.data.svg);
       }
     } catch (error) {
+      if (error.code === 'ECONNABORTED') {
+        alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+      }
       console.error("Error creating preview images:", error);
     }
   }, [orientation]);
@@ -181,95 +185,114 @@ function App() {
 
   const handleCropConfirm = useCallback(async () => {
     if (!cropImage || !croppedAreaPixels) return;
-    
-    if (orientation === "vertical") {
-      // Для вертикальных изображений создаем два разных изображения
-      getCroppedImg(
-        cropImage,
-        croppedAreaPixels,
-        async (originalBlob, previewUrl) => {
-          // Создаем превью в оригинальной ориентации
-          await createPreviewImages(originalBlob);
-          
-          // Создаем повернутое изображение для сервера
-          getRotatedImg(
-            cropImage,
-            croppedAreaPixels,
-            async (rotatedBlob) => {
+    setIsCropping(true);
+    try {
+      if (orientation === "vertical") {
+        // Для вертикальных изображений создаем два разных изображения
+        getCroppedImg(
+          cropImage,
+          croppedAreaPixels,
+          async (originalBlob, previewUrl) => {
+            try {
+              // Создаем превью в оригинальной ориентации
+              await createPreviewImages(originalBlob);
+              // Создаем повернутое изображение для сервера
+              getRotatedImg(
+                cropImage,
+                croppedAreaPixels,
+                async (rotatedBlob) => {
+                  setShowCrop(false);
+                  setCropImage(null);
+                  setCrop({ x: 0, y: 0 });
+                  setZoom(1);
+                  setShowDemo(true);
+                  setPreviewImage(previewUrl); // Оригинальное изображение для превью
+                  try {
+                    const formData = new FormData();
+                    formData.append("image", rotatedBlob, "cropped.jpg"); // Повернутое изображение для сервера
+                    // Генерируем только горизонтальный холст с повернутым изображением
+                    const respHorizontalBW = await axios.post(
+                      `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
+                      formData,
+                      { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
+                    );
+                    setHorizontalSvgDataBW(respHorizontalBW.data.svg);
+                    setHorizontalIdList(respHorizontalBW.data.palette);
+                    const respHorizontalSepia = await axios.post(
+                      `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
+                      formData,
+                      { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
+                    );
+                    setHorizontalSvgDataSepia(respHorizontalSepia.data.svg);
+                  } catch (error) {
+                    if (error.code === 'ECONNABORTED') {
+                      alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+                    }
+                    console.error("Error processing image:", error);
+                    console.error("Error response:", error.response?.data);
+                    console.error("Error status:", error.response?.status);
+                  }
+                  setCroppingFor(null);
+                  setIsCropping(false);
+                }
+              );
+            } catch (error) {
+              setIsCropping(false);
+              throw error;
+            }
+          }
+        );
+      } else {
+        // Для горизонтальных изображений используем обычную логику
+        getCroppedImg(
+          cropImage,
+          croppedAreaPixels,
+          async (croppedBlob, previewUrl) => {
+            try {
+              // Создаем превью в оригинальной ориентации
+              await createPreviewImages(croppedBlob);
               setShowCrop(false);
               setCropImage(null);
               setCrop({ x: 0, y: 0 });
               setZoom(1);
               setShowDemo(true);
-              setPreviewImage(previewUrl); // Оригинальное изображение для превью
-              
+              setPreviewImage(previewUrl);
               try {
                 const formData = new FormData();
-                formData.append("image", rotatedBlob, "cropped.jpg"); // Повернутое изображение для сервера
-                // Генерируем только горизонтальный холст с повернутым изображением
-                const respHorizontalBW = await axios.post(
+                formData.append("image", croppedBlob, "cropped.jpg");
+                const respBW = await axios.post(
                   `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
                   formData,
-                  { headers: { "Content-Type": "multipart/form-data" } }
+                  { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
                 );
-                setHorizontalSvgDataBW(respHorizontalBW.data.svg);
-                setHorizontalIdList(respHorizontalBW.data.palette);
-                const respHorizontalSepia = await axios.post(
+                setHorizontalSvgDataBW(respBW.data.svg);
+                setHorizontalIdList(respBW.data.palette);
+                const respSepia = await axios.post(
                   `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
                   formData,
-                  { headers: { "Content-Type": "multipart/form-data" } }
+                  { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
                 );
-                setHorizontalSvgDataSepia(respHorizontalSepia.data.svg);
+                setHorizontalSvgDataSepia(respSepia.data.svg);
               } catch (error) {
-                console.error("Error processing image:", error);
+                if (error.code === 'ECONNABORTED') {
+                  alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+                }
+                console.error("Error processing horizontal image:", error);
                 console.error("Error response:", error.response?.data);
                 console.error("Error status:", error.response?.status);
               }
               setCroppingFor(null);
+              setIsCropping(false);
+            } catch (error) {
+              setIsCropping(false);
+              throw error;
             }
-          );
-        }
-      );
-    } else {
-      // Для горизонтальных изображений используем обычную логику
-      getCroppedImg(
-        cropImage,
-        croppedAreaPixels,
-        async (croppedBlob, previewUrl) => {
-          // Создаем превью в оригинальной ориентации
-          await createPreviewImages(croppedBlob);
-          
-          setShowCrop(false);
-          setCropImage(null);
-          setCrop({ x: 0, y: 0 });
-          setZoom(1);
-          setShowDemo(true);
-          setPreviewImage(previewUrl);
-          
-          try {
-            const formData = new FormData();
-            formData.append("image", croppedBlob, "cropped.jpg");
-            const respBW = await axios.post(
-              `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
-              formData,
-              { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            setHorizontalSvgDataBW(respBW.data.svg);
-            setHorizontalIdList(respBW.data.palette);
-            const respSepia = await axios.post(
-              `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
-              formData,
-              { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            setHorizontalSvgDataSepia(respSepia.data.svg);
-          } catch (error) {
-            console.error("Error processing horizontal image:", error);
-            console.error("Error response:", error.response?.data);
-            console.error("Error status:", error.response?.status);
           }
-          setCroppingFor(null);
-        }
-      );
+        );
+      }
+    } catch (error) {
+      setIsCropping(false);
+      throw error;
     }
   }, [cropImage, croppedAreaPixels, orientation, getRotatedImg, createPreviewImages]);
 
@@ -312,7 +335,7 @@ function App() {
       const respHorizontalBW = await axios.post(
         `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
       );
       setHorizontalSvgDataBW(respHorizontalBW.data.svg);
       setHorizontalIdList(respHorizontalBW.data.palette);
@@ -320,10 +343,13 @@ function App() {
       const respHorizontalSepia = await axios.post(
         `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
       );
       setHorizontalSvgDataSepia(respHorizontalSepia.data.svg);
     } catch (error) {
+      if (error.code === 'ECONNABORTED') {
+        alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+      }
       console.error("Error processing demo image:", error);
     }
   }, [createPreviewImages]);
@@ -374,6 +400,7 @@ function App() {
               horizontalColorCount={horizontalColorCount}
               setHorizontalColorCount={setHorizontalColorCount}
               orientation={orientation}
+              isCropping={isCropping}
             />
           )
         }

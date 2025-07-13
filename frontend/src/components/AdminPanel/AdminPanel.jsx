@@ -15,7 +15,7 @@ const AdminPanel = () => {
 
   const loadStats = async () => {
     try {
-      const response = await axios.get(`${config.apiUrl}/api/admin/stats`);
+      const response = await axios.get(`${config.apiUrl}/api/admin/stats`, { timeout: 30000 });
       setStats(response.data);
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -28,7 +28,7 @@ const AdminPanel = () => {
     setMessage('');
     
     try {
-      const response = await axios.post(`${config.apiUrl}/api/admin/generate-codes`);
+      const response = await axios.post(`${config.apiUrl}/api/admin/generate-codes`, null, { timeout: 30000 });
       
       if (response.data.success) {
         setMessage(response.data.message);
@@ -48,7 +48,8 @@ const AdminPanel = () => {
   const downloadCodes = async (filename) => {
     try {
       const response = await axios.get(`${config.apiUrl}/api/admin/download-codes/${filename}`, {
-        responseType: 'blob'
+        responseType: 'blob',
+        timeout: 30000
       });
       
       const url = window.URL.createObjectURL(new Blob([response.data]));

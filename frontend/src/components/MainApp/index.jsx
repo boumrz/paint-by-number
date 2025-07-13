@@ -40,6 +40,7 @@ export const MainApp = memo(
       handleOrientationChange,
       horizontalCurrentColor,
       setHorizontalColorCount,
+      isCropping,
     }) => {
         const isPhone = useMediaQuery("(max-width: 600px)");
 
@@ -250,13 +251,22 @@ export const MainApp = memo(
                   >
                     <button
                       onClick={handleCropConfirm}
-                      style={{ padding: "8px 24px", fontSize: 16 }}
+                      style={{ padding: "8px 24px", fontSize: 16, position: 'relative', minWidth: 120 }}
+                      disabled={isCropping}
                     >
-                      Обрезать
+                      {isCropping ? (
+                        <>
+                          <span className="spinner" style={{ marginRight: 8, display: 'inline-block', verticalAlign: 'middle' }}>⏳</span>
+                          Обрезка...
+                        </>
+                      ) : (
+                        "Обрезать"
+                      )}
                     </button>
                     <button
                       onClick={handleCropCancel}
                       style={{ padding: "8px 24px", fontSize: 16 }}
+                      disabled={isCropping}
                     >
                       Отмена
                     </button>

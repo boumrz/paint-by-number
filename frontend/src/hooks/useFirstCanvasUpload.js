@@ -22,7 +22,8 @@ const useFirstCanvasUpload = (setLoading) => {
         const response = await axios.post(`${config.apiUrl}/api/convert`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
-          }
+          },
+          timeout: 30000
         });
 
         if (response.data.palette && response.data.svg) {
@@ -32,6 +33,9 @@ const useFirstCanvasUpload = (setLoading) => {
           throw new Error('Invalid server response format');
         }
       } catch (error) {
+        if (error.code === 'ECONNABORTED') {
+          alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+        }
         console.error('Error processing image:', error);
       } finally {
         setLoading(false);
