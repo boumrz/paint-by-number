@@ -134,14 +134,14 @@ function App() {
         const respBW = await axios.post(
           `${config.apiUrl}/api/convert-pixels-bw`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
         );
         setPreviewBW(respBW.data.svg);
         
         const respSepia = await axios.post(
           `${config.apiUrl}/api/convert-pixels-sepia`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
         );
         setPreviewSepia(respSepia.data.svg);
       } else {
@@ -149,18 +149,21 @@ function App() {
         const respBW = await axios.post(
           `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
         );
         setPreviewBW(respBW.data.svg);
         
         const respSepia = await axios.post(
           `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
         );
         setPreviewSepia(respSepia.data.svg);
       }
     } catch (error) {
+      if (error.code === 'ECONNABORTED') {
+        alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+      }
       console.error("Error creating preview images:", error);
     }
   }, [orientation]);
@@ -211,17 +214,20 @@ function App() {
                     const respHorizontalBW = await axios.post(
                       `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
                       formData,
-                      { headers: { "Content-Type": "multipart/form-data" } }
+                      { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
                     );
                     setHorizontalSvgDataBW(respHorizontalBW.data.svg);
                     setHorizontalIdList(respHorizontalBW.data.palette);
                     const respHorizontalSepia = await axios.post(
                       `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
                       formData,
-                      { headers: { "Content-Type": "multipart/form-data" } }
+                      { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
                     );
                     setHorizontalSvgDataSepia(respHorizontalSepia.data.svg);
                   } catch (error) {
+                    if (error.code === 'ECONNABORTED') {
+                      alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+                    }
                     console.error("Error processing image:", error);
                     console.error("Error response:", error.response?.data);
                     console.error("Error status:", error.response?.status);
@@ -257,17 +263,20 @@ function App() {
                 const respBW = await axios.post(
                   `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
                   formData,
-                  { headers: { "Content-Type": "multipart/form-data" } }
+                  { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
                 );
                 setHorizontalSvgDataBW(respBW.data.svg);
                 setHorizontalIdList(respBW.data.palette);
                 const respSepia = await axios.post(
                   `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
                   formData,
-                  { headers: { "Content-Type": "multipart/form-data" } }
+                  { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
                 );
                 setHorizontalSvgDataSepia(respSepia.data.svg);
               } catch (error) {
+                if (error.code === 'ECONNABORTED') {
+                  alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+                }
                 console.error("Error processing horizontal image:", error);
                 console.error("Error response:", error.response?.data);
                 console.error("Error status:", error.response?.status);
@@ -326,7 +335,7 @@ function App() {
       const respHorizontalBW = await axios.post(
         `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
       );
       setHorizontalSvgDataBW(respHorizontalBW.data.svg);
       setHorizontalIdList(respHorizontalBW.data.palette);
@@ -334,10 +343,13 @@ function App() {
       const respHorizontalSepia = await axios.post(
         `${config.apiUrl}/api/convert-pixels-horizontal-sepia`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
       );
       setHorizontalSvgDataSepia(respHorizontalSepia.data.svg);
     } catch (error) {
+      if (error.code === 'ECONNABORTED') {
+        alert('Ошибка: превышено время ожидания ответа от сервера (30 секунд). Попробуйте позже.');
+      }
       console.error("Error processing demo image:", error);
     }
   }, [createPreviewImages]);
