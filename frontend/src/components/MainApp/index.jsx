@@ -112,26 +112,7 @@ export const MainApp = memo(
                             pixelBW={previewBW}
                             pixelSepia={previewSepia}
                             orientation={orientation}
-                            onSelect={handleHorizontalSelect}
-                            disabled={!isAccessGranted}
                           />
-                          {isAccessGranted && (
-                            <div
-                              style={{
-                                textAlign: "center",
-                                marginTop: "1rem",
-                                padding: "1rem",
-                                background: "rgba(0, 100, 0, 0.2)",
-                                borderRadius: "0.5rem",
-                                border: "1px solid rgba(0, 100, 0, 0.4)",
-                                color: "#006400",
-                              }}
-                            >
-                              <p style={{ margin: 0, fontSize: "0.9rem", color: "#006400", }}>
-                                &#10003; Нажмите на карточку, чтобы получить инструкцию
-                              </p>
-                            </div>
-                          )}
                         </div>
                       </div>
                     )}

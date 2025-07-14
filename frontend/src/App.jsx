@@ -304,9 +304,11 @@ function App() {
     setZoom(1);
   }, []);
 
-  const handleCodeVerified = useCallback(() => {
+  const handleCodeVerified = useCallback((mode) => {
     setIsAccessGranted(true);
     setShowInstructions(false);
+    // mode: 'bw' или 'sepia'
+    setSelectedInstruction({ type: mode, orientation: 'horizontal' }); // orientation можно доработать, если нужно
   }, []);
 
   const handleBackToGeneration = useCallback(() => {

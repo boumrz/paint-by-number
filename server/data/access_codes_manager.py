@@ -87,23 +87,22 @@ class AccessCodesManager:
         """
         return hashlib.sha256(code.encode()).hexdigest()
     
-    def generate_codes(self, count: int = 500) -> List[Dict]:
+    def generate_codes(self, count: int = 500, mode: str = "bw") -> List[Dict]:
         """
-        Генерирует указанное количество уникальных кодов доступа
-        
+        Генерирует указанное количество уникальных кодов доступа с заданным типом (bw/sepia)
         Args:
             count (int): Количество кодов для генерации
-            
+            mode (str): Тип кода ('bw' или 'sepia')
         Returns:
             list: Список сгенерированных кодов
         """
         codes_data = self.load_access_codes()
         existing_codes = {code['code'] for code in codes_data['codes']}
-        
+
         new_codes = []
         attempts = 0
         max_attempts = count * 10  # Защита от бесконечного цикла
-        
+
         while len(new_codes) < count and attempts < max_attempts:
             code = self.generate_access_code()
             if code not in existing_codes:
@@ -113,37 +112,44 @@ class AccessCodesManager:
                     'used': False,
                     'used_at': None,
                     'usage_count': 0,
-                    'generated_at': json.dumps(datetime.datetime.now().isoformat())
+                    'generated_at': json.dumps(datetime.datetime.now().isoformat()),
+                    'mode': mode
                 })
                 existing_codes.add(code)
             attempts += 1
-        
+
         # Добавляем новые коды к существующим
         codes_data['codes'].extend(new_codes)
         codes_data['generated_at'] = json.dumps(datetime.datetime.now().isoformat())
-        
+
         # Сохраняем обновленные данные
         if self.save_access_codes(codes_data):
             return new_codes
         else:
             return []
+
+    def generate_codes_bw(self, count: int = 500) -> List[Dict]:
+        """Генерирует коды только для чб"""
+        return self.generate_codes(count, mode="bw")
+
+    def generate_codes_sepia(self, count: int = 500) -> List[Dict]:
+        """Генерирует коды только для sepia"""
+        return self.generate_codes(count, mode="sepia")
     
     def verify_code(self, code: str) -> Dict:
         """
-        Проверяет код доступа
-        
+        Проверяет код доступа и возвращает его тип (mode)
         Args:
             code (str): Код для проверки
-            
         Returns:
             dict: Результат проверки
-                {'valid': bool, 'message': str}
+                {'valid': bool, 'message': str, 'mode': str}
         """
         if not code or not code.strip():
-            return {'valid': False, 'message': 'Код не предоставлен'}
-        
+            return {'valid': False, 'message': 'Код не предоставлен', 'mode': None}
+
         codes_data = self.load_access_codes()
-        
+
         # Ищем код
         for code_data in codes_data['codes']:
             if code_data['code'] == code.strip():
@@ -151,16 +157,16 @@ class AccessCodesManager:
                 if not code_data['used']:
                     code_data['used'] = True
                     code_data['used_at'] = json.dumps(datetime.datetime.now().isoformat())
-                
+
                 # Увеличиваем счетчик использований
                 if 'usage_count' not in code_data:
                     code_data['usage_count'] = 0
                 code_data['usage_count'] += 1
-                
+
                 self.save_access_codes(codes_data)
-                return {'valid': True, 'message': 'Код действителен'}
-        
-        return {'valid': False, 'message': 'Неверный код'}
+                return {'valid': True, 'message': 'Код действителен', 'mode': code_data.get('mode', 'bw')}
+
+        return {'valid': False, 'message': 'Неверный код', 'mode': None}
     
     def get_stats(self) -> Dict:
         """

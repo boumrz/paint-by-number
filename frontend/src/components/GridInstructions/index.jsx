@@ -323,7 +323,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
         </div>
         
         {/* Индикатор прогресса загрузки */}
-        {loadingProgress < 100 && (
+        {/* {loadingProgress < 100 && (
           <div style={{ 
             width: '100%', 
             maxWidth: isPhone ? '100%' : '400px', 
@@ -344,7 +344,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
               showInfo={false}
             />
           </div>
-        )}
+        )} */}
         
         {/* Счетчик текущего слайда */}
         <div style={{ 

@@ -78,7 +78,7 @@ function SvgCanvasPreview({ svg, width, height, alt }) {
  * @param {function} props.onSelect - функция выбора цвета
  * @param {boolean} props.disabled - заблокировать клики
  */
-export const ImagePreviewGallery = memo(({ original, pixelBW, pixelSepia, orientation = 'vertical', onSelect, disabled = false }) => {
+export const ImagePreviewGallery = memo(({ original, pixelBW, pixelSepia, orientation = 'vertical' }) => {
   // Размеры превью (одинаковые для всех)
   const width = orientation === 'horizontal' ? 340 : 240;
   const height = orientation === 'horizontal' ? 260 : 300;
@@ -115,27 +115,15 @@ export const ImagePreviewGallery = memo(({ original, pixelBW, pixelSepia, orient
       </div>
       <div className={styles.item}>
         <div className={styles.label}>Чёрно-белая</div>
-        {disabled ? (
-          <div className={styles.previewButton} style={{ cursor: 'not-allowed', opacity: 0.7 }}>
-            {renderSvgPreview(pixelBW, 'ЧБ', true)}
-          </div>
-        ) : (
-          <button className={styles.previewButton} type="button" onClick={() => onSelect('bw')}>
-            {renderSvgPreview(pixelBW, 'ЧБ', true)}
-          </button>
-        )}
+        <div className={styles.previewButton}>
+          {renderSvgPreview(pixelBW, 'ЧБ', true)}
+        </div>
       </div>
       <div className={styles.item}>
         <div className={styles.label}>Сепия</div>
-        {disabled ? (
-          <div className={styles.previewButton} style={{ cursor: 'not-allowed', opacity: 0.7 }}>
-            {renderSvgPreview(pixelSepia, 'Сепия', true)}
-          </div>
-        ) : (
-          <button className={styles.previewButton} type="button" onClick={() => onSelect('sepia')}>
-            {renderSvgPreview(pixelSepia, 'Сепия', true)}
-          </button>
-        )}
+        <div className={styles.previewButton}>
+          {renderSvgPreview(pixelSepia, 'Сепия', true)}
+        </div>
       </div>
     </div>
   );

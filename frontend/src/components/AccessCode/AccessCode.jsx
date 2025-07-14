@@ -47,9 +47,9 @@ const AccessCode = ({ onCodeVerified, onBackToGeneration }) => {
       if (response.data.valid) {
         setMessage('Код действителен! Доступ разрешен.');
         setIsError(false);
-        // Вызываем callback для разблокировки основного функционала
+        // Вызываем callback для разблокировки основного функционала и передачи типа кода
         if (onCodeVerified) {
-          onCodeVerified();
+          onCodeVerified(response.data.mode || 'bw');
         }
       } else {
         setMessage(response.data.message || 'Неверный код');

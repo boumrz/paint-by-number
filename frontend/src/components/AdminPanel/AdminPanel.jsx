@@ -45,6 +45,46 @@ const AdminPanel = () => {
     }
   };
 
+  const generateCodesBW = async () => {
+    setIsGenerating(true);
+    setMessage('');
+    try {
+      const response = await axios.post(`${config.apiUrl}/api/admin/generate-codes-bw`, null, { timeout: 30000 });
+      if (response.data.success) {
+        setMessage(response.data.message);
+        setLastGeneratedFile(response.data.excel_file);
+        await loadStats();
+      } else {
+        setMessage('Ошибка при генерации чб кодов');
+      }
+    } catch (error) {
+      console.error('Error generating bw codes:', error);
+      setMessage('Ошибка при генерации чб кодов');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const generateCodesSepia = async () => {
+    setIsGenerating(true);
+    setMessage('');
+    try {
+      const response = await axios.post(`${config.apiUrl}/api/admin/generate-codes-sepia`, null, { timeout: 30000 });
+      if (response.data.success) {
+        setMessage(response.data.message);
+        setLastGeneratedFile(response.data.excel_file);
+        await loadStats();
+      } else {
+        setMessage('Ошибка при генерации sepia кодов');
+      }
+    } catch (error) {
+      console.error('Error generating sepia codes:', error);
+      setMessage('Ошибка при генерации sepia кодов');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const downloadCodes = async (filename) => {
     try {
       const response = await axios.get(`${config.apiUrl}/api/admin/download-codes/${filename}`, {
@@ -106,10 +146,17 @@ const AdminPanel = () => {
           <div className={styles.actionButtons}>
             <button 
               className={styles.generateBtn}
-              onClick={generateCodes}
+              onClick={generateCodesBW}
               disabled={isGenerating}
             >
-              {isGenerating ? 'Генерация...' : 'Сгенерировать 500 кодов'}
+              {isGenerating ? 'Генерация...' : 'Сгенерировать 500 чб кодов'}
+            </button>
+            <button 
+              className={styles.generateBtn}
+              onClick={generateCodesSepia}
+              disabled={isGenerating}
+            >
+              {isGenerating ? 'Генерация...' : 'Сгенерировать 500 sepia кодов'}
             </button>
             
             {lastGeneratedFile && (

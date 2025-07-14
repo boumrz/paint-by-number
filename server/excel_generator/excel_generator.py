@@ -36,7 +36,7 @@ class ExcelGenerator:
         ws.title = "Коды доступа"
         
         # Заголовки
-        headers = ['№', 'Код доступа', 'Статус', 'Дата активации', 'Количество использований']
+        headers = ['№', 'Код доступа', 'Тип', 'Статус', 'Дата активации', 'Количество использований']
         for col, header in enumerate(headers, 1):
             cell = ws.cell(row=1, column=col, value=header)
             cell.font = Font(bold=True)
@@ -46,29 +46,26 @@ class ExcelGenerator:
         for row, code_data in enumerate(codes_data, 2):
             ws.cell(row=row, column=1, value=row-1)
             ws.cell(row=row, column=2, value=code_data['code'])
-            
+            ws.cell(row=row, column=3, value=code_data.get('mode', 'bw'))
             # Статус
             status = 'Активирован' if code_data['used'] else 'Не активирован'
-            ws.cell(row=row, column=3, value=status)
-            
+            ws.cell(row=row, column=4, value=status)
             # Дата активации
             used_at = code_data.get('used_at')
             if used_at:
                 try:
-                    # Парсим JSON строку с датой
                     import json
                     date_str = json.loads(used_at)
                     date_obj = datetime.datetime.fromisoformat(date_str.replace('Z', '+00:00'))
                     formatted_date = date_obj.strftime('%d.%m.%Y %H:%M:%S')
-                    ws.cell(row=row, column=4, value=formatted_date)
+                    ws.cell(row=row, column=5, value=formatted_date)
                 except:
-                    ws.cell(row=row, column=4, value=used_at)
+                    ws.cell(row=row, column=5, value=used_at)
             else:
-                ws.cell(row=row, column=4, value='-')
-            
+                ws.cell(row=row, column=5, value='-')
             # Количество использований
             usage_count = code_data.get('usage_count', 0)
-            ws.cell(row=row, column=5, value=usage_count)
+            ws.cell(row=row, column=6, value=usage_count)
         
         # Автоматическая ширина столбцов
         for column in ws.columns:
