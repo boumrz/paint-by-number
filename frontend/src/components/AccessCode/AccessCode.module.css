@@ -94,7 +94,7 @@
 
 .verifyBtn {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #00acc1 0%, #00bcd4 50%, #26c6da 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -105,10 +105,9 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-
 .verifyBtn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 172, 193, 0.3);
+  background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.18);
 }
 
 .verifyBtn:disabled {
@@ -158,22 +157,21 @@
 .backBtn {
   margin-top: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background: transparent;
-  color: #00acc1;
-  border: 2px solid #00acc1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
   width: 100%;
 }
-
 .backBtn:hover {
-  background: #00acc1;
-  color: white;
+  background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.18);
+  color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 172, 193, 0.2);
 }
 
 @media (max-width: 480px) {

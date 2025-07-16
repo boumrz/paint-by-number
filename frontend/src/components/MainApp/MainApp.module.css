@@ -76,7 +76,7 @@
   }
   
   .uploadButton {
-    background: linear-gradient(135deg, #00acc1 0%, #00bcd4 50%, #26c6da 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     padding: 1rem 2rem;
     border-radius: 0.5rem;
@@ -85,18 +85,18 @@
     transition: all 0.3s ease;
     white-space: nowrap;
     border: none;
-    box-shadow: 0 4px 15px rgba(0, 172, 193, 0.3);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
     font-weight: 600;
   }
   
   .uploadButton:hover {
-    background: linear-gradient(135deg, #00bcd4 0%, #26c6da 50%, #4dd0e1 100%);
+    background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 172, 193, 0.4);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.28);
   }
   
   .orderButton {
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ff8f00 100%);
+    background: linear-gradient(135deg, #6b8cff 0%, #764ba2 100%);
     color: #fff;
     padding: 1rem 2rem;
     border-radius: 0.5rem;
@@ -105,48 +105,48 @@
     transition: all 0.3s ease;
     white-space: nowrap;
     border: none;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
     font-weight: 600;
     text-decoration: none;
     display: inline-block;
   }
   
   .orderButton:hover {
-    background: linear-gradient(135deg, #f7931e 0%, #ff8f00 50%, #ff9800 100%);
+    background: linear-gradient(135deg, #667eea 0%, #6b47a2 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.28);
     color: #fff;
     text-decoration: none;
   }
   
   .uploadButtonBW {
-    background-color: #666;
+    background: linear-gradient(135deg, #5a6eea 0%, #6b47a2 100%);
     color: #fff;
     padding: 1rem 2rem;
     border-radius: 0.5rem;
     cursor: pointer;
     font-size: 1.1rem;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
     white-space: nowrap;
   }
   
   .uploadButtonBW:hover {
-    background-color: #888;
+    background: linear-gradient(135deg, #667eea 0%, #7f9cf5 100%);
   }
   
   .uploadButtonSepia {
-    background-color: #8B4513;
+    background: linear-gradient(135deg, #7f9cf5 0%, #764ba2 100%);
     color: #fff;
     padding: 1rem 2rem;
     border-radius: 0.5rem;
     cursor: pointer;
     font-size: 1.1rem;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
     white-space: nowrap;
   }
   
   .uploadButtonSepia:hover {
-    background-color: #A0522D;
+    background: linear-gradient(135deg, #667eea 0%, #6b47a2 100%);
   }
   
   .previewSection {
@@ -239,6 +239,24 @@
   .footer p {
     margin: 0;
     opacity: 0.8;
+  }
+  
+  .footerButton {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+  .footerButton:hover {
+    background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.22);
+    transform: translateY(-2px);
   }
   
   @media (max-width: 1024px) {

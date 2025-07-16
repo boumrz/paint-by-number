@@ -275,13 +275,21 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
             onClick={handleExportAllSectors}
             disabled={isExporting}
             style={{
-              background: isExporting ? '#d9d9d9' : '#52c41a',
-              borderColor: isExporting ? '#d9d9d9' : '#52c41a',
+              background: isExporting
+                ? 'linear-gradient(135deg, #d9d9d9 0%, #bdbdbd 100%)'
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderColor: isExporting ? '#d9d9d9' : '#764ba2',
+              color: '#fff',
               fontWeight: 'bold',
+              boxShadow: isExporting
+                ? 'none'
+                : '0 4px 16px rgba(102, 126, 234, 0.18)',
               padding: '0 2rem',
               height: 'auto',
               width: '100%',
-              fontSize: '1rem'
+              fontSize: '1rem',
+              borderRadius: '8px',
+              transition: 'background 0.2s, box-shadow 0.2s, transform 0.2s',
             }}
             loading={isExporting}
           >

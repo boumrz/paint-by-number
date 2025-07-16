@@ -270,15 +270,7 @@ export const MainApp = memo(
                   <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
                     <button
                       onClick={() => window.location.reload()}
-                      style={{
-                        background: "rgba(255,255,255,0.2)",
-                        border: "1px solid rgba(255,255,255,0.3)",
-                        color: "white",
-                        padding: "0.5rem 1rem",
-                        borderRadius: "0.5rem",
-                        cursor: "pointer",
-                        fontSize: "0.9rem",
-                      }}
+                      className={styles.footerButton}
                     >
                       НА ГЛАВНУЮ СТРАНИЦУ
                     </button>
@@ -287,29 +279,13 @@ export const MainApp = memo(
                         onClick={() =>
                           window.open("https://t.me/your_telegram", "_blank")
                         }
-                        style={{
-                          background: "rgba(255,255,255,0.2)",
-                          border: "1px solid rgba(255,255,255,0.3)",
-                          color: "white",
-                          padding: "0.5rem 1rem",
-                          borderRadius: "0.5rem",
-                          cursor: "pointer",
-                          fontSize: "0.9rem",
-                        }}
+                        className={styles.footerButton}
                       >
                         НАПИСАТЬ В TELEGRAM
                       </button>
                       <button
                         onClick={() => window.open("mailto:your@email.com", "_blank")}
-                        style={{
-                          background: "rgba(255,255,255,0.2)",
-                          border: "1px solid rgba(255,255,255,0.3)",
-                          color: "white",
-                          padding: "0.5rem 1rem",
-                          borderRadius: "0.5rem",
-                          cursor: "pointer",
-                          fontSize: "0.9rem",
-                        }}
+                        className={styles.footerButton}
                       >
                         НАПИСАТЬ НА ПОЧТУ
                       </button>
