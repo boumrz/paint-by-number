@@ -38,6 +38,7 @@ function App() {
   const [showDemo, setShowDemo] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [userUploadedImages, setUserUploadedImages] = useState(false);
+  const [isUserImageUploaded, setIsUserImageUploaded] = useState(false);
 
   const [previewImage, setPreviewImage] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
@@ -176,6 +177,7 @@ function App() {
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
       setUserUploadedImages(true);
+      // Не ставим isUserImageUploaded здесь, только после обрезки
     }
   }, []);
 
@@ -202,6 +204,7 @@ function App() {
                 croppedAreaPixels,
                 async (rotatedBlob) => {
                   setShowCrop(false);
+                  setIsUserImageUploaded(true); // Фото пользователя успешно загружено и обрезано
                   setCropImage(null);
                   setCrop({ x: 0, y: 0 });
                   setZoom(1);
@@ -252,6 +255,7 @@ function App() {
               // Создаем превью в оригинальной ориентации
               await createPreviewImages(croppedBlob);
               setShowCrop(false);
+              setIsUserImageUploaded(true); // Фото пользователя успешно загружено и обрезано
               setCropImage(null);
               setCrop({ x: 0, y: 0 });
               setZoom(1);
@@ -318,6 +322,7 @@ function App() {
   const handleDemoGeneration = useCallback(async () => {
     setShowDemo(true);
     setSelectedInstruction(null);
+    setIsUserImageUploaded(false); // Сбросить флаг при демо
     // Используем демо-изображение из public
     const demoImageUrl = "/flower.jpg";
     setPreviewImage(demoImageUrl); // Оригинальное изображение для превью
@@ -403,6 +408,7 @@ function App() {
               setHorizontalColorCount={setHorizontalColorCount}
               orientation={orientation}
               isCropping={isCropping}
+              isUserImageUploaded={isUserImageUploaded}
             />
           )
         }

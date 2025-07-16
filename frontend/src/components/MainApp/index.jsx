@@ -4,7 +4,7 @@ import { useMediaQuery } from "usehooks-ts";
 
 import Cropper from "react-easy-crop";
 import Modal from "react-modal";
-import { Switch, Upload, Progress, Button, Flex, Typography } from "antd";
+import { Switch, Button, Flex, Typography } from "antd";
 import "antd/dist/reset.css";
 
 import { GridInstructions } from "../GridInstructions";
@@ -12,6 +12,8 @@ import { ImagePreviewGallery } from "../ImagePreviewGallery";
 
 import styles from "./MainApp.module.css";
 import { useState } from "react";
+
+import { UploadImage } from './UploadImage';
 
 const { Title, Paragraph } = Typography;
 
@@ -44,39 +46,25 @@ export const MainApp = memo(
       horizontalCurrentColor,
       setHorizontalColorCount,
       isCropping,
+      isUserImageUploaded,
     }) => {
         const isPhone = useMediaQuery("(max-width: 600px)");
-        
-        // state for new upload
+
         const [uploadedImage, setUploadedImage] = useState(null);
         const [isGenerating, setIsGenerating] = useState(false);
-        const [generationProgress, setGenerationProgress] = useState(0);
         const [uploadedFile, setUploadedFile] = useState(null);
-
-        const handleImageUpload = info => {
-          if (info.file.status === 'done' || info.file.status === 'uploading') {
-            const file = info.file.originFileObj || info.file;
-            if (file) {
-              setUploadedImage(URL.createObjectURL(file));
-              setUploadedFile(file);
-            }
-          }
-        };
 
         const handleGenerate = async () => {
           if (!uploadedFile) return;
           setIsGenerating(true);
-          setGenerationProgress(0);
-          // Эмулируем event для handleUploadImageFile
           const fakeEvent = { target: { files: [uploadedFile] } };
           try {
             await handleUploadImageFile(fakeEvent);
-            setGenerationProgress(100);
           } finally {
             setIsGenerating(false);
           }
         };
-        
+
         return (
             <div className={styles.app}>
               <header className={styles.header}>
@@ -103,106 +91,64 @@ export const MainApp = memo(
                       </div>
                     )}
         
-                    {showDemo && (
+                    {showDemo && !isUserImageUploaded && (
+                      <UploadImage
+                          isGenerating={isGenerating}
+                          orientation={orientation}
+                          previewSepia={previewSepia}
+                          previewBW={previewBW}
+                          previewImage={previewImage}
+                          uploadedImage={uploadedImage}
+                          handleGenerate={handleGenerate}
+                          setUploadedImage={setUploadedImage}
+                          setUploadedFile={setUploadedFile}
+                      />
+                    )}
+
+                    {showDemo && isUserImageUploaded && (
                       <div className={styles.uploadSection} style={{ marginTop: "2rem", width: "100%" }}>
                         <div className={styles.uploadGrid}>
                           <Flex vertical gap={16}>
                             <Flex vertical>
-                              <Title level={4}>Загрузите ваше изображение</Title>
-                              <Paragraph>Выберите фотографию, которую хотите превратить в пиксель арт</Paragraph>
+                              <Title level={4}>Настройка генерации</Title>
+                              <Paragraph>Проверьте фото и выберите параметры генерации</Paragraph>
                             </Flex>
-                            <Flex justify='space-between'>
+                            <Flex justify='space-between' gap={32}>
                               <div className={styles.uploadCol}>
-                                <Upload.Dragger
-                                  name="image"
-                                  multiple={false}
-                                  onChange={handleImageUpload}
-                                  showUploadList={false}
-                                  accept="image/*"
-                                  className={styles.uploadDragger}
-                                  style={{ height: "300px" }}
-                                >
-                                  <div className={styles.uploadDraggerContent}>
-                                    <i className={`fas fa-cloud-upload-alt ${styles.uploadIcon}`}></i>
-                                    <p
-                                      id="uploadText"
-                                      className={styles.uploadText}
-                                    >
-                                      Перетащите изображение сюда
-                                    </p>
-                                    <p className={styles.uploadSubtext}>
-                                      или нажмите для выбора файла
-                                    </p>
-                                    <div className={styles.uploadHint}>
-                                      Поддерживаемые форматы: JPG, PNG, GIF
-                                    </div>
-                                  </div>
-                                </Upload.Dragger>
-                                <div className={styles.uploadInfoList}>
-                                  <div className={styles.uploadInfoItem}>
-                                    <i className="fas fa-check-circle" style={{ color: '#52c41a', marginRight: 8 }}></i>
-                                    Максимальный размер: 10 МБ
-                                  </div>
-                                  <div className={styles.uploadInfoItem}>
-                                    <i className="fas fa-check-circle" style={{ color: '#52c41a', marginRight: 8 }}></i>
-                                    Рекомендуемое разрешение: 800×600 пикселей
-                                  </div>
-                                  <div className={styles.uploadInfoItem}>
-                                    <i className="fas fa-check-circle" style={{ color: '#52c41a', marginRight: 8 }}></i>
-                                    Лучше всего подходят контрастные изображения
-                                  </div>
+                                <div className={styles.previewCard}>
+                                  <h3 className={styles.previewTitle}>Предпросмотр</h3>
+                                  <img
+                                    src={previewImage || uploadedImage}
+                                    alt="Preview"
+                                    className={styles.previewImg}
+                                  />
                                 </div>
-                              </div>                        
+                              </div>
                               <div className={styles.uploadCol}>
-                                {uploadedImage ? (
-                                  <div className={styles.previewCard}>
-                                    <h3 className={styles.previewTitle}>Предпросмотр</h3>
-                                    <img
-                                      src={uploadedImage}
-                                      alt="Uploaded"
-                                      className={styles.previewImg}
-                                    />
-                                    {isGenerating ? (
-                                      <div className={styles.generationProgress}>
-                                        <div className={styles.progressText}>
-                                          <i className="fas fa-cog fa-spin" style={{ color: '#764ba2', marginRight: 8 }}></i>
-                                          <span>Генерация пиксель арта...</span>
-                                        </div>
-                                        <Progress
-                                          percent={generationProgress}
-                                          strokeColor={{
-                                            "0%": "#667eea",
-                                            "100%": "#764ba2",
-                                          }}
-                                          className={styles.progressBar}
-                                        />
-                                      </div>
-                                    ) : (
-                                      <Button
-                                        type="primary"
-                                        size="large"
-                                        icon={<i className="fas fa-magic" style={{ marginRight: 8 }}></i>}
-                                        onClick={handleGenerate}
-                                        disabled={isGenerating}
-                                        className={styles.generateButton}
-                                        style={{
-                                          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                          border: 'none',
-                                        }}
-                                      >
-                                        Сгенерировать пиксель арт
-                                      </Button>
-                                    )}
+                                <div className={styles.previewCard} style={{ minHeight: 300, justifyContent: 'center' }}>
+                                  <h3 className={styles.previewTitle}>Параметры генерации</h3>
+                                  <div style={{ marginBottom: 16 }}>
+                                    <div style={{ marginBottom: 8, color: '#888' }}>Количество цветов: <b>12</b></div>
+                                    <div style={{ marginBottom: 8, color: '#888' }}>Размер сетки: <b>8x16</b></div>
+                                    <div style={{ marginBottom: 8, color: '#888' }}>Режим: <b>ЧБ</b></div>
+                                    <div style={{ marginBottom: 8, color: '#888' }}>Ориентация: <b>Вертикально</b></div>
                                   </div>
-                                ) : (
-                                  <div className={styles.previewPlaceholder}>
-                                    <i className="fas fa-image" style={{ fontSize: 64, color: '#d1c4e9', marginBottom: 16 }}></i>
-                                    <p className={styles.previewPlaceholderText}>Изображение появится здесь</p>
-                                  </div>
-                                )}
+                                  <Button
+                                    type="primary"
+                                    size="large"
+                                    className={styles.generateButton}
+                                    style={{
+                                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                      border: 'none',
+                                    }}
+                                    onClick={handleGetInstructions}
+                                  >
+                                    Создать инструкцию
+                                  </Button>
+                                </div>
                               </div>
                             </Flex>
-                          </Flex>  
+                          </Flex>
                         </div>
                         {/* Показываем превью после генерации */}
                         <div style={{ marginTop: 32 }}>
@@ -213,34 +159,6 @@ export const MainApp = memo(
                             orientation={orientation}
                           />
                         </div>
-                      </div>
-                    )}
-        
-                    {showDemo && !isAccessGranted && (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          marginTop: "1rem",
-                          padding: "1rem",
-                          background: "rgba(0, 172, 193, 0.1)",
-                          borderRadius: "0.5rem",
-                          border: "1px solid rgba(0, 172, 193, 0.3)",
-                          color: "#006064",
-                        }}
-                      >
-                        <p style={{ margin: 0, fontSize: "0.9rem" }}>
-                          💡 <strong>Демо-режим:</strong> Вы можете загружать свои
-                          фотографии и смотреть результат генерации. Для получения
-                          инструкций нажмите "ПОЛУЧИТЬ ИНСТРУКЦИЮ" и введите код
-                          доступа.
-                        </p>
-                        <button
-                          onClick={handleGetInstructions}
-                          className={styles.uploadButton}
-                          style={{ marginTop: "0.5rem" }}
-                        >
-                          ПОЛУЧИТЬ ИНСТРУКЦИЮ
-                        </button>
                       </div>
                     )}
         
