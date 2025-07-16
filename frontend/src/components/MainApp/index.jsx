@@ -47,6 +47,8 @@ export const MainApp = memo(
       setHorizontalColorCount,
       isCropping,
       isUserImageUploaded,
+      isInstructionGenerated,
+      handleExportAllSectors,
     }) => {
         const isPhone = useMediaQuery("(max-width: 600px)");
 
@@ -105,7 +107,7 @@ export const MainApp = memo(
                       />
                     )}
 
-                    {showDemo && isUserImageUploaded && (
+                    {showDemo && isUserImageUploaded && !isInstructionGenerated && (
                       <div className={styles.uploadSection} style={{ marginTop: "2rem", width: "100%" }}>
                         <div className={styles.uploadGrid}>
                           <Flex vertical gap={16}>
@@ -161,31 +163,74 @@ export const MainApp = memo(
                         </div>
                       </div>
                     )}
+
+                    {/* Третий шаг: просмотр инструкции */}
+                    {showDemo && isUserImageUploaded && isInstructionGenerated && (
+                      <div className={styles.uploadSection} style={{ marginTop: "2rem", width: "100%" }}>
+                        <div className={styles.uploadGrid}>
+                          {/* ВЕРХ: превью */}
+                          <div style={{ marginBottom: 32 }}>
+                            <ImagePreviewGallery
+                              original={previewImage}
+                              pixelBW={previewBW}
+                              pixelSepia={previewSepia}
+                              orientation={orientation}
+                            />
+                          </div>
+                          {/* ОСНОВНОЙ КОНТЕНТ: две колонки */}
+                          <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                            {/* Левая колонка: инструкция */}
+                            <div style={{ flex: 2, minWidth: 0 }}>
+                              <div className={styles.instructionCard}>
+                                <h2 style={{ marginBottom: 16 }}>Инструкция</h2>
+                                {/* Экспорт в PDF и карусель */}
+                                <div style={{ marginBottom: 24 }}>
+                                  <Button
+                                    type="primary"
+                                    size="large"
+                                    className={styles.generateButton}
+                                    style={{ marginBottom: 16, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", border: 'none' }}
+                                    onClick={handleExportAllSectors}
+                                  >
+                                    Экспорт в PDF
+                                  </Button>
+                                </div>
+                                {/* Карусель номеров (перенести из GridInstructions) */}
+                                <div style={{ marginBottom: 24 }}>
+                                  <GridInstructions
+                                    idList={horizontalIdList}
+                                    svgData={horizontalSvgDataBW}
+                                    orientation='horizontal'
+                                    title="Инструкция"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            {/* Правая колонка: легенда и советы */}
+                            <div style={{ flex: 1, minWidth: 260, maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                              <div className={styles.legendCard}>
+                                <h3 style={{ marginBottom: 12 }}>Легенда цветов</h3>
+                                <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
+                                  <li>1 — <span style={{ color: '#764ba2' }}>Фиолетовый</span></li>
+                                  <li>2 — <span style={{ color: '#667eea' }}>Синий</span></li>
+                                  <li>3 — <span style={{ color: '#52c41a' }}>Зелёный</span></li>
+                                  <li>4 — <span style={{ color: '#ffb300' }}>Жёлтый</span></li>
+                                </ul>
+                              </div>
+                              <div className={styles.tipsCard}>
+                                <h3 style={{ marginBottom: 12 }}>Советы</h3>
+                                <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
+                                  <li>Начинайте с крупных областей</li>
+                                  <li>Используйте тонкую кисть для мелких деталей</li>
+                                  <li>Дайте слоям краски высохнуть</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
         
-                    {isAccessGranted &&
-                      selectedInstruction &&
-                      selectedInstruction.orientation === "horizontal" &&
-                      selectedInstruction.type === "bw" &&
-                      horizontalSvgDataBW && (
-                        <GridInstructions
-                          idList={horizontalIdList}
-                          svgData={horizontalSvgDataBW}
-                          title="Инструкция ЧБ"
-                          orientation="horizontal"
-                        />
-                      )}
-                    {isAccessGranted &&
-                      selectedInstruction &&
-                      selectedInstruction.orientation === "horizontal" &&
-                      selectedInstruction.type === "sepia" &&
-                      horizontalSvgDataSepia && (
-                        <GridInstructions
-                          idList={horizontalIdList}
-                          svgData={horizontalSvgDataSepia}
-                          title="Инструкция Сепия"
-                          orientation="horizontal"
-                        />
-                      )}
                     {horizontalSvgDataBW && !isPhone && (
                       <HorizontalCanvasFull
                         svgData={horizontalSvgDataBW}

@@ -39,6 +39,7 @@ function App() {
   const [showInstructions, setShowInstructions] = useState(false);
   const [userUploadedImages, setUserUploadedImages] = useState(false);
   const [isUserImageUploaded, setIsUserImageUploaded] = useState(false);
+  const [isInstructionGenerated, setIsInstructionGenerated] = useState(false);
 
   const [previewImage, setPreviewImage] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
@@ -177,6 +178,7 @@ function App() {
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
       setUserUploadedImages(true);
+      setIsInstructionGenerated(false); // сброс при загрузке нового фото
       // Не ставим isUserImageUploaded здесь, только после обрезки
     }
   }, []);
@@ -313,16 +315,19 @@ function App() {
     setShowInstructions(false);
     // mode: 'bw' или 'sepia'
     setSelectedInstruction({ type: mode, orientation: 'horizontal' }); // orientation можно доработать, если нужно
+    setIsInstructionGenerated(true); // инструкция сгенерирована
   }, []);
 
   const handleBackToGeneration = useCallback(() => {
     setShowInstructions(false);
+    setIsInstructionGenerated(false); // сброс при возврате к генерации
   }, []);
 
   const handleDemoGeneration = useCallback(async () => {
     setShowDemo(true);
     setSelectedInstruction(null);
     setIsUserImageUploaded(false); // Сбросить флаг при демо
+    setIsInstructionGenerated(false); // сброс при демо
     // Используем демо-изображение из public
     const demoImageUrl = "/flower.jpg";
     setPreviewImage(demoImageUrl); // Оригинальное изображение для превью
@@ -409,6 +414,7 @@ function App() {
               orientation={orientation}
               isCropping={isCropping}
               isUserImageUploaded={isUserImageUploaded}
+              isInstructionGenerated={isInstructionGenerated}
             />
           )
         }

@@ -1,4 +1,4 @@
-import { Flex, Typography, Upload, Button } from 'antd';
+import { Flex, Typography, Upload, Button, Progress } from 'antd';
 import { ImagePreviewGallery } from '../../ImagePreviewGallery';
 import styles from "../MainApp.module.css";
 
@@ -11,7 +11,7 @@ export const UploadImage = ({
     uploadedImage, 
     previewImage, 
     isGenerating, 
-    setUploadedImage, 
+    setUploadedImage,
     setUploadedFile,
     handleGenerate,
 }) => {
@@ -86,18 +86,10 @@ export const UploadImage = ({
                         />
                         {isGenerating ? (
                             <div className={styles.generationProgress}>
-                            <div className={styles.progressText}>
-                                <i className="fas fa-cog fa-spin" style={{ color: '#764ba2', marginRight: 8 }}></i>
-                                <span>Генерация пиксель арта...</span>
-                            </div>
-                            <Progress
-                                percent={generationProgress}
-                                strokeColor={{
-                                "0%": "#667eea",
-                                "100%": "#764ba2",
-                                }}
-                                className={styles.progressBar}
-                            />
+                                <div className={styles.progressText}>
+                                    <i className="fas fa-cog fa-spin" style={{ color: '#764ba2', marginRight: 8 }}></i>
+                                    <span>Генерация пиксель арта...</span>
+                                </div>
                             </div>
                         ) : (
                             <Button
