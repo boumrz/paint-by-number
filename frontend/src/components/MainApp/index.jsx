@@ -106,10 +106,10 @@ export const MainApp = memo(
                     {showDemo && (
                       <div className={styles.uploadSection} style={{ marginTop: "2rem", width: "100%" }}>
                         <div className={styles.uploadGrid}>
-                          <Flex vertical gap={32}>
-                            <Flex vertical gap={16}>
-                              <Title level={4}>Настройка генерации</Title>
-                              <Paragraph>Настройте параметры для создания идеального пиксель арта</Paragraph>
+                          <Flex vertical gap={16}>
+                            <Flex vertical>
+                              <Title level={4}>Загрузите ваше изображение</Title>
+                              <Paragraph>Выберите фотографию, которую хотите превратить в пиксель арт</Paragraph>
                             </Flex>
                             <Flex justify='space-between'>
                               <div className={styles.uploadCol}>
