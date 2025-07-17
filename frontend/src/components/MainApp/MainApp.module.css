@@ -311,18 +311,25 @@
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
 
   width: 100%;
-  max-width: 900px;
+  width: 900px;
   padding: 32px;
   border-radius: 12px;
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .uploadCol {
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
+  padding: 20px;
+
+  :global(.ant-upload-drag:hover) {
+      border-color: transparent !important;    
+  }
 }
 .uploadDragger {
+  height: 100%;
   border: 2px dashed #b39ddb !important;
   background: #f3f0fa !important;
   border-radius: 16px !important;
@@ -380,7 +387,6 @@
 }
 .previewCard {
   border-radius: 16px;
-  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
