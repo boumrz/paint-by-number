@@ -1,45 +1,41 @@
 import { memo } from "react";
 import HorizontalCanvasFull from '../HorizontalCanvas/HorizontalCanvasFull';
-import { useMediaQuery } from "usehooks-ts";
 
+import { useMediaQuery } from "usehooks-ts";
 import Cropper from "react-easy-crop";
 import Modal from "react-modal";
-import { Switch, Button } from "antd";
+import { Switch, Flex, Button, Progress } from "antd";
 import "antd/dist/reset.css";
 
-import { GridInstructions } from "../GridInstructions";
-import { ImagePreviewGallery } from "../ImagePreviewGallery";
 import { SettingsUploadedImage } from './SettingsUploadedImage';
 
 import styles from "./MainApp.module.css";
 import { useState } from "react";
 
 import { UploadImage } from './UploadImage';
+import { Instruction } from './Instruction';
+import { exportAllSectorsToPdf } from '../GridInstructions/InstructionSlide';
 
 export const MainApp = memo(
     ({
       previewImage,
       horizontalSvgDataBW,
-      horizontalSvgDataSepia,
       previewBW,
       previewSepia,
       showCrop,
       cropImage,
       crop,
       zoom,
-      selectedInstruction,
       horizontalIdList,
       handleUploadImageFile,
       handleCropCancel,
       handleCropConfirm,
       onCropComplete,
-      setSelectedInstruction,
       setCrop,
       setZoom,
       showDemo,
       handleDemoGeneration,
       handleGetInstructions,
-      isAccessGranted,
       orientation,
       handleOrientationChange,
       horizontalCurrentColor,
@@ -47,13 +43,15 @@ export const MainApp = memo(
       isCropping,
       isUserImageUploaded,
       isInstructionGenerated,
-      handleExportAllSectors,
     }) => {
         const isPhone = useMediaQuery("(max-width: 600px)");
 
         const [uploadedImage, setUploadedImage] = useState(null);
         const [isGenerating, setIsGenerating] = useState(false);
         const [uploadedFile, setUploadedFile] = useState(null);
+        const [exportProgress, setExportProgress] = useState(0);
+        const [isExporting, setIsExporting] = useState(false);
+        const [exportStatus, setExportStatus] = useState('');
 
         const handleGenerate = async () => {
           if (!uploadedFile) return;
@@ -63,6 +61,35 @@ export const MainApp = memo(
             await handleUploadImageFile(fakeEvent);
           } finally {
             setIsGenerating(false);
+          }
+        };
+
+        // Обработчик экспорта всех секторов
+        const handleExportAllSectors = async () => {
+          if (isExporting) return; // Предотвращаем повторные клики
+          
+          setIsExporting(true);
+          setExportProgress(0);
+          setExportStatus('Подготовка к экспорту...');
+          
+          try {
+            console.log('Начинаем экспорт всех секторов...');
+            await exportAllSectorsToPdf(
+              horizontalSvgDataBW, 
+              horizontalIdList, 
+              'horizontal',
+              (progress, status) => {
+                setExportProgress(progress);
+                setExportStatus(status);
+              }
+            );
+          } catch (error) {
+            console.error('Ошибка при экспорте всех секторов:', error);
+            setExportStatus('Ошибка при создании PDF');
+          } finally {
+            setIsExporting(false);
+            setExportProgress(0);
+            setExportStatus('');
           }
         };
 
@@ -119,69 +146,21 @@ export const MainApp = memo(
 
                     {/* Третий шаг: просмотр инструкции */}
                     {showDemo && isUserImageUploaded && isInstructionGenerated && (
-                      <div className={styles.uploadSection} style={{ marginTop: "2rem", width: "100%" }}>
-                        <div className={styles.uploadGrid}>
-                          {/* ВЕРХ: превью */}
-                          <div style={{ marginBottom: 32 }}>
-                            <ImagePreviewGallery
-                              original={previewImage}
-                              pixelBW={previewBW}
-                              pixelSepia={previewSepia}
-                              orientation={orientation}
-                            />
-                          </div>
-                          {/* ОСНОВНОЙ КОНТЕНТ: две колонки */}
-                          <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                            {/* Левая колонка: инструкция */}
-                            <div style={{ flex: 2, minWidth: 0 }}>
-                              <div className={styles.instructionCard}>
-                                <h2 style={{ marginBottom: 16 }}>Инструкция</h2>
-                                {/* Экспорт в PDF и карусель */}
-                                <div style={{ marginBottom: 24 }}>
-                                  <Button
-                                    type="primary"
-                                    size="large"
-                                    className={styles.generateButton}
-                                    style={{ marginBottom: 16, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", border: 'none' }}
-                                    onClick={handleExportAllSectors}
-                                  >
-                                    Экспорт в PDF
-                                  </Button>
-                                </div>
-                                {/* Карусель номеров (перенести из GridInstructions) */}
-                                <div style={{ marginBottom: 24 }}>
-                                  <GridInstructions
-                                    idList={horizontalIdList}
-                                    svgData={horizontalSvgDataBW}
-                                    orientation='horizontal'
-                                    title="Инструкция"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            {/* Правая колонка: легенда и советы */}
-                            <div style={{ flex: 1, minWidth: 260, maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 24 }}>
-                              <div className={styles.legendCard}>
-                                <h3 style={{ marginBottom: 12 }}>Легенда цветов</h3>
-                                <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
-                                  <li>1 — <span style={{ color: '#764ba2' }}>Фиолетовый</span></li>
-                                  <li>2 — <span style={{ color: '#667eea' }}>Синий</span></li>
-                                  <li>3 — <span style={{ color: '#52c41a' }}>Зелёный</span></li>
-                                  <li>4 — <span style={{ color: '#ffb300' }}>Жёлтый</span></li>
-                                </ul>
-                              </div>
-                              <div className={styles.tipsCard}>
-                                <h3 style={{ marginBottom: 12 }}>Советы</h3>
-                                <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
-                                  <li>Начинайте с крупных областей</li>
-                                  <li>Используйте тонкую кисть для мелких деталей</li>
-                                  <li>Дайте слоям краски высохнуть</li>
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <Instruction
+                        previewImage={previewImage}
+                        previewBW={previewBW}
+                        previewSepia={previewSepia}
+                        orientation={orientation}
+                        handleExportAllSectors={handleExportAllSectors}
+                        isExporting={isExporting}
+                        horizontalIdList={horizontalIdList}
+                        horizontalSvgDataBW={horizontalSvgDataBW}
+                        exportStatus={exportStatus}
+                        exportProgress={exportProgress}
+                        setExportProgress={setExportProgress}
+                        setIsExporting={setIsExporting}
+                        setExportStatus={setExportStatus}
+                      />
                     )}
         
                     {horizontalSvgDataBW && !isPhone && (
@@ -270,7 +249,7 @@ export const MainApp = memo(
                 </Modal>
               </main>
         
-              <footer className={styles.footer}>
+              {/* <footer className={styles.footer}>
                 <div
                   style={{
                     display: "flex",
@@ -307,7 +286,7 @@ export const MainApp = memo(
                     </div>
                   </div>
                 </div>
-              </footer>
+              </footer> */}
             </div>
           );
     }

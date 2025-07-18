@@ -17,12 +17,10 @@
   }
   
   .header {
-    --tw-shadow: 0 0px 50px -12px rgb(0 0 0 / 0.1);
-    --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
-
-    color: black;
+    background: linear-gradient(135deg, #006064 0%, #00838f 50%, #0097a7 100%);
+    color: #fff;
     padding: 2rem 0;
-    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    box-shadow: 0 4px 20px rgba(0, 97, 100, 0.3);
   }
   
   .headerContent {
@@ -238,13 +236,10 @@
   }
   
   .footer {
-    --tw-shadow: 0 0px 50px -12px rgb(0 0 0 / 0.1);
-    --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
-
+    background: linear-gradient(135deg, #006064 0%, #00838f 50%, #0097a7 100%);
     color: #fff;
     padding: 2rem 0;
     text-align: center;
-    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   }
   
   .footer p {

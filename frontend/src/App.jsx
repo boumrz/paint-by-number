@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
-import { useMediaQuery } from "usehooks-ts";
+
 import { config } from "./config.js";
 
 import AdminPanel from "./components/AdminPanel/AdminPanel";
@@ -35,7 +35,7 @@ function App() {
 
   // Делаю одно:
   const [selectedInstruction, setSelectedInstruction] = useState(null); // { type: 'bw'|'sepia', orientation: 'vertical'|'horizontal' }
-  const [showDemo, setShowDemo] = useState(false);
+  const [showDemo, setShowDemo] = useState(true);
   const [showInstructions, setShowInstructions] = useState(false);
   const [userUploadedImages, setUserUploadedImages] = useState(false);
   const [isUserImageUploaded, setIsUserImageUploaded] = useState(false);

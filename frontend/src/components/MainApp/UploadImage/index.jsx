@@ -30,7 +30,7 @@ export const UploadImage = ({
 
     return (
         <div className={styles.uploadSection} style={{ marginTop: "2rem", width: "100%" }}>
-            <Flex vertical gap={20}>
+            <Flex style={{ width: "900px" }} vertical gap={20}>
                 <div className={styles.uploadGrid}>
                     <Flex vertical gap={16}>
                     <Flex vertical>
@@ -113,29 +113,24 @@ export const UploadImage = ({
                 </div>
                 <div className={styles.uploadInfoList}>
                     <div className={styles.uploadInfoItem}>
-                    <i className="fas fa-check-circle" style={{ color: '#52c41a', marginRight: 8 }}></i>
-                    Максимальный размер: 10 МБ
+                        <i className="fas fa-check-circle" style={{ color: '#52c41a', marginRight: 8 }}></i>
+                        Максимальный размер: 10 МБ
                     </div>
                     <div className={styles.uploadInfoItem}>
-                    <i className="fas fa-check-circle" style={{ color: '#52c41a', marginRight: 8 }}></i>
-                    Рекомендуемое разрешение: 800×600 пикселей
-                    </div>
-                    <div className={styles.uploadInfoItem}>
-                    <i className="fas fa-check-circle" style={{ color: '#52c41a', marginRight: 8 }}></i>
-                    Лучше всего подходят контрастные изображения
+                        <i className="fas fa-check-circle" style={{ color: '#52c41a', marginRight: 8 }}></i>
+                        Лучше всего подходят контрастные изображения
                     </div>
                 </div>
             </Flex>
-                {/* Показываем превью после генерации */}
-                <div style={{ marginTop: 32 }}>
-                    <ImagePreviewGallery
-                        original={previewImage}
-                        pixelBW={previewBW}
-                        pixelSepia={previewSepia}
-                        orientation={orientation}
-                    />
-                </div>
-            
+            {/* Показываем превью после генерации */}
+            {/* <div style={{ marginTop: 32 }}>
+                <ImagePreviewGallery
+                    original={previewImage}
+                    pixelBW={previewBW}
+                    pixelSepia={previewSepia}
+                    orientation={orientation}
+                />
+            </div> */}
         </div>
     )
 }

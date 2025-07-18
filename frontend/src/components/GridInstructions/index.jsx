@@ -2,17 +2,14 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Carousel, Progress, Button } from 'antd';
 import { useMediaQuery } from 'usehooks-ts';
 import "antd/dist/reset.css";
-import { InstructionSlide, exportAllSectorsToPdf } from './InstructionSlide';
+import { InstructionSlide } from './InstructionSlide';
 import './GridInstructions.module.css';
 
 // Компонент инструкции для квадратов с каруселью
-export const GridInstructions = ({ idList, svgData, title, orientation = 'vertical' }) => {
+export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsExporting, setExportProgress, svgData, title, orientation = 'vertical' }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [loadedSlides, setLoadedSlides] = useState(new Set([0, 1, 2]));
     const [forceUpdate, setForceUpdate] = useState(0);
-    const [isExporting, setIsExporting] = useState(false);
-    const [exportProgress, setExportProgress] = useState(0);
-    const [exportStatus, setExportStatus] = useState('');
     const mainCarouselRef = useRef(null);
     const navigationRef = useRef(null);
     const isPhone = useMediaQuery('(max-width: 400px)');
@@ -229,106 +226,8 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
     // Вычисляем прогресс загрузки
     const loadingProgress = Math.round((loadedSlides.size / total) * 100);
 
-    // Обработчик экспорта всех секторов
-    const handleExportAllSectors = async () => {
-      if (isExporting) return; // Предотвращаем повторные клики
-      
-      setIsExporting(true);
-      setExportProgress(0);
-      setExportStatus('Подготовка к экспорту...');
-      
-      try {
-        console.log('Начинаем экспорт всех секторов...');
-        await exportAllSectorsToPdf(
-          svgData, 
-          idList, 
-          orientation,
-          (progress, status) => {
-            setExportProgress(progress);
-            setExportStatus(status);
-          }
-        );
-      } catch (error) {
-        console.error('Ошибка при экспорте всех секторов:', error);
-        setExportStatus('Ошибка при создании PDF');
-      } finally {
-        setIsExporting(false);
-        setExportProgress(0);
-        setExportStatus('');
-      }
-    };
-
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
-        <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>{title}</h3>
-        
-        {/* Кнопка экспорта всех секторов */}
-        <div style={{ 
-          width: '100%',
-          maxWidth: isPhone ? '100%' : '400px',
-          margin: '0 auto 1rem auto',
-          textAlign: 'center'
-        }}>
-          <Button 
-            type="primary" 
-            size="large"
-            onClick={handleExportAllSectors}
-            disabled={isExporting}
-            style={{
-              background: isExporting
-                ? 'linear-gradient(135deg, #d9d9d9 0%, #bdbdbd 100%)'
-                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderColor: isExporting ? '#d9d9d9' : '#764ba2',
-              color: '#fff',
-              fontWeight: 'bold',
-              boxShadow: isExporting
-                ? 'none'
-                : '0 4px 16px rgba(102, 126, 234, 0.18)',
-              padding: '0 2rem',
-              height: 'auto',
-              width: '100%',
-              fontSize: '1rem',
-              borderRadius: '8px',
-              transition: 'background 0.2s, box-shadow 0.2s, transform 0.2s',
-            }}
-            loading={isExporting}
-          >
-            {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт PDF'}
-          </Button>
-          
-          {/* Прогресс-бар экспорта */}
-          {isExporting && (
-            <div style={{
-              width: '100%',
-              margin: '1rem auto 0 auto',
-              padding: '1rem',
-              background: '#f8f9fa',
-              borderRadius: '8px',
-              border: '1px solid #e9ecef'
-            }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontSize: '0.875rem', color: '#495057' }}>
-                  {exportStatus}
-                </span>
-                <span style={{ fontSize: '0.875rem', color: '#1890ff', fontWeight: 'bold' }}>
-                  {exportProgress}%
-                </span>
-              </div>
-              <Progress 
-                percent={exportProgress} 
-                size="small" 
-                strokeColor="#1890ff"
-                showInfo={false}
-                status={exportProgress === 100 ? 'success' : 'active'}
-              />
-            </div>
-          )}
-        </div>
         
         {/* Индикатор прогресса загрузки */}
         {/* {loadingProgress < 100 && (
@@ -355,7 +254,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
         )} */}
         
         {/* Счетчик текущего слайда */}
-        <div style={{ 
+        {/* <div style={{ 
           width: '100%',
           maxWidth: isPhone ? '100%' : '400px',
           margin: '0 auto 0.5rem auto',
@@ -371,12 +270,11 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
           }}>
             Сектор {currentSlide + 1} из {total}
           </span>
-        </div>
+        </div> */}
 
         <div style={{ 
           width: '100%',
           maxWidth: isPhone ? '100%' : '400px',
-          margin: '0 auto 1rem auto'
         }}>
           <Carousel
             key={`main-carousel-${forceUpdate}`}
@@ -415,8 +313,7 @@ export const GridInstructions = ({ idList, svgData, title, orientation = 'vertic
         {/* Горизонтальная навигация с номерами */}
         <div style={{ 
           width: '100%',
-          maxWidth: isPhone ? '100%' : '800px',
-          margin: '0 auto'
+          maxWidth: isPhone ? '100%' : '400px',
         }}>
           <div style={{ 
             marginBottom: '0.5rem', 
