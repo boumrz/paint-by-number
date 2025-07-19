@@ -41,6 +41,8 @@ export const MainApp = memo(
         isCropping,
         isUserImageUploaded,
         isInstructionGenerated,
+        selectedInstruction,
+        horizontalSvgDataSepia,
     }) => {
         const isPhone = useMediaQuery("(max-width: 600px)");
 
@@ -136,13 +138,13 @@ export const MainApp = memo(
                             {showDemo && isUserImageUploaded && isInstructionGenerated && (
                                 <Instruction
                                     previewImage={previewImage}
-                                    previewBW={previewBW}
-                                    previewSepia={previewSepia}
+                                    previewBW={selectedInstruction?.type === 'sepia' ? previewSepia : previewBW}
+                                    previewSepia={selectedInstruction?.type === 'sepia' ? previewSepia : previewBW}
                                     orientation={orientation}
                                     handleExportAllSectors={handleExportAllSectors}
                                     isExporting={isExporting}
                                     horizontalIdList={horizontalIdList}
-                                    horizontalSvgDataBW={horizontalSvgDataBW}
+                                    horizontalSvgDataBW={selectedInstruction?.type === 'sepia' ? horizontalSvgDataSepia : horizontalSvgDataBW}
                                     exportStatus={exportStatus}
                                     exportProgress={exportProgress}
                                     setExportProgress={setExportProgress}
