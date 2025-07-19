@@ -4,7 +4,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 97, 100, 0.9) 0%, rgba(0, 131, 143, 0.9) 50%, rgba(0, 151, 167, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 97, 100, 0.9) 0%,
+    rgba(0, 131, 143, 0.9) 50%,
+    rgba(0, 151, 167, 0.9) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -164,7 +169,10 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
   width: 100%;
 }
 .backBtn:hover {
@@ -179,13 +187,13 @@
     padding: 2rem 1.5rem;
     margin: 1rem;
   }
-  
+
   .accessCodeHeader h2 {
     font-size: 1.5rem;
   }
-  
+
   .codeInput {
     font-size: 1rem;
     padding: 0.875rem 1.25rem;
   }
-} 
+}

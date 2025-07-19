@@ -63,7 +63,10 @@
   font-weight: 600;
   font-size: 1rem;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 .button:hover {
   background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
@@ -102,11 +105,11 @@
   .container {
     padding: 0.5rem;
   }
-  
+
   .section {
     padding: 0.5rem;
   }
-  
+
   .wrapper {
     width: 100% !important;
     height: auto !important;
@@ -116,4 +119,4 @@
     margin: 0.5rem 0;
     text-align: center;
   }
-} 
+}

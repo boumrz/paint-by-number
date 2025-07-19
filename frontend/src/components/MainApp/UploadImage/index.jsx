@@ -1,8 +1,7 @@
-import { Flex, Typography, Upload, Button, Progress } from 'antd';
-import { UploadSimpleIcon } from '@phosphor-icons/react';
+import { Button, Flex,Typography, Upload } from 'antd';
 import { FaImage } from "react-icons/fa";
 import { RiUploadCloud2Fill } from "react-icons/ri";
-import { ImagePreviewGallery } from '../../ImagePreviewGallery';
+
 import styles from "../MainApp.module.css";
 
 const { Title, Text, Paragraph } = Typography;
@@ -12,99 +11,99 @@ export const UploadImage = ({
     isGenerating, 
     setUploadedImage,
     setUploadedFile,
-    handleGenerate,
+    handleGenerate, 
 }) => {
     const handleImageUpload = info => {
         if (info.file.status === 'done' || info.file.status === 'uploading') {
-          const file = info.file.originFileObj || info.file;
-          if (file) {
-            setUploadedImage(URL.createObjectURL(file));
-            setUploadedFile(file);
-          }
+            const file = info.file.originFileObj || info.file;
+            if (file) {
+                setUploadedImage(URL.createObjectURL(file));
+                setUploadedFile(file);
+            }
         }
-      };
+    };
 
     return (
         <div className={styles.uploadSection} style={{ marginTop: "2rem", width: "100%" }}>
             <Flex style={{ width: "900px" }} vertical gap={20}>
                 <div className={styles.uploadGrid}>
                     <Flex vertical gap={16}>
-                    <Flex vertical>
-                        <Title level={4}>Загрузите ваше изображение</Title>
-                        <Paragraph>Выберите фотографию, которую хотите превратить в пиксель арт</Paragraph>
-                    </Flex>
-                    <Flex justify='space-between'>
-                        <div className={styles.uploadCol}>
-                            <Upload.Dragger
-                                name="image"
-                                multiple={false}
-                                onChange={handleImageUpload}
-                                showUploadList={false}
-                                accept="image/*"
-                                className={styles.uploadDragger}
-                                style={{ height: "300px" }}
-                            >
-                                <div className={styles.uploadDraggerContent}>
-                                    <Flex>
-                                        <RiUploadCloud2Fill size={50} color='#9370DB' />
-                                    </Flex>
-                                    <Title
-                                        id="uploadText"
-                                        className={styles.uploadText}
-                                        level={4}
-                                    >
-                                        Перетащите изображение сюда
-                                    </Title>
-                                    <Text className={styles.uploadSubtext} type='secondary'>
-                                        или нажмите для выбора файла
-                                    </Text>
-                                    <Text className={styles.uploadHint} type='secondary'>
-                                        Поддерживаемые форматы: JPG, PNG, GIF
-                                    </Text>
-                                </div>
-                            </Upload.Dragger>
-                        </div>
-                        <div className={styles.uploadCol}>
-                        {uploadedImage ? (
-                            <div className={styles.previewCard}>
-                            <h3 className={styles.previewTitle}>Предпросмотр</h3>
-                            <img
-                                src={uploadedImage}
-                                alt="Uploaded"
-                                className={styles.previewImg}
-                            />
-                            {isGenerating ? (
-                                <div className={styles.generationProgress}>
-                                    <div className={styles.progressText}>
-                                        <i className="fas fa-cog fa-spin" style={{ color: '#764ba2', marginRight: 8 }}></i>
-                                        <span>Генерация пиксель арта...</span>
-                                    </div>
-                                </div>
-                            ) : (
-                                <Button
-                                    type="primary"
-                                    size="large"
-                                    icon={<i className="fas fa-magic" style={{ marginRight: 8 }}></i>}
-                                    onClick={handleGenerate}
-                                    disabled={isGenerating}
-                                    className={styles.generateButton}
-                                    style={{
-                                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                        border: 'none',
-                                    }}
+                        <Flex vertical>
+                            <Title level={4}>Загрузите ваше изображение</Title>
+                            <Paragraph>Выберите фотографию, которую хотите превратить в пиксель арт</Paragraph>
+                        </Flex>
+                        <Flex justify='space-between'>
+                            <div className={styles.uploadCol}>
+                                <Upload.Dragger
+                                    name="image"
+                                    multiple={false}
+                                    onChange={handleImageUpload}
+                                    showUploadList={false}
+                                    accept="image/*"
+                                    className={styles.uploadDragger}
+                                    style={{ height: "300px" }}
                                 >
-                                    Сгенерировать пиксель арт
-                                </Button>
-                            )}
+                                    <div className={styles.uploadDraggerContent}>
+                                        <Flex>
+                                            <RiUploadCloud2Fill size={50} color='#9370DB' />
+                                        </Flex>
+                                        <Title
+                                            id="uploadText"
+                                            className={styles.uploadText}
+                                            level={4}
+                                        >
+                                            Перетащите изображение сюда
+                                        </Title>
+                                        <Text className={styles.uploadSubtext} type='secondary'>
+                                            или нажмите для выбора файла
+                                        </Text>
+                                        <Text className={styles.uploadHint} type='secondary'>
+                                            Поддерживаемые форматы: JPG, PNG, GIF
+                                        </Text>
+                                    </div>
+                                </Upload.Dragger>
                             </div>
-                        ) : (
-                            <div className={styles.previewPlaceholder}>
-                            <FaImage size={50} color='#A9A9A9'/>
-                            <Text type='secondary'>Изображение появится здесь</Text>
+                            <div className={styles.uploadCol}>
+                                {uploadedImage ? (
+                                    <div className={styles.previewCard}>
+                                        <h3 className={styles.previewTitle}>Предпросмотр</h3>
+                                        <img
+                                            src={uploadedImage}
+                                            alt="Uploaded"
+                                            className={styles.previewImg}
+                                        />
+                                        {isGenerating ? (
+                                            <div className={styles.generationProgress}>
+                                                <div className={styles.progressText}>
+                                                    <i className="fas fa-cog fa-spin" style={{ color: '#764ba2', marginRight: 8 }}></i>
+                                                    <span>Генерация пиксель арта...</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <Button
+                                                type="primary"
+                                                size="large"
+                                                icon={<i className="fas fa-magic" style={{ marginRight: 8 }}></i>}
+                                                onClick={handleGenerate}
+                                                disabled={isGenerating}
+                                                className={styles.generateButton}
+                                                style={{
+                                                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                                    border: 'none',
+                                                }}
+                                            >
+                                                Сгенерировать пиксель арт
+                                            </Button>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className={styles.previewPlaceholder}>
+                                        <FaImage size={50} color='#A9A9A9'/>
+                                        <Text type='secondary'>Изображение появится здесь</Text>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                        </div>
-                    </Flex>
+                        </Flex>
                     </Flex>
                 </div>
                 <div className={styles.uploadInfoList}>

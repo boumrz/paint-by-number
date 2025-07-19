@@ -1,4 +1,5 @@
-import { Flex, Button, Typography } from 'antd';
+import { Button, Flex, Typography } from 'antd';
+
 import styles from "../MainApp.module.css";
 
 const { Title, Paragraph } = Typography;

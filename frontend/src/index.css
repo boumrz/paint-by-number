@@ -51,7 +51,7 @@
 
 .ant-carousel .slick-prev:before,
 .ant-carousel .slick-next:before {
-  content: '' !important;
+  content: "" !important;
   display: inline-block !important;
   width: 0 !important;
   height: 0 !important;
@@ -82,4 +82,3 @@
   opacity: 0.3 !important;
   cursor: not-allowed !important;
 }
-

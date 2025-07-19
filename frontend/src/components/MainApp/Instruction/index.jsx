@@ -1,11 +1,11 @@
 import { Button, Flex, Progress } from 'antd';
-import { useMediaQuery } from "usehooks-ts";
 import { FaCheckCircle } from "react-icons/fa";
+import { useMediaQuery } from "usehooks-ts";
+
 import { GridInstructions } from '../../GridInstructions';
 import { ImagePreviewGallery } from '../../ImagePreviewGallery';
-
 import styles from './Instruction.module.css';
-
+ 
 export const Instruction = ({ 
     previewImage,
     previewBW,
@@ -20,7 +20,7 @@ export const Instruction = ({
     setIsExporting,
     exportStatus,
     setExportStatus,
- }) => {
+}) => {
     const isPhone = useMediaQuery("(max-width: 600px)");
     
     return (
@@ -44,64 +44,64 @@ export const Instruction = ({
                             margin: '0 auto 1rem auto',
                             textAlign: 'center'
                         }}>
-                        <Button 
-                            type="primary" 
-                            size="large"
-                            onClick={handleExportAllSectors}
-                            disabled={isExporting}
-                            style={{
-                            background: isExporting
-                                ? 'linear-gradient(135deg, #d9d9d9 0%, #bdbdbd 100%)'
-                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            borderColor: isExporting ? '#d9d9d9' : '#764ba2',
-                            color: '#fff',
-                            fontWeight: 'bold',
-                            boxShadow: isExporting
-                                ? 'none'
-                                : '0 4px 16px rgba(102, 126, 234, 0.18)',
-                            padding: '0 2rem',
-                            height: 'auto',
-                            width: '100%',
-                            fontSize: '1rem',
-                            borderRadius: '8px',
-                            transition: 'background 0.2s, box-shadow 0.2s, transform 0.2s',
-                            }}
-                            loading={isExporting}
-                        >
-                            {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт PDF'}
-                        </Button>
+                            <Button 
+                                type="primary" 
+                                size="large"
+                                onClick={handleExportAllSectors}
+                                disabled={isExporting}
+                                style={{
+                                    background: isExporting
+                                        ? 'linear-gradient(135deg, #d9d9d9 0%, #bdbdbd 100%)'
+                                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    borderColor: isExporting ? '#d9d9d9' : '#764ba2',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    boxShadow: isExporting
+                                        ? 'none'
+                                        : '0 4px 16px rgba(102, 126, 234, 0.18)',
+                                    padding: '0 2rem',
+                                    height: 'auto',
+                                    width: '100%',
+                                    fontSize: '1rem',
+                                    borderRadius: '8px',
+                                    transition: 'background 0.2s, box-shadow 0.2s, transform 0.2s',
+                                }}
+                                loading={isExporting}
+                            >
+                                {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт PDF'}
+                            </Button>
                         
-                        {isExporting && (
-                            <div style={{
-                                width: '100%',
-                                margin: '1rem auto 0 auto',
-                                padding: '1rem',
-                                background: '#f8f9fa',
-                                borderRadius: '8px',
-                                border: '1px solid #e9ecef'
-                            }}>
+                            {isExporting && (
                                 <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    marginBottom: '0.5rem'
+                                    width: '100%',
+                                    margin: '1rem auto 0 auto',
+                                    padding: '1rem',
+                                    background: '#f8f9fa',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e9ecef'
                                 }}>
-                                    <span style={{ fontSize: '0.875rem', color: '#495057' }}>
-                                        {exportStatus}
-                                    </span>
-                                    <span style={{ fontSize: '0.875rem', color: '#1890ff', fontWeight: 'bold' }}>
-                                        {exportProgress}%
-                                    </span>
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        <span style={{ fontSize: '0.875rem', color: '#495057' }}>
+                                            {exportStatus}
+                                        </span>
+                                        <span style={{ fontSize: '0.875rem', color: '#1890ff', fontWeight: 'bold' }}>
+                                            {exportProgress}%
+                                        </span>
+                                    </div>
+                                    <Progress 
+                                        percent={exportProgress} 
+                                        size="small" 
+                                        strokeColor="#1890ff"
+                                        showInfo={false}
+                                        status={exportProgress === 100 ? 'success' : 'active'}
+                                    />
                                 </div>
-                                <Progress 
-                                    percent={exportProgress} 
-                                    size="small" 
-                                    strokeColor="#1890ff"
-                                    showInfo={false}
-                                    status={exportProgress === 100 ? 'success' : 'active'}
-                                />
-                            </div>
-                        )}
+                            )}
                         </div>
                     </Flex>
                     <Flex justify='center' gap={40}>
@@ -118,7 +118,7 @@ export const Instruction = ({
                                         setExportStatus={setExportStatus}
                                         title="Инструкция"
                                     />
-                                </div>
+                                </div> 
                             </div>
                         </div>
                         {/* Правая колонка: легенда и советы */}
@@ -127,13 +127,13 @@ export const Instruction = ({
                                 <h3 style={{ marginBottom: 12, color: 'rgb(30, 64, 175)' }}>Советы</h3>
                                 <ul style={{ padding: 0, margin: 0, textAlign: 'left', listStyle: 'none', color: 'rgb(29, 78, 216)' }}>
                                     <Flex alignItems='center' gap={4}>
-                                    <Flex align="center"><FaCheckCircle color='rgb(59, 130, 246)'/></Flex><li>Начинайте с крупных областей</li>
+                                        <Flex align="center"><FaCheckCircle color='rgb(59, 130, 246)'/></Flex><li>Начинайте с крупных областей</li>
                                     </Flex>
                                     <Flex alignItems='center' gap={4}>
-                                    <Flex align="center"><FaCheckCircle color='rgb(59, 130, 246)'/></Flex><li>Используйте тонкую кисть для мелких деталей</li>
+                                        <Flex align="center"><FaCheckCircle color='rgb(59, 130, 246)'/></Flex><li>Используйте тонкую кисть для мелких деталей</li>
                                     </Flex>
                                     <Flex alignItems='center' gap={4}>
-                                    <Flex align="center"><FaCheckCircle color='rgb(59, 130, 246)'/></Flex><li>Дайте слоям краски высохнуть</li>
+                                        <Flex align="center"><FaCheckCircle color='rgb(59, 130, 246)'/></Flex><li>Дайте слоям краски высохнуть</li>
                                     </Flex>
                                 </ul>
                             </div>

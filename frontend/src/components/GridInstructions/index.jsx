@@ -1,9 +1,11 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Carousel, Progress, Button } from 'antd';
-import { useMediaQuery } from 'usehooks-ts';
 import "antd/dist/reset.css";
-import { InstructionSlide } from './InstructionSlide';
 import './GridInstructions.module.css';
+
+import { Carousel } from 'antd';
+import { useEffect, useMemo,useRef, useState } from 'react';
+import { useMediaQuery } from 'usehooks-ts';
+
+import { InstructionSlide } from './InstructionSlide';
 
 // Компонент инструкции для квадратов с каруселью
 export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsExporting, setExportProgress, svgData, title, orientation = 'vertical' }) => {
@@ -21,216 +23,216 @@ export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsEx
     
     // Отслеживаем инициализацию карусели
     useEffect(() => {
-      if (mainCarouselRef.current) {
-        console.log('Карусель инициализирована:', mainCarouselRef.current);
-        console.log('Доступные методы:', Object.getOwnPropertyNames(mainCarouselRef.current));
-      }
+        if (mainCarouselRef.current) {
+            console.log('Карусель инициализирована:', mainCarouselRef.current);
+            console.log('Доступные методы:', Object.getOwnPropertyNames(mainCarouselRef.current));
+        }
     }, [mainCarouselRef.current]);
 
     // Автоматическая прокрутка к текущему элементу
     useEffect(() => {
-      if (navigationRef.current) {
-        const currentElement = navigationRef.current.querySelector(`[data-slide="${currentSlide}"]`);
-        if (currentElement) {
-          currentElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest',
-            inline: 'center'
-          });
+        if (navigationRef.current) {
+            const currentElement = navigationRef.current.querySelector(`[data-slide="${currentSlide}"]`);
+            if (currentElement) {
+                currentElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
         }
-      }
     }, [currentSlide]);
     
     // Обработчик изменения слайда
     const handleSlideChange = (current) => {
-      setCurrentSlide(current);
+        setCurrentSlide(current);
       
-      // Загружаем соседние слайды
-      const newLoadedSlides = new Set(loadedSlides);
-      for (let i = Math.max(0, current - 2); i <= Math.min(total - 1, current + 2); i++) {
-        newLoadedSlides.add(i);
-      }
-      setLoadedSlides(newLoadedSlides);
+        // Загружаем соседние слайды
+        const newLoadedSlides = new Set(loadedSlides);
+        for (let i = Math.max(0, current - 2); i <= Math.min(total - 1, current + 2); i++) {
+            newLoadedSlides.add(i);
+        }
+        setLoadedSlides(newLoadedSlides);
     };
 
     // Обработчик клика по номеру слайда
     const handleNumberClick = (slideIndex) => {
-      console.log('Клик по номеру:', slideIndex + 1);
+        console.log('Клик по номеру:', slideIndex + 1);
       
-      // Сначала обновляем состояние
-      setCurrentSlide(slideIndex);
+        // Сначала обновляем состояние
+        setCurrentSlide(slideIndex);
       
-      // Затем пытаемся переключить карусель с небольшой задержкой
-      setTimeout(() => {
-        if (mainCarouselRef.current) {
-          console.log('Переключение на слайд:', slideIndex);
-          try {
-            // Пробуем разные способы управления каруселью
-            if (mainCarouselRef.current.goTo) {
-              mainCarouselRef.current.goTo(slideIndex);
-            } else if (mainCarouselRef.current.slickGoTo) {
-              mainCarouselRef.current.slickGoTo(slideIndex);
+        // Затем пытаемся переключить карусель с небольшой задержкой
+        setTimeout(() => {
+            if (mainCarouselRef.current) {
+                console.log('Переключение на слайд:', slideIndex);
+                try {
+                    // Пробуем разные способы управления каруселью
+                    if (mainCarouselRef.current.goTo) {
+                        mainCarouselRef.current.goTo(slideIndex);
+                    } else if (mainCarouselRef.current.slickGoTo) {
+                        mainCarouselRef.current.slickGoTo(slideIndex);
+                    } else {
+                        console.log('Метод goTo не найден, используем внутренний API');
+                        // Попробуем получить доступ к внутренним методам
+                        const carouselElement = mainCarouselRef.current;
+                        if (carouselElement && carouselElement.slick) {
+                            carouselElement.slick.slickGoTo(slideIndex);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка при переключении слайда:', error);
+                    // Если не удалось программно переключить, принудительно обновляем
+                    setForceUpdate(prev => prev + 1);
+                }
             } else {
-              console.log('Метод goTo не найден, используем внутренний API');
-              // Попробуем получить доступ к внутренним методам
-              const carouselElement = mainCarouselRef.current;
-              if (carouselElement && carouselElement.slick) {
-                carouselElement.slick.slickGoTo(slideIndex);
-              }
+                console.log('Ref карусели не найден');
             }
-          } catch (error) {
-            console.error('Ошибка при переключении слайда:', error);
-            // Если не удалось программно переключить, принудительно обновляем
-            setForceUpdate(prev => prev + 1);
-          }
-        } else {
-          console.log('Ref карусели не найден');
-        }
-      }, 100);
+        }, 100);
     };
 
     // Создаем слайд только если он загружен
     const createSlide = (index) => {
-      if (!loadedSlides.has(index)) {
-        return (
-          <div key={index} style={{
-            padding: '1rem',
-            background: '#f5f5f5',
-            borderRadius: '8px',
-            color: 'black',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-            border: '1px solid #e0e0e0',
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            minHeight: isPhone ? '300px' : '400px'
-          }}>
-            <div style={{ color: '#666', textAlign: 'center', marginBottom: '1rem' }}>
-              Загрузка сектора {index + 1}...
-            </div>
-          </div>
-        );
-      }
+        if (!loadedSlides.has(index)) {
+            return (
+                <div key={index} style={{
+                    padding: '1rem',
+                    background: '#f5f5f5',
+                    borderRadius: '8px',
+                    color: 'black',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                    border: '1px solid #e0e0e0',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                    minHeight: isPhone ? '300px' : '400px'
+                }}>
+                    <div style={{ color: '#666', textAlign: 'center', marginBottom: '1rem' }}>
+                        Загрузка сектора {index + 1}...
+                    </div>
+                </div>
+            );
+        }
 
-      const squareNumber = index + 1;
-      try {
-        return (
-          <InstructionSlide 
-            key={squareNumber}
-            idList={idList} 
-            orientation={orientation} 
-            svgData={svgData} 
-            squareNumber={squareNumber} 
-            isPhone={isPhone} 
-          />
-        );
-      } catch (error) {
-        return (
-          <div key={squareNumber} style={{
-            padding: '1rem',
-            background: '#fff2f0',
-            borderRadius: '8px',
-            color: 'black',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-            border: '1px solid #ffccc7',
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            minHeight: isPhone ? '300px' : '400px'
-          }}>
-            <div style={{ fontWeight: 'bold', marginBottom: 8, fontSize: '1.2rem', textAlign: 'center' }}>
-              Сектор {squareNumber}
-            </div>
-            <div style={{ color: '#666', textAlign: 'center' }}>
-              Ошибка загрузки
-            </div>
-          </div>
-        );
-      }
+        const squareNumber = index + 1;
+        try {
+            return (
+                <InstructionSlide 
+                    key={squareNumber}
+                    idList={idList} 
+                    orientation={orientation} 
+                    svgData={svgData} 
+                    squareNumber={squareNumber} 
+                    isPhone={isPhone} 
+                />
+            );
+        } catch (error) {
+            return (
+                <div key={squareNumber} style={{
+                    padding: '1rem', 
+                    background: '#fff2f0',
+                    borderRadius: '8px',
+                    color: 'black',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                    border: '1px solid #ffccc7',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                    minHeight: isPhone ? '300px' : '400px'
+                }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: 8, fontSize: '1.2rem', textAlign: 'center' }}>
+                        Сектор {squareNumber}
+                    </div>
+                    <div style={{ color: '#666', textAlign: 'center' }}>
+                        Ошибка загрузки
+                    </div>
+                </div>
+            );
+        }
     };
 
     // Создаем горизонтальную навигацию с номерами
     const navigationNumbers = useMemo(() => {
-      return Array.from({ length: total }, (_, index) => {
-        const slideIndex = index;
-        const isCurrent = slideIndex === currentSlide;
-        const isLoaded = loadedSlides.has(slideIndex);
+        return Array.from({ length: total }, (_, index) => {
+            const slideIndex = index;
+            const isCurrent = slideIndex === currentSlide;
+            const isLoaded = loadedSlides.has(slideIndex);
         
-        return (
-          <div
-            key={slideIndex}
-            data-slide={slideIndex}
-            onClick={() => handleNumberClick(slideIndex)}
-            style={{
-              padding: '0.25rem 0.5rem',
-              background: isCurrent ? '#1890ff' : (isLoaded ? '#f0f0f0' : '#e0e0e0'),
-              color: isCurrent ? 'white' : '#333',
-              borderRadius: '2px',
-              textAlign: 'center',
-              cursor: 'pointer',
-              fontSize: '0.625rem',
-              fontWeight: isCurrent ? 'bold' : 'normal',
-              border: isCurrent ? '1px solid #1890ff' : '1px solid #d9d9d9',
-              transition: 'all 0.2s ease',
-              minHeight: '1.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              userSelect: 'none',
-              position: 'relative',
-              flexShrink: 0,
-              marginRight: '0.125rem'
-            }}
-            onMouseEnter={(e) => {
-              if (!isCurrent) {
-                e.target.style.background = isLoaded ? '#d9d9d9' : '#ccc';
-                e.target.style.transform = 'scale(1.1)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isCurrent) {
-                e.target.style.background = isLoaded ? '#f0f0f0' : '#e0e0e0';
-                e.target.style.transform = 'scale(1)';
-              }
-            }}
-          >
-            {slideIndex + 1}
-            {isCurrent && (
-              <div style={{
-                position: 'absolute',
-                top: '-1px',
-                right: '-1px',
-                width: '4px',
-                height: '4px',
-                background: '#52c41a',
-                borderRadius: '50%',
-                border: '1px solid white'
-              }} />
-            )}
-          </div>
-        );
-      });
+            return (
+                <div
+                    key={slideIndex}
+                    data-slide={slideIndex}
+                    onClick={() => handleNumberClick(slideIndex)}
+                    style={{
+                        padding: '0.25rem 0.5rem',
+                        background: isCurrent ? '#1890ff' : (isLoaded ? '#f0f0f0' : '#e0e0e0'),
+                        color: isCurrent ? 'white' : '#333',
+                        borderRadius: '2px',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        fontSize: '0.625rem',
+                        fontWeight: isCurrent ? 'bold' : 'normal',
+                        border: isCurrent ? '1px solid #1890ff' : '1px solid #d9d9d9',
+                        transition: 'all 0.2s ease',
+                        minHeight: '1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        userSelect: 'none',
+                        position: 'relative',
+                        flexShrink: 0,
+                        marginRight: '0.125rem'
+                    }}
+                    onMouseEnter={(e) => {
+                        if (!isCurrent) {
+                            e.target.style.background = isLoaded ? '#d9d9d9' : '#ccc';
+                            e.target.style.transform = 'scale(1.1)';
+                        }
+                    }}
+                    onMouseLeave={(e) => {
+                        if (!isCurrent) {
+                            e.target.style.background = isLoaded ? '#f0f0f0' : '#e0e0e0';
+                            e.target.style.transform = 'scale(1)';
+                        }
+                    }}
+                >
+                    {slideIndex + 1}
+                    {isCurrent && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '-1px',
+                            right: '-1px',
+                            width: '4px',
+                            height: '4px',
+                            background: '#52c41a',
+                            borderRadius: '50%',
+                            border: '1px solid white'
+                        }} />
+                    )}
+                </div>
+            );
+        });
     }, [total, currentSlide, loadedSlides]);
 
     // Создаем массив слайдов с ленивой загрузкой
     const carouselSlides = useMemo(() => {
-      return Array.from({ length: total }, (_, index) => createSlide(index));
+        return Array.from({ length: total }, (_, index) => createSlide(index));
     }, [total, loadedSlides, idList, svgData, orientation, isPhone]);
 
     // Вычисляем прогресс загрузки
     const loadingProgress = Math.round((loadedSlides.size / total) * 100);
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
         
-        {/* Индикатор прогресса загрузки */}
-        {/* {loadingProgress < 100 && (
+            {/* Индикатор прогресса загрузки */}
+            {/* {loadingProgress < 100 && (
           <div style={{ 
             width: '100%', 
             maxWidth: isPhone ? '100%' : '400px', 
@@ -253,8 +255,8 @@ export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsEx
           </div>
         )} */}
         
-        {/* Счетчик текущего слайда */}
-        {/* <div style={{ 
+            {/* Счетчик текущего слайда */}
+            {/* <div style={{ 
           width: '100%',
           maxWidth: isPhone ? '100%' : '400px',
           margin: '0 auto 0.5rem auto',
@@ -272,81 +274,81 @@ export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsEx
           </span>
         </div> */}
 
-        <div style={{ 
-          width: '100%',
-          maxWidth: isPhone ? '100%' : '400px',
-        }}>
-          <Carousel
-            key={`main-carousel-${forceUpdate}`}
-            ref={mainCarouselRef}
-            dots={{ position: 'bottom' }}
-            infinite={false}
-            slidesToShow={1}
-            slidesToScroll={1}
-            autoplay={false}
-            arrows={true}
-            // prevArrow={<button className="slick-prev" aria-label="Previous">‹</button>}
-            // nextArrow={<button className="slick-next" aria-label="Next">›</button>}
-            afterChange={handleSlideChange}
-            responsive={[
-              {
-                breakpoint: 768,
-                settings: {
-                  slidesToShow: 1,
-                  slidesToScroll: 1,
-                  arrows: true
-                }
-              }
-            ]}
-            style={{
-              background: '#fff',
-              borderRadius: '8px',
-              padding: '1rem',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              position: 'relative'
-            }}
-          >
-            {carouselSlides}
-          </Carousel>
-        </div>
-
-        {/* Горизонтальная навигация с номерами */}
-        <div style={{ 
-          width: '100%',
-          maxWidth: isPhone ? '100%' : '400px',
-        }}>
-          <div style={{ 
-            marginBottom: '0.5rem', 
-            textAlign: 'center',
-            fontSize: '0.875rem',
-            color: '#666'
-          }}>
-            Быстрая навигация по секторам
-          </div>
-          <div 
-            ref={navigationRef}
-            style={{
-              background: '#fff',
-              borderRadius: '8px',
-              padding: '0.5rem',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              overflowX: 'auto',
-              overflowY: 'hidden',
-              whiteSpace: 'nowrap',
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#d9d9d9 #f0f0f0'
-            }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              minWidth: 'max-content',
-              padding: '0.25rem'
+            <div style={{ 
+                width: '100%',
+                maxWidth: isPhone ? '100%' : '400px',
             }}>
-              {navigationNumbers}
+                <Carousel
+                    key={`main-carousel-${forceUpdate}`}
+                    ref={mainCarouselRef}
+                    dots={{ position: 'bottom' }}
+                    infinite={false}
+                    slidesToShow={1}
+                    slidesToScroll={1}
+                    autoplay={false}
+                    arrows={true}
+                    // prevArrow={<button className="slick-prev" aria-label="Previous">‹</button>}
+                    // nextArrow={<button className="slick-next" aria-label="Next">›</button>}
+                    afterChange={handleSlideChange}
+                    responsive={[
+                        {
+                            breakpoint: 768,
+                            settings: {
+                                slidesToShow: 1,
+                                slidesToScroll: 1,
+                                arrows: true
+                            }
+                        }
+                    ]}
+                    style={{
+                        background: '#fff',
+                        borderRadius: '8px',
+                        padding: '1rem',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        position: 'relative'
+                    }}
+                >
+                    {carouselSlides}
+                </Carousel>
             </div>
-          </div>
+
+            {/* Горизонтальная навигация с номерами */}
+            <div style={{ 
+                width: '100%',
+                maxWidth: isPhone ? '100%' : '400px',
+            }}>
+                <div style={{ 
+                    marginBottom: '0.5rem', 
+                    textAlign: 'center',
+                    fontSize: '0.875rem',
+                    color: '#666'
+                }}>
+                    Быстрая навигация по секторам
+                </div>
+                <div 
+                    ref={navigationRef}
+                    style={{
+                        background: '#fff',
+                        borderRadius: '8px',
+                        padding: '0.5rem',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        whiteSpace: 'nowrap',
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: '#d9d9d9 #f0f0f0'
+                    }}
+                >
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        minWidth: 'max-content',
+                        padding: '0.25rem'
+                    }}>
+                        {navigationNumbers}
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     );
-  };
+};

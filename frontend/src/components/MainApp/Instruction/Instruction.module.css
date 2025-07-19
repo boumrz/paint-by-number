@@ -1,316 +1,318 @@
 .app {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+.select {
+  min-width: 120px;
+  height: auto;
+}
+
+.tipsCard {
+  background-color: rgb(239 246 255);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.header {
+  background: linear-gradient(135deg, #006064 0%, #00838f 50%, #0097a7 100%);
+  color: #fff;
+  padding: 2rem 0;
+  box-shadow: 0 4px 20px rgba(0, 97, 100, 0.3);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.headerContent h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.headerContent p {
+  margin: 0;
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.mainContent {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.heroSection {
+  text-align: center;
+  padding: 4rem 0;
+  border-radius: 8px;
+}
+
+.heroContent h2 {
+  font-size: 2.5rem;
+  margin: 0 0 1rem;
+  color: #006064;
+  text-shadow: 0 2px 4px rgba(0, 97, 100, 0.1);
+}
+
+.heroContent p {
+  font-size: 1.2rem;
+  color: #0277bd;
+  margin: 0 0 2rem;
+  font-weight: 500;
+}
+
+.uploadSection {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  border: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
+  font-weight: 600;
+}
+
+.uploadButton:hover {
+  background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.28);
+}
+
+.orderButton {
+  background: linear-gradient(135deg, #6b8cff 0%, #764ba2 100%);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  border: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.orderButton:hover {
+  background: linear-gradient(135deg, #667eea 0%, #6b47a2 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.28);
+  color: #fff;
+  text-decoration: none;
+}
+
+.uploadButtonBW {
+  background: linear-gradient(135deg, #5a6eea 0%, #6b47a2 100%);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.uploadButtonBW:hover {
+  background: linear-gradient(135deg, #667eea 0%, #7f9cf5 100%);
+}
+
+.uploadButtonSepia {
+  background: linear-gradient(135deg, #7f9cf5 0%, #764ba2 100%);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.uploadButtonSepia:hover {
+  background: linear-gradient(135deg, #667eea 0%, #6b47a2 100%);
+}
+
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+}
+
+.previewSection h3 {
+  margin: 0 0 1rem;
+  color: #333;
+}
+
+.previewItem {
+  flex: 1;
+  min-width: 0;
+}
+
+.previewContainer {
+  display: flex;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 400px) {
+    padding: 0;
+    max-width: 300px;
+    box-shadow: none;
   }
-  
-  .select {
-    min-width: 120px;
-    height: auto;
+}
+
+.previewImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.canvasSection {
+  margin-bottom: 2rem;
+}
+
+.canvasSection h3 {
+  margin: 0 0 1rem;
+  color: #333;
+}
+
+.canvasLayout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.featuresSection {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 40px;
+}
+
+.feature {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.feature h3 {
+  margin: 0 0 1rem;
+  color: #333;
+}
+
+.feature p {
+  margin: 0;
+  color: #666;
+}
+
+.footer {
+  background: linear-gradient(135deg, #006064 0%, #00838f 50%, #0097a7 100%);
+  color: #fff;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.footerButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 0.5rem 1.2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+.footerButton:hover {
+  background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.22);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1024px) {
+  .canvasLayout {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .headerContent h1 {
+    font-size: 2rem;
   }
 
-  .tipsCard {
-    background-color: rgb(239 246 255);
-    border-radius: 12px;
-    padding: 1.5rem;
-  }
-  
-  .header {
-    background: linear-gradient(135deg, #006064 0%, #00838f 50%, #0097a7 100%);
-    color: #fff;
-    padding: 2rem 0;
-    box-shadow: 0 4px 20px rgba(0, 97, 100, 0.3);
-  }
-  
-  .headerContent {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-    text-align: center;
-  }
-  
-  .headerContent h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-  }
-  
   .headerContent p {
-    margin: 0;
-    font-size: 1.2rem;
-    opacity: 0.8;
+    font-size: 1rem;
   }
-  
-  .mainContent {
-    flex: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-  }
-  
-  .heroSection {
-    text-align: center;
-    padding: 4rem 0;
-    border-radius: 8px;
-  }
-  
+
   .heroContent h2 {
-    font-size: 2.5rem;
-    margin: 0 0 1rem;
-    color: #006064;
-    text-shadow: 0 2px 4px rgba(0, 97, 100, 0.1);
+    font-size: 2rem;
   }
-  
+
   .heroContent p {
-    font-size: 1.2rem;
-    color: #0277bd;
-    margin: 0 0 2rem;
-    font-weight: 500;
+    font-size: 1rem;
   }
-  
-  .uploadSection {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    margin-top: 2rem;
-  }
-  
-  .fileInput {
-    display: none;
-  }
-  
-  .uploadButton {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    padding: 1rem 2rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    border: none;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
-    font-weight: 600;
-  }
-  
-  .uploadButton:hover {
-    background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.28);
-  }
-  
-  .orderButton {
-    background: linear-gradient(135deg, #6b8cff 0%, #764ba2 100%);
-    color: #fff;
-    padding: 1rem 2rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    border: none;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
-    font-weight: 600;
-    text-decoration: none;
-    display: inline-block;
-  }
-  
-  .orderButton:hover {
-    background: linear-gradient(135deg, #667eea 0%, #6b47a2 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.28);
-    color: #fff;
-    text-decoration: none;
-  }
-  
-  .uploadButtonBW {
-    background: linear-gradient(135deg, #5a6eea 0%, #6b47a2 100%);
-    color: #fff;
-    padding: 1rem 2rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: all 0.3s;
-    white-space: nowrap;
-  }
-  
-  .uploadButtonBW:hover {
-    background: linear-gradient(135deg, #667eea 0%, #7f9cf5 100%);
-  }
-  
-  .uploadButtonSepia {
-    background: linear-gradient(135deg, #7f9cf5 0%, #764ba2 100%);
-    color: #fff;
-    padding: 1rem 2rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: all 0.3s;
-    white-space: nowrap;
-  }
-  
-  .uploadButtonSepia:hover {
-    background: linear-gradient(135deg, #667eea 0%, #6b47a2 100%);
-  }
-  
-  .previewSection {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 2rem;
+
+  .mainContent {
     padding: 1rem;
+    box-sizing: border-box;
   }
-  
-  .previewSection h3 {
-    margin: 0 0 1rem;
-    color: #333;
-  }
-  
-  .previewItem {
-    flex: 1;
-    min-width: 0;
-  }
-  
-  .previewContainer {
-    display: flex;
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  
-    @media (max-width: 400px) {
-      padding: 0;
-      max-width: 300px;
-      box-shadow: none;
-    }
-  
-  }
-  
-  .previewImage {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-  }
-  
-  .canvasSection {
-    margin-bottom: 2rem;
-  }
-  
-  .canvasSection h3 {
-    margin: 0 0 1rem;
-    color: #333;
-  }
-  
-  .canvasLayout {
-    display: flex;
-    gap: 2rem;
-    align-items: flex-start;
-  }
-  
-  .featuresSection {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 2rem;
-    margin-bottom: 40px;
-  }
-  
-  .feature {
-    text-align: center;
-    padding: 2rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .feature h3 {
-    margin: 0 0 1rem;
-    color: #333;
-  }
-  
-  .feature p {
-    margin: 0;
-    color: #666;
-  }
-  
-  .footer {
-    background: linear-gradient(135deg, #006064 0%, #00838f 50%, #0097a7 100%);
-    color: #fff;
+
+  .heroSection {
     padding: 2rem 0;
+  }
+
+  .featuresSection {
+    grid-template-columns: 1fr;
+  }
+
+  .footer > div {
+    flex-direction: column;
+    gap: 1rem;
     text-align: center;
   }
-  
-  .footer p {
-    margin: 0;
-    opacity: 0.8;
+
+  .footer > div > div {
+    justify-content: center;
   }
-  
-  .footerButton {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    padding: 0.5rem 1.2rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border: none;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-  }
-  .footerButton:hover {
-    background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.22);
-    transform: translateY(-2px);
-  }
-  
-  @media (max-width: 1024px) {
-    .canvasLayout {
-      flex-direction: column;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .headerContent h1 {
-      font-size: 2rem;
-    }
-  
-    .headerContent p {
-      font-size: 1rem;
-    }
-  
-    .heroContent h2 {
-      font-size: 2rem;
-    }
-  
-    .heroContent p {
-      font-size: 1rem;
-    }
-  
-    .mainContent {
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-  
-    .heroSection {
-      padding: 2rem 0;
-    }
-  
-    .featuresSection {
-      grid-template-columns: 1fr;
-    }
-  
-    .footer > div {
-      flex-direction: column;
-      gap: 1rem;
-      text-align: center;
-    }
-  
-    .footer > div > div {
-      justify-content: center;
-    }
-  }
+}
 
 .uploadGrid {
   --tw-shadow: 0 0px 50px -12px rgb(0 0 0 / 0.2);
@@ -319,7 +321,9 @@
   width: 100%;
   padding: 32px;
   border-radius: 12px;
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow:
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 .uploadCol {
   display: flex;
@@ -330,7 +334,7 @@
   padding: 20px;
 
   :global(.ant-upload-drag:hover) {
-      border-color: transparent !important;    
+    border-color: transparent !important;
   }
 }
 .uploadDragger {
@@ -338,11 +342,14 @@
   border: 2px dashed #b39ddb !important;
   background: #f3f0fa !important;
   border-radius: 16px !important;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.06);
   cursor: pointer;
 }
-.uploadDragger:hover, .uploadDragger:focus {
+.uploadDragger:hover,
+.uploadDragger:focus {
   border-color: #764ba2 !important;
   background: #ede7f6 !important;
 }
@@ -437,8 +444,11 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   border: none !important;
   color: #fff !important;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.10);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 .generateButton:hover {
   background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%) !important;
