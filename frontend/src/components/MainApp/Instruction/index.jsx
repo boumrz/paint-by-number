@@ -38,12 +38,11 @@ export const Instruction = ({
                     <Flex vertical>
                         <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>Инструкция</h3>
 
-                        {/* Кнопка экспорта всех секторов */}
                         <div style={{ 
-                        width: '100%',
-                        maxWidth: isPhone ? '100%' : '400px',
-                        margin: '0 auto 1rem auto',
-                        textAlign: 'center'
+                            width: '100%',
+                            maxWidth: isPhone ? '100%' : '400px',
+                            margin: '0 auto 1rem auto',
+                            textAlign: 'center'
                         }}>
                         <Button 
                             type="primary" 
@@ -72,7 +71,6 @@ export const Instruction = ({
                             {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт PDF'}
                         </Button>
                         
-                        {/* Прогресс-бар экспорта */}
                         {isExporting && (
                             <div style={{
                                 width: '100%',
@@ -89,10 +87,10 @@ export const Instruction = ({
                                     marginBottom: '0.5rem'
                                 }}>
                                     <span style={{ fontSize: '0.875rem', color: '#495057' }}>
-                                    {exportStatus}
+                                        {exportStatus}
                                     </span>
                                     <span style={{ fontSize: '0.875rem', color: '#1890ff', fontWeight: 'bold' }}>
-                                    {exportProgress}%
+                                        {exportProgress}%
                                     </span>
                                 </div>
                                 <Progress 

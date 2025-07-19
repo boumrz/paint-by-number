@@ -1,15 +1,11 @@
-import { Flex, Typography, Upload, Button, Progress } from 'antd';
-import { ImagePreviewGallery } from '../../ImagePreviewGallery';
+import { Flex, Button, Typography } from 'antd';
 import styles from "../MainApp.module.css";
 
 const { Title, Paragraph } = Typography;
 
 export const SettingsUploadedImage = ({ 
     previewImage, 
-    uploadedImage, 
-    orientation,
-    previewBW,
-    previewSepia,
+    uploadedImage,
     handleGetInstructions,
 }) => {
     return (
@@ -35,22 +31,22 @@ export const SettingsUploadedImage = ({
                             <div className={styles.previewCard} style={{ minHeight: 300, justifyContent: 'center' }}>
                                 <h3 className={styles.previewTitle}>Параметры генерации</h3>
                                 <div style={{ marginBottom: 16 }}>
-                                <div style={{ marginBottom: 8, color: '#888' }}>Количество цветов: <b>12</b></div>
-                                <div style={{ marginBottom: 8, color: '#888' }}>Размер сетки: <b>8x16</b></div>
-                                <div style={{ marginBottom: 8, color: '#888' }}>Режим: <b>ЧБ</b></div>
-                                <div style={{ marginBottom: 8, color: '#888' }}>Ориентация: <b>Вертикально</b></div>
+                                    <div style={{ marginBottom: 8, color: '#888' }}>Количество цветов: <b>12</b></div>
+                                    <div style={{ marginBottom: 8, color: '#888' }}>Размер сетки: <b>8x16</b></div>
+                                    <div style={{ marginBottom: 8, color: '#888' }}>Режим: <b>ЧБ</b></div>
+                                    <div style={{ marginBottom: 8, color: '#888' }}>Ориентация: <b>Вертикально</b></div>
                                 </div>
                                 <Button
-                                type="primary"
-                                size="large"
-                                className={styles.generateButton}
-                                style={{
-                                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                    border: 'none',
-                                }}
-                                onClick={handleGetInstructions}
+                                    type="primary"
+                                    size="large"
+                                    className={styles.generateButton}
+                                    style={{
+                                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                        border: 'none',
+                                    }}
+                                    onClick={handleGetInstructions}
                                 >
-                                Создать инструкцию
+                                    Создать инструкцию
                                 </Button>
                             </div>
                         </div>

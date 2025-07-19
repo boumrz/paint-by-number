@@ -9,19 +9,15 @@ import AccessCode from "./components/AccessCode/AccessCode";
 import { MainApp } from './components/MainApp/index.jsx';
 
 function App() {
-  // Состояние для проверки кода доступа
   const [isAccessGranted, setIsAccessGranted] = useState(false);
 
-  // Горизонтальный холст
-  const [horizontalPreviewImage, setHorizontalPreviewImage] = useState(null);
   const [horizontalIdList, setHorizontalIdList] = useState([]);
   const [horizontalCurrentColor, setHorizontalCurrentColor] = useState(null);
   const [horizontalSvgData, setHorizontalSvgData] = useState(null);
   const [horizontalSvgDataBW, setHorizontalSvgDataBW] = useState(null);
   const [horizontalSvgDataSepia, setHorizontalSvgDataSepia] = useState(null);
   const [horizontalColorCount, setHorizontalColorCount] = useState(0);
-  
-  // Превью для ЧБ и сепии в оригинальной ориентации
+
   const [previewBW, setPreviewBW] = useState(null);
   const [previewSepia, setPreviewSepia] = useState(null);
 
@@ -31,10 +27,9 @@ function App() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [croppingFor, setCroppingFor] = useState(null);
-  const [orientation, setOrientation] = useState("vertical"); // vertical/horizontal
+  const [orientation, setOrientation] = useState("vertical");
 
-  // Делаю одно:
-  const [selectedInstruction, setSelectedInstruction] = useState(null); // { type: 'bw'|'sepia', orientation: 'vertical'|'horizontal' }
+  const [selectedInstruction, setSelectedInstruction] = useState(null);
   const [showDemo, setShowDemo] = useState(true);
   const [showInstructions, setShowInstructions] = useState(false);
   const [userUploadedImages, setUserUploadedImages] = useState(false);
@@ -44,7 +39,6 @@ function App() {
   const [previewImage, setPreviewImage] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
 
-  // Crop image to square using react-easy-crop
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
@@ -85,16 +79,15 @@ function App() {
     img.src = imageSrc;
   }, []);
 
-  // Функция для создания повернутого изображения для сервера
   const getRotatedImg = useCallback((imageSrc, cropPixels, callback) => {
     const img = new window.Image();
     img.onload = function () {
       const canvas = document.createElement("canvas");
-      canvas.width = cropPixels.height; // Меняем местами размеры
+      canvas.width = cropPixels.height;
       canvas.height = cropPixels.width;
 
       const ctx = canvas.getContext("2d");
-      // Поворачиваем на 90 градусов влево
+
       ctx.translate(0, cropPixels.width);
       ctx.rotate(-Math.PI / 2);
       ctx.drawImage(
@@ -125,14 +118,12 @@ function App() {
     img.src = imageSrc;
   }, []);
 
-  // Функция для создания превью ЧБ и сепии в оригинальной ориентации
   const createPreviewImages = useCallback(async (originalBlob) => {
     try {
       const formData = new FormData();
       formData.append("image", originalBlob, "preview.jpg");
       
       if (orientation === "vertical") {
-        // Для вертикальных изображений генерируем вертикальные превью
         const respBW = await axios.post(
           `${config.apiUrl}/api/convert-pixels-bw`,
           formData,
@@ -147,7 +138,6 @@ function App() {
         );
         setPreviewSepia(respSepia.data.svg);
       } else {
-        // Для горизонтальных изображений генерируем горизонтальные превью
         const respBW = await axios.post(
           `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
           formData,
@@ -173,13 +163,12 @@ function App() {
   const handleUploadImageFile = useCallback((event) => {
     const file = event.target.files[0];
     if (file) {
-      setCroppingFor("user"); // универсальный режим
-      setOrientation("vertical"); // по умолчанию вертикально
+      setCroppingFor("user");
+      setOrientation("vertical");
       setCropImage(URL.createObjectURL(file));
       setShowCrop(true);
       setUserUploadedImages(true);
-      setIsInstructionGenerated(false); // сброс при загрузке нового фото
-      // Не ставим isUserImageUploaded здесь, только после обрезки
+      setIsInstructionGenerated(false);
     }
   }, []);
 
@@ -192,30 +181,28 @@ function App() {
     setIsCropping(true);
     try {
       if (orientation === "vertical") {
-        // Для вертикальных изображений создаем два разных изображения
         getCroppedImg(
           cropImage,
           croppedAreaPixels,
           async (originalBlob, previewUrl) => {
             try {
-              // Создаем превью в оригинальной ориентации
               await createPreviewImages(originalBlob);
-              // Создаем повернутое изображение для сервера
+
               getRotatedImg(
                 cropImage,
                 croppedAreaPixels,
                 async (rotatedBlob) => {
                   setShowCrop(false);
-                  setIsUserImageUploaded(true); // Фото пользователя успешно загружено и обрезано
+                  setIsUserImageUploaded(true);
                   setCropImage(null);
                   setCrop({ x: 0, y: 0 });
                   setZoom(1);
                   setShowDemo(true);
-                  setPreviewImage(previewUrl); // Оригинальное изображение для превью
+                  setPreviewImage(previewUrl);
                   try {
                     const formData = new FormData();
-                    formData.append("image", rotatedBlob, "cropped.jpg"); // Повернутое изображение для сервера
-                    // Генерируем только горизонтальный холст с повернутым изображением
+                    formData.append("image", rotatedBlob, "cropped.jpg");
+
                     const respHorizontalBW = await axios.post(
                       `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
                       formData,
@@ -248,16 +235,14 @@ function App() {
           }
         );
       } else {
-        // Для горизонтальных изображений используем обычную логику
         getCroppedImg(
           cropImage,
           croppedAreaPixels,
           async (croppedBlob, previewUrl) => {
             try {
-              // Создаем превью в оригинальной ориентации
               await createPreviewImages(croppedBlob);
               setShowCrop(false);
-              setIsUserImageUploaded(true); // Фото пользователя успешно загружено и обрезано
+              setIsUserImageUploaded(true);
               setCropImage(null);
               setCrop({ x: 0, y: 0 });
               setZoom(1);
@@ -313,37 +298,34 @@ function App() {
   const handleCodeVerified = useCallback((mode) => {
     setIsAccessGranted(true);
     setShowInstructions(false);
-    // mode: 'bw' или 'sepia'
-    setSelectedInstruction({ type: mode, orientation: 'horizontal' }); // orientation можно доработать, если нужно
-    setIsInstructionGenerated(true); // инструкция сгенерирована
+
+    setSelectedInstruction({ type: mode, orientation: 'horizontal' });
+    setIsInstructionGenerated(true);
   }, []);
 
   const handleBackToGeneration = useCallback(() => {
     setShowInstructions(false);
-    setIsInstructionGenerated(false); // сброс при возврате к генерации
+    setIsInstructionGenerated(false);
   }, []);
 
   const handleDemoGeneration = useCallback(async () => {
     setShowDemo(true);
     setSelectedInstruction(null);
-    setIsUserImageUploaded(false); // Сбросить флаг при демо
-    setIsInstructionGenerated(false); // сброс при демо
-    // Используем демо-изображение из public
+    setIsUserImageUploaded(false);
+    setIsInstructionGenerated(false);
+ 
     const demoImageUrl = "/flower.jpg";
-    setPreviewImage(demoImageUrl); // Оригинальное изображение для превью
+    setPreviewImage(demoImageUrl);
 
     try {
-      // Загружаем демо-изображение как blob
       const response = await fetch(demoImageUrl);
       const blob = await response.blob();
 
-      // Создаем превью в оригинальной ориентации
       await createPreviewImages(blob);
 
       const formData = new FormData();
       formData.append("image", blob, "demo.jpg");
 
-      // Генерируем только горизонтальные данные
       const respHorizontalBW = await axios.post(
         `${config.apiUrl}/api/convert-pixels-horizontal-bw`,
         formData,

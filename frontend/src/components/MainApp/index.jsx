@@ -4,7 +4,7 @@ import HorizontalCanvasFull from '../HorizontalCanvas/HorizontalCanvasFull';
 import { useMediaQuery } from "usehooks-ts";
 import Cropper from "react-easy-crop";
 import Modal from "react-modal";
-import { Switch, Flex, Button, Progress } from "antd";
+import { Switch } from "antd";
 import "antd/dist/reset.css";
 
 import { SettingsUploadedImage } from './SettingsUploadedImage';
@@ -64,9 +64,8 @@ export const MainApp = memo(
           }
         };
 
-        // Обработчик экспорта всех секторов
         const handleExportAllSectors = async () => {
-          if (isExporting) return; // Предотвращаем повторные клики
+          if (isExporting) return;
           
           setIsExporting(true);
           setExportProgress(0);
@@ -122,10 +121,6 @@ export const MainApp = memo(
                     {showDemo && !isUserImageUploaded && (
                       <UploadImage
                           isGenerating={isGenerating}
-                          orientation={orientation}
-                          previewSepia={previewSepia}
-                          previewBW={previewBW}
-                          previewImage={previewImage}
                           uploadedImage={uploadedImage}
                           handleGenerate={handleGenerate}
                           setUploadedImage={setUploadedImage}
@@ -134,17 +129,13 @@ export const MainApp = memo(
                     )}
 
                     {showDemo && isUserImageUploaded && !isInstructionGenerated && (
-                      <SettingsUploadedImage
+                      <SettingsUploadedImage                      
                           previewImage={previewImage}
-                          previewSepia={previewSepia}
-                          previewBW={previewBW}
-                          orientation={orientation}
                           uploadedImage={uploadedImage}
                           handleGetInstructions={handleGetInstructions}
                       />
                     )}
 
-                    {/* Третий шаг: просмотр инструкции */}
                     {showDemo && isUserImageUploaded && isInstructionGenerated && (
                       <Instruction
                         previewImage={previewImage}
@@ -248,45 +239,6 @@ export const MainApp = memo(
                   </div>
                 </Modal>
               </main>
-        
-              {/* <footer className={styles.footer}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    maxWidth: "1200px",
-                    margin: "0 auto",
-                    padding: "0 1rem",
-                  }}
-                >
-                  <p>© 2025 Картина по пикселям. Все права защищены.</p>
-                  <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-                    <button
-                      onClick={() => window.location.reload()}
-                      className={styles.footerButton}
-                    >
-                      НА ГЛАВНУЮ СТРАНИЦУ
-                    </button>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <button
-                        onClick={() =>
-                          window.open("https://t.me/your_telegram", "_blank")
-                        }
-                        className={styles.footerButton}
-                      >
-                        НАПИСАТЬ В TELEGRAM
-                      </button>
-                      <button
-                        onClick={() => window.open("mailto:your@email.com", "_blank")}
-                        className={styles.footerButton}
-                      >
-                        НАПИСАТЬ НА ПОЧТУ
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </footer> */}
             </div>
           );
     }

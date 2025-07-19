@@ -8,11 +8,7 @@ import styles from "../MainApp.module.css";
 const { Title, Text, Paragraph } = Typography;
 
 export const UploadImage = ({ 
-    orientation, 
-    previewSepia,
-    previewBW, 
     uploadedImage, 
-    previewImage, 
     isGenerating, 
     setUploadedImage,
     setUploadedFile,
