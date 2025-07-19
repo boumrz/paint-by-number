@@ -73,7 +73,7 @@ export const MainApp = memo(
           
             try {
                 await exportAllSectorsToPdf(
-                    horizontalSvgDataBW, 
+                    selectedInstruction?.type === 'sepia' ? horizontalSvgDataSepia : horizontalSvgDataBW,
                     horizontalIdList, 
                     'horizontal',
                     (progress, status) => {
