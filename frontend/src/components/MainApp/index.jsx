@@ -138,8 +138,8 @@ export const MainApp = memo(
                             {showDemo && isUserImageUploaded && isInstructionGenerated && (
                                 <Instruction
                                     previewImage={previewImage}
-                                    previewBW={selectedInstruction?.type === 'sepia' ? previewSepia : previewBW}
-                                    previewSepia={selectedInstruction?.type === 'sepia' ? previewSepia : previewBW}
+                                    previewBW={previewBW}
+                                    previewSepia={previewSepia}
                                     orientation={orientation}
                                     handleExportAllSectors={handleExportAllSectors}
                                     isExporting={isExporting}
