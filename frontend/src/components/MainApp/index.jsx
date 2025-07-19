@@ -168,7 +168,7 @@ export const MainApp = memo(
                         footer={null}
                         centered
                         width={600}
-                        bodyStyle={{ padding: 0, borderRadius: 16, overflow: 'hidden', background: '#fff', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}
+                        bodyStyle={{ padding: 0, borderRadius: 16, overflow: 'hidden', background: '#fff' }}
                         style={{ borderRadius: 16 }}
                         maskStyle={{ background: "rgba(0,0,0,0.7)" }}
                     >
