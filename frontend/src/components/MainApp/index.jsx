@@ -1,16 +1,16 @@
 import "antd/dist/reset.css";
 
-import { Switch } from "antd";
+import { Modal } from "antd";
 import { memo } from "react";
 import { useState } from "react";
 import Cropper from "react-easy-crop";
-import Modal from "react-modal";
 import { useMediaQuery } from "usehooks-ts";
 
 import { exportAllSectorsToPdf } from '../GridInstructions/InstructionSlide';
 import HorizontalCanvasFull from '../HorizontalCanvas/HorizontalCanvasFull';
 import { Instruction } from './Instruction';
 import styles from "./MainApp.module.css";
+import OrientationSwitch from "./OrientationSwitch";
 import { SettingsUploadedImage } from './SettingsUploadedImage';
 import { UploadImage } from './UploadImage';
 
@@ -163,31 +163,26 @@ export const MainApp = memo(
                     </section>
         
                     <Modal
-                        isOpen={showCrop}
-                        onRequestClose={handleCropCancel}
-                        ariaHideApp={false}
-                        style={{
-                            overlay: { zIndex: 1000, background: "rgba(0,0,0,0.7)" },
-                            content: { maxWidth: 600, margin: "auto", height: 600, padding: 0 },
-                        }}
+                        open={showCrop}
+                        onCancel={handleCropCancel}
+                        footer={null}
+                        centered
+                        width={600}
+                        bodyStyle={{ padding: 0, borderRadius: 16, overflow: 'hidden', background: '#fff', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}
+                        style={{ borderRadius: 16 }}
+                        maskStyle={{ background: "rgba(0,0,0,0.7)" }}
                     >
-                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", margin: "12px 0" }}>
-                            <span style={{ marginRight: 12, color: "#fff" }}>Вертикально</span>
-                            <Switch
-                                checked={orientation === "horizontal"}
-                                onChange={checked => handleOrientationChange(checked ? "horizontal" : "vertical")}
-                                checkedChildren="Горизонтально"
-                                unCheckedChildren="Вертикально"
-                                style={{ background: orientation === "horizontal" ? "#1890ff" : undefined }}
-                            />
-                            <span style={{ marginLeft: 12, color: "#fff" }}>Горизонтально</span>
+                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", margin: "20px 0 8px 0" }}>
+                            <OrientationSwitch orientation={orientation} onChange={handleOrientationChange} />
                         </div>
                         <div
                             style={{
                                 position: "relative",
                                 width: "100%",
-                                height: "75%",
+                                height: 400,
                                 background: "#222",
+                                borderRadius: 12,
+                                margin: '0 24px',
                             }}
                         >
                             {cropImage && (
@@ -209,12 +204,13 @@ export const MainApp = memo(
                                 display: "flex",
                                 justifyContent: "center",
                                 gap: 16,
-                                margin: 16,
+                                margin: "24px 0 24px 0",
                             }}
                         >
                             <button
                                 onClick={handleCropConfirm}
-                                style={{ padding: "8px 24px", fontSize: 16, position: 'relative', minWidth: 120 }}
+                                className={styles.uploadButton}
+                                style={{ minWidth: 120, fontSize: 16, position: 'relative', borderRadius: 8 }}
                                 disabled={isCropping}
                             >
                                 {isCropping ? (
@@ -228,7 +224,8 @@ export const MainApp = memo(
                             </button>
                             <button
                                 onClick={handleCropCancel}
-                                style={{ padding: "8px 24px", fontSize: 16 }}
+                                className={styles.uploadButton}
+                                style={{ background: '#e0e0e0', color: '#333', minWidth: 120, fontSize: 16, borderRadius: 8 }}
                                 disabled={isCropping}
                             >
                                 Отмена
