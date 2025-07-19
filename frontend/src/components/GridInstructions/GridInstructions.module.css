@@ -35,7 +35,7 @@
 
 :global(.ant-carousel .slick-prev:before),
 :global(.ant-carousel .slick-next:before) {
-  content: '' !important;
+  content: "" !important;
   display: inline-block !important;
   width: 0 !important;
   height: 0 !important;
@@ -44,7 +44,7 @@
 
 :global(.ant-carousel .slick-prev:after),
 :global(.ant-carousel .slick-next:after) {
-  content: '' !important;
+  content: "" !important;
   display: none;
 }
 
@@ -83,11 +83,11 @@
     line-height: 28px !important;
     font-size: 14px !important;
   }
-  
+
   :global(.ant-carousel .slick-prev) {
     left: -14px !important;
   }
-  
+
   :global(.ant-carousel .slick-next) {
     right: -14px !important;
   }

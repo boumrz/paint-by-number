@@ -1268,6 +1268,44 @@ def generate_access_codes():
         print(f"Error generating access codes: {e}")
         return jsonify({'error': 'Ошибка при генерации кодов'}), 500
 
+@app.route('/api/admin/generate-codes-bw', methods=['POST'])
+def generate_access_codes_bw():
+    """Генерирует 500 чб кодов доступа и сохраняет их"""
+    try:
+        new_codes = access_codes_manager.generate_codes_bw(500)
+        if not new_codes:
+            return jsonify({'error': 'Ошибка при генерации чб кодов'}), 500
+        excel_filename = excel_generator.generate_access_codes_excel(new_codes)
+        stats = access_codes_manager.get_stats()
+        return jsonify({
+            'success': True,
+            'message': f'Сгенерировано {len(new_codes)} чб кодов доступа',
+            'excel_file': excel_filename,
+            'total_codes': stats['total_codes']
+        })
+    except Exception as e:
+        print(f"Error generating bw access codes: {e}")
+        return jsonify({'error': 'Ошибка при генерации чб кодов'}), 500
+
+@app.route('/api/admin/generate-codes-sepia', methods=['POST'])
+def generate_access_codes_sepia():
+    """Генерирует 500 sepia кодов доступа и сохраняет их"""
+    try:
+        new_codes = access_codes_manager.generate_codes_sepia(500)
+        if not new_codes:
+            return jsonify({'error': 'Ошибка при генерации sepia кодов'}), 500
+        excel_filename = excel_generator.generate_access_codes_excel(new_codes)
+        stats = access_codes_manager.get_stats()
+        return jsonify({
+            'success': True,
+            'message': f'Сгенерировано {len(new_codes)} sepia кодов доступа',
+            'excel_file': excel_filename,
+            'total_codes': stats['total_codes']
+        })
+    except Exception as e:
+        print(f"Error generating sepia access codes: {e}")
+        return jsonify({'error': 'Ошибка при генерации sepia кодов'}), 500
+
 @app.route('/api/admin/download-codes/<filename>', methods=['GET'])
 def download_codes(filename):
     """Скачивает Excel файл с кодами"""

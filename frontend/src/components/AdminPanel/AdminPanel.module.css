@@ -2,7 +2,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .adminHeader {
@@ -102,25 +102,22 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
-
 .generateBtn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #7f9cf5 0%, #6b47a2 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.28);
 }
-
 .generateBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 .downloadBtn {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #8fa6f7 0%, #a084ca 100%);
   color: white;
 }
-
 .downloadBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+  background: linear-gradient(135deg, #b3c0f7 0%, #b49ddb 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.18);
 }
 
 .message {
@@ -159,21 +156,21 @@
   .adminPanel {
     padding: 1rem;
   }
-  
+
   .adminHeader h1 {
     font-size: 2rem;
   }
-  
+
   .statsGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .actionButtons {
     flex-direction: column;
   }
-  
+
   .generateBtn,
   .downloadBtn {
     width: 100%;
   }
-} 
+}
