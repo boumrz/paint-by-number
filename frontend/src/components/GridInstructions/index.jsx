@@ -20,14 +20,6 @@ export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsEx
     const gridCols = orientation === 'horizontal' ? 16 : 8;
     const gridRows = orientation === 'horizontal' ? 8 : 16;
     const total = gridCols * gridRows;
-    
-    // Отслеживаем инициализацию карусели
-    useEffect(() => {
-        if (mainCarouselRef.current) {
-            console.log('Карусель инициализирована:', mainCarouselRef.current);
-            console.log('Доступные методы:', Object.getOwnPropertyNames(mainCarouselRef.current));
-        }
-    }, [mainCarouselRef.current]);
 
     // Автоматическая прокрутка к текущему элементу
     useEffect(() => {
@@ -55,17 +47,11 @@ export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsEx
         setLoadedSlides(newLoadedSlides);
     };
 
-    // Обработчик клика по номеру слайда
     const handleNumberClick = (slideIndex) => {
-        console.log('Клик по номеру:', slideIndex + 1);
-      
-        // Сначала обновляем состояние
         setCurrentSlide(slideIndex);
-      
-        // Затем пытаемся переключить карусель с небольшой задержкой
+
         setTimeout(() => {
             if (mainCarouselRef.current) {
-                console.log('Переключение на слайд:', slideIndex);
                 try {
                     // Пробуем разные способы управления каруселью
                     if (mainCarouselRef.current.goTo) {
@@ -73,8 +59,6 @@ export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsEx
                     } else if (mainCarouselRef.current.slickGoTo) {
                         mainCarouselRef.current.slickGoTo(slideIndex);
                     } else {
-                        console.log('Метод goTo не найден, используем внутренний API');
-                        // Попробуем получить доступ к внутренним методам
                         const carouselElement = mainCarouselRef.current;
                         if (carouselElement && carouselElement.slick) {
                             carouselElement.slick.slickGoTo(slideIndex);
@@ -85,8 +69,6 @@ export const GridInstructions = ({ idList, setExportStatus, isExporting, setIsEx
                     // Если не удалось программно переключить, принудительно обновляем
                     setForceUpdate(prev => prev + 1);
                 }
-            } else {
-                console.log('Ref карусели не найден');
             }
         }, 100);
     };

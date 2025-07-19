@@ -70,7 +70,6 @@ export const MainApp = memo(
             setExportStatus('Подготовка к экспорту...');
           
             try {
-                console.log('Начинаем экспорт всех секторов...');
                 await exportAllSectorsToPdf(
                     horizontalSvgDataBW, 
                     horizontalIdList, 

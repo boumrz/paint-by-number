@@ -141,16 +141,14 @@ export async function exportAllSectorsToPdf(svgData, idList, orientation, progre
             pdf.text(instruction, 50, 100 + index * 25);
         });
 
-        // Сохраняем PDF с русским названием файла (jsPDF поддерживает Unicode в названии файла)
-        const totalPages = Math.ceil(total / 2) + 1; // +1 для информационной страницы
+        const totalPages = Math.ceil(total / 2) + 1;
         const filename = `картина-по-номерам-сектора-${orientation}-${total}-${totalPages}стр.pdf`;
     
         if (progressCallback) {
             progressCallback(100, 'Сохранение PDF файла...');
         }
     
-        pdf.save(filename); // jsPDF поддерживает Unicode, если шрифт поддерживает
-        console.log(`Экспорт всех ${total} секторов завершен! Файл сохранен как: ${filename} (${totalPages} страниц)`);
+        pdf.save(filename);
     } catch (error) {
         console.error('Ошибка при экспорте всех секторов:', error);
         alert('Ошибка при создании PDF файла со всеми секторами');
