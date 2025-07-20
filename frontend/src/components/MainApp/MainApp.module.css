@@ -323,6 +323,7 @@
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
 
   width: 100%;
+  padding: 20px;
   border-radius: 12px;
   box-shadow:
     var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
@@ -334,7 +335,6 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  padding: 20px;
 
   :global(.ant-upload-drag:hover) {
     border-color: transparent !important;
@@ -475,6 +475,7 @@
 }
 @media (max-width: 900px) {
   .uploadGrid {
+    padding: 0;
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }

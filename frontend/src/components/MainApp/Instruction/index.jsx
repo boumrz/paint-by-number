@@ -34,7 +34,7 @@ export const Instruction = ({
                         orientation={orientation}
                     />
                 </div>
-                <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', gap: 32, flexWrap: 'wrap', width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32, flexWrap: 'wrap', width: '100%' }}>
                     <Flex vertical style={{ flex: 1, minWidth: 0 }}>
                         <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>Инструкция</h3>
                         <div style={{ 

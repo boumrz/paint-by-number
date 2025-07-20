@@ -32,7 +32,7 @@ export const UploadImage = ({
                     <Title level={4}>Загрузите ваше изображение</Title>
                     <Paragraph>Выберите фотографию, которую хотите превратить в пиксель арт</Paragraph>
                 </div>
-                <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', justifyContent: 'space-between', width: '100%', gap: isPhone ? 20 : 0 }}>
+                <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', justifyContent: 'space-between', width: '100%', gap: 20 }}>
                     <div className={styles.uploadCol}>
                         <Upload.Dragger
                             name="image"
