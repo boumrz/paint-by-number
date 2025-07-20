@@ -1,4 +1,5 @@
 import { Button, Flex, Typography } from 'antd';
+import { useMediaQuery } from 'usehooks-ts';
 
 import styles from "../MainApp.module.css";
 
@@ -9,6 +10,7 @@ export const SettingsUploadedImage = ({
     uploadedImage,
     handleGetInstructions,
 }) => {
+    const isPhone = useMediaQuery('(max-width: 600px)');
     return (
         <div className={styles.uploadSection} style={{ marginTop: "2rem", width: "100%" }}>
             <div style={{ maxWidth: "900px" }} className={styles.uploadGrid}>
@@ -17,7 +19,7 @@ export const SettingsUploadedImage = ({
                         <Title level={4}>Настройка генерации</Title>
                         <Paragraph>Проверьте фото и выберите параметры генерации</Paragraph>
                     </Flex>
-                    <Flex justify='space-between' gap={32}>
+                    <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', justifyContent: 'space-between', gap: isPhone ? 20 : 32 }}>
                         <div className={styles.uploadCol}>
                             <div className={styles.previewCard}>
                                 <h3 className={styles.previewTitle}>Предпросмотр</h3>
@@ -29,7 +31,7 @@ export const SettingsUploadedImage = ({
                             </div>
                         </div>
                         <div className={styles.uploadCol}>
-                            <div className={styles.previewCard} style={{ minHeight: 300, justifyContent: 'center' }}>
+                            <div className={styles.previewCard} style={{ justifyContent: 'center' }}>
                                 <h3 className={styles.previewTitle}>Параметры генерации</h3>
                                 <div style={{ marginBottom: 16 }}>
                                     <div style={{ marginBottom: 8, color: '#888' }}>Количество цветов: <b>12</b></div>
@@ -51,7 +53,7 @@ export const SettingsUploadedImage = ({
                                 </Button>
                             </div>
                         </div>
-                    </Flex>
+                    </div>
                 </Flex>
             </div>
             {/* Показываем превью после генерации */}

@@ -225,7 +225,6 @@ export const GridInstructions = ({
             style={{
                 width: "100%",
                 maxWidth: isPhone ? "100%" : 440,
-                margin: "0 auto 40px auto",
                 borderRadius: 16,
                 boxShadow: "0 4px 24px rgba(102,126,234,0.10)",
                 background: "#fff",

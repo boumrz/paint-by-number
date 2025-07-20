@@ -55,7 +55,6 @@
 
 .heroSection {
   text-align: center;
-  padding: 4rem 0;
   border-radius: 8px;
 }
 
@@ -304,10 +303,6 @@
     box-sizing: border-box;
   }
 
-  .heroSection {
-    padding: 2rem 0;
-  }
-
   .featuresSection {
     grid-template-columns: 1fr;
   }
@@ -328,7 +323,7 @@
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
 
   width: 100%;
-  padding: 32px;
+  padding: 20px;
   border-radius: 12px;
   box-shadow:
     var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
@@ -340,7 +335,6 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  padding: 20px;
 
   :global(.ant-upload-drag:hover) {
     border-color: transparent !important;
@@ -470,6 +464,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  border: 2px dashed #d3d3d3;
   min-height: 300px;
   border-radius: 16px;
 }
@@ -480,10 +475,57 @@
 }
 @media (max-width: 900px) {
   .uploadGrid {
+    padding: 0;
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
   .uploadCol {
     min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .uploadSection {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  .uploadGrid {
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: none !important;
+    width: 100% !important;
+  }
+  .uploadCol {
+    width: 100% !important;
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+  .previewCard {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  .previewImg {
+    max-width: 220px !important;
+    min-width: 120px !important;
+    min-height: 120px !important;
+    height: auto !important;
+    aspect-ratio: 4/5;
+    margin: 0 auto 1rem auto;
+    display: block;
+  }
+  .uploadDragger {
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 140px !important;
+    height: auto !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }

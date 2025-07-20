@@ -2,7 +2,7 @@ import "antd/dist/reset.css";
 
 import { Modal } from "antd";
 import { memo } from "react";
-import { useState } from "react";
+import { useEffect, useLayoutEffect,useRef, useState } from "react";
 import Cropper from "react-easy-crop";
 import { useMediaQuery } from "usehooks-ts";
 
@@ -52,6 +52,51 @@ export const MainApp = memo(
         const [exportProgress, setExportProgress] = useState(0);
         const [isExporting, setIsExporting] = useState(false);
         const [exportStatus, setExportStatus] = useState('');
+        const [cropperKey, setCropperKey] = useState(0);
+        const cropperContainerRef = useRef(null);
+        const [cropperDims, setCropperDims] = useState({ width: 0, height: 0 });
+        const [forceCropperRerender, setForceCropperRerender] = useState(0);
+
+        useLayoutEffect(() => {
+            if (showCrop && cropperContainerRef.current) {
+                const rect = cropperContainerRef.current.getBoundingClientRect();
+                setCropperDims({
+                    width: rect.width,
+                    height: rect.height
+                });
+            }
+        }, [showCrop, isPhone]);
+
+        // useEffect для resize больше не нужен
+        // Вместо этого, при открытии crop на мобилках, триггерим смену orientation туда-обратно
+        useEffect(() => {
+            if (showCrop && isPhone) {
+                // Сохраняем текущую ориентацию
+                const prev = orientation;
+                // Меняем на противоположную и возвращаем обратно через requestAnimationFrame
+                const next = prev === 'horizontal' ? 'vertical' : 'horizontal';
+                setTimeout(() => {
+                    if (typeof window !== 'undefined') {
+                        // Предполагается, что handleOrientationChange есть в пропсах
+                        if (typeof handleOrientationChange === 'function') {
+                            handleOrientationChange(next);
+                            requestAnimationFrame(() => {
+                                handleOrientationChange(prev);
+                            });
+                        }
+                    }
+                }, 0);
+            }
+        }, [showCrop, isPhone]);
+
+        useEffect(() => {
+            if (showCrop) {
+                const timeout = setTimeout(() => {
+                    setForceCropperRerender(prev => prev + 1);
+                }, 300);
+                return () => clearTimeout(timeout);
+            }
+        }, [showCrop, isPhone]);
 
         const handleGenerate = async () => {
             if (!uploadedFile) return;
@@ -163,32 +208,39 @@ export const MainApp = memo(
                             )}
                         </div>
                     </section>
-        
+                    {/* Modal с Cropper вынесен вне uploadGrid/uploadSection */}
                     <Modal
                         open={showCrop}
                         onCancel={handleCropCancel}
                         footer={null}
                         centered
-                        width={600}
+                        width={isPhone ? '100vw' : 600}
                         bodyStyle={{ padding: 0, borderRadius: 16, overflow: 'hidden', background: '#fff' }}
-                        style={{ borderRadius: 16 }}
+                        style={{ borderRadius: 16, maxWidth: isPhone ? '100vw' : 600, width: isPhone ? '100vw' : 600 }}
                         maskStyle={{ background: "rgba(0,0,0,0.7)" }}
+                        destroyOnClose
                     >
                         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", margin: "20px 0 8px 0" }}>
                             <OrientationSwitch orientation={orientation} onChange={handleOrientationChange} />
                         </div>
                         <div
+                            ref={cropperContainerRef}
                             style={{
                                 position: "relative",
-                                width: "100%",
-                                height: 400,
+                                width: isPhone ? '100vw' : 600,
+                                height: isPhone ? 320 : 400,
                                 background: "#222",
                                 borderRadius: 12,
-                                margin: '0 24px',
+                                margin: 0,
+                                left: isPhone ? '50%' : undefined,
+                                transform: isPhone ? 'translateX(-50%)' : undefined,
+                                maxWidth: '100vw',
+                                overflow: 'hidden',
                             }}
                         >
                             {cropImage && (
                                 <Cropper
+                                    key={forceCropperRerender}
                                     image={cropImage}
                                     crop={crop}
                                     zoom={zoom}
@@ -198,6 +250,10 @@ export const MainApp = memo(
                                     onCropComplete={onCropComplete}
                                     cropShape="rect"
                                     showGrid={true}
+                                    style={{
+                                        width: cropperDims.width > 0 ? cropperDims.width : (isPhone ? '100vw' : 600),
+                                        height: cropperDims.height > 0 ? cropperDims.height : (isPhone ? 320 : 400)
+                                    }}
                                 />
                             )}
                         </div>
