@@ -509,10 +509,13 @@
     min-width: 0 !important;
   }
   .previewImg {
-    max-width: 100% !important;
-    width: 100% !important;
+    max-width: 220px !important;
+    min-width: 120px !important;
+    min-height: 120px !important;
     height: auto !important;
-    min-height: 180px;
+    aspect-ratio: 4/5;
+    margin: 0 auto 1rem auto;
+    display: block;
   }
   .uploadDragger {
     min-width: 0 !important;
