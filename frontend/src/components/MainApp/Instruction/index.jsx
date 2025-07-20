@@ -35,8 +35,8 @@ export const Instruction = ({
                     />
                 </div>
                 <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', gap: 32, flexWrap: 'wrap', width: '100%' }}>
-                    <Flex vertical align='center'>
-                        <Flex vertical align='center' style={{ width: '100%' }}>
+                    <Flex vertical style={{ width: isPhone ? '100%' : 'auto' }}>
+                        <Flex vertical style={{ width: '100%' }}>
                             <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>Инструкция</h3>
                             <div style={{ 
                                 width: '100%',
@@ -103,22 +103,20 @@ export const Instruction = ({
                                 )}
                             </div>
                         </Flex>
-                        <Flex justify='center' style={{ width: isPhone ? '100%' : 600 }}>
-                            <div className={styles.instructionCard}>
-                                <div style={{ marginBottom: 24 }}>
-                                    <GridInstructions
-                                        idList={horizontalIdList}
-                                        svgData={horizontalSvgDataBW}
-                                        orientation='horizontal'
-                                        setExportProgress={setExportProgress}
-                                        isExporting={isExporting}
-                                        setIsExporting={setIsExporting}
-                                        setExportStatus={setExportStatus}
-                                        title="Инструкция"
-                                    />
-                                </div> 
-                            </div>
-                        </Flex>
+                        <div className={styles.instructionCard} style={{ width: '100%', maxWidth: isPhone ? '100%' : 600, margin: isPhone ? '0' : '0 auto' }}>
+                            <div style={{ marginBottom: 24 }}>
+                                <GridInstructions
+                                    idList={horizontalIdList}
+                                    svgData={horizontalSvgDataBW}
+                                    orientation='horizontal'
+                                    setExportProgress={setExportProgress}
+                                    isExporting={isExporting}
+                                    setIsExporting={setIsExporting}
+                                    setExportStatus={setExportStatus}
+                                    title="Инструкция"
+                                />
+                            </div> 
+                        </div>
                     </Flex>
                     {isPhone ? (
                         <div style={{ width: '100%', marginTop: 16 }}>
