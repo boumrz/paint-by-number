@@ -184,7 +184,7 @@ export const MainApp = memo(
                                 height: 400,
                                 background: "#222",
                                 borderRadius: 12,
-                                margin: '0 24px',
+                                margin: isPhone ? 0 : '0 24px',
                             }}
                         >
                             {cropImage && (
