@@ -34,10 +34,9 @@ export const Instruction = ({
                         orientation={orientation}
                     />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 32, flexWrap: 'wrap' }}>
-                    <Flex vertical>
+                <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', gap: 32, flexWrap: 'wrap', width: '100%' }}>
+                    <Flex vertical style={{ flex: 1, minWidth: 0 }}>
                         <h3 style={{ padding: '1rem', marginBottom: '1rem', marginTop: 0, color: '#333' }}>Инструкция</h3>
-
                         <div style={{ 
                             width: '100%',
                             maxWidth: isPhone ? '100%' : '400px',
@@ -70,7 +69,6 @@ export const Instruction = ({
                             >
                                 {isExporting ? '⏳ Создание PDF...' : '📄 Экспорт PDF'}
                             </Button>
-                        
                             {isExporting && (
                                 <div style={{
                                     width: '100%',
@@ -104,25 +102,26 @@ export const Instruction = ({
                             )}
                         </div>
                     </Flex>
-                    <Flex justify='center' gap={40}>
-                        <div style={{ minWidth: 0 }}>
-                            <div className={styles.instructionCard}>
-                                <div style={{ marginBottom: 24 }}>
-                                    <GridInstructions
-                                        idList={horizontalIdList}
-                                        svgData={horizontalSvgDataBW}
-                                        orientation='horizontal'
-                                        setExportProgress={setExportProgress}
-                                        isExporting={isExporting}
-                                        setIsExporting={setIsExporting}
-                                        setExportStatus={setExportStatus}
-                                        title="Инструкция"
-                                    />
-                                </div> 
-                            </div>
+                    {/* Инструкция (холст) — теперь показываем и на мобилках, делаем компактно */}
+                    <div style={{ width: isPhone ? '100%' : undefined, margin: isPhone ? '0 0 16px 0' : undefined }}>
+                        <div className={styles.instructionCard}>
+                            <div style={{ marginBottom: 24 }}>
+                                <GridInstructions
+                                    idList={horizontalIdList}
+                                    svgData={horizontalSvgDataBW}
+                                    orientation='horizontal'
+                                    setExportProgress={setExportProgress}
+                                    isExporting={isExporting}
+                                    setIsExporting={setIsExporting}
+                                    setExportStatus={setExportStatus}
+                                    title="Инструкция"
+                                />
+                            </div> 
                         </div>
-                        {/* Правая колонка: легенда и советы */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    </div>
+                    {/* Для мобилок советы под инструкцией */}
+                    {isPhone && (
+                        <div style={{ width: '100%', marginTop: 16 }}>
                             <div className={styles.tipsCard}>
                                 <h3 style={{ marginBottom: 12, color: 'rgb(30, 64, 175)' }}>Советы</h3>
                                 <ul style={{ padding: 0, margin: 0, textAlign: 'left', listStyle: 'none', color: 'rgb(29, 78, 216)' }}>
@@ -138,7 +137,7 @@ export const Instruction = ({
                                 </ul>
                             </div>
                         </div>
-                    </Flex>
+                    )}
                 </div>
             </div>
         </div>
