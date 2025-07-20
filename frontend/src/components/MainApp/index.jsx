@@ -2,7 +2,7 @@ import "antd/dist/reset.css";
 
 import { Modal } from "antd";
 import { memo } from "react";
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import Cropper from "react-easy-crop";
 import { useMediaQuery } from "usehooks-ts";
 
@@ -52,6 +52,15 @@ export const MainApp = memo(
         const [exportProgress, setExportProgress] = useState(0);
         const [isExporting, setIsExporting] = useState(false);
         const [exportStatus, setExportStatus] = useState('');
+
+        // Фикс для Cropper: форсируем resize после открытия модалки
+        useEffect(() => {
+            if (showCrop) {
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 100);
+            }
+        }, [showCrop]);
 
         const handleGenerate = async () => {
             if (!uploadedFile) return;
